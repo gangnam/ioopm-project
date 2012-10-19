@@ -7,16 +7,16 @@ GEN_EXTENSIONS = *.exe
 AUX_EXTENSIONS = *.o
 
 
-
-
-lintcheck:
-	lint hello.c
-
 clean:
 	rm -f *.o *.out
 
-test:
+run:
 	$(C_COMPILER) $(C_OPTIONS) imalloc.c -o imalloc.out
 
+test: unittests.c imalloc.c priv_imalloc.h
+	$(C_COMPILER) $(C_OPTIONS) unittests.c queue.c -o unittests -lcunit
+	./unittests
 
+beautify:
+	astyle -A7 *.c *.h
 
