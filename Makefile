@@ -19,5 +19,5 @@ test: unittests.c imalloc.c imalloc.h
 	./unittests
 # fixar all kod till kodstandarden
 beautify:
-	astyle -A2 *.c *.h
+	astyle -A6 *.c *.h
 
