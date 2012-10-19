@@ -6,23 +6,27 @@ struct chunk
     unsigned size; // how big is this chunk
     Chunk next; // pointer to next chunk
     bool free; // true if the chunk is free, else false
+    int markbit; // 1 if there is a reference to this object on the stack
 };
 
-static bool fits(Chunk c, int bytes) {
-  return c && (c->size >= bytes && c->free);
+static bool fits(Chunk c, int bytes)
+{
+    return c && (c->size >= bytes && c->free);
 }
 
-static void *split(Chunk c, int bytes) {
-  if (c->size > bytes) {
-    c->next = malloc(sizeof(chunk));
-    c->next->start = c->start + bytes;
-    c->next->size  = c->size  - bytes;
-    c->next->next  = NULL;
-    c->next->free  = 1;
-  }
-  c->free = 0;
-  c->size = bytes;
-  return (void*) c->start;
+static void *split(Chunk c, int bytes)
+{
+    if (c->size > bytes)
+        {
+            c->next = malloc(sizeof(chunk));
+            c->next->start = c->start + bytes;
+            c->next->size  = c->size  - bytes;
+            c->next->next  = NULL;
+            c->next->free  = 1;
+        }
+    c->free = 0;
+    c->size = bytes;
+    return (void*) c->start;
 }
 
 Chunk init(unsigned int bytes)
@@ -37,8 +41,9 @@ Chunk init(unsigned int bytes)
     return H;
 }
 
-void *alloc(Memory mem, chunkSize siz)
+void *balloc(Memory mem, chunk_size bytes)
 {
+    Chunk c = mem->data;
 // Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
     while (!fits(c, bytes)) c = c->next;
     if (c)
@@ -50,6 +55,7 @@ void *alloc(Memory mem, chunkSize siz)
             return NULL;
         }
 }
+
 unsigned int avail(Memory mem)
 {
 // Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
@@ -70,7 +76,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags)
             // Allocate the space that the memory manager will manage
             mgr->data = init(memsiz);
             // Install the functions
-            mgr->functions->alloc = alloc;
+            mgr->functions->alloc = balloc;
             mgr->functions->avail = avail;
             mgr->functions->free = sfree;
             return &(manual->functions);
