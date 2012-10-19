@@ -56,7 +56,8 @@ int typeReader(char* input) {
     }
 
 unsigned int avail(Memory mem) {
-    Chunk c = mem->data;
+  private_manual *d = (private_manual*) (&mem - sizeof(void*));
+  Chunk c = d->data;
     int avail = 0;
     for (; c; c = c->next) {
         if (c->free) {
