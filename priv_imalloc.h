@@ -1,3 +1,6 @@
+#ifndef __priv_imalloc_h
+#define __priv_imalloc_h
+
 /*
  * priv_imalloc.h
  *
@@ -23,3 +26,5 @@ struct private_managed {
   void   *data; 
   managed functions;
 };
+
+#endif

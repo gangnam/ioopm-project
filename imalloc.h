@@ -1,3 +1,5 @@
+#ifndef __imalloc_h
+#define __imalloc_h
 /*
  * imalloc.h
  *
@@ -89,3 +91,4 @@ typedef union {
  */ 
 struct style *iMalloc(chunk_size memsiz, unsigned int flags);
 
+#endif
