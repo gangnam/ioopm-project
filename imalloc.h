@@ -30,7 +30,7 @@ enum { ASCENDING_SIZE = 1, DESCENDING_SIZE = 2, ADDRESS = 4 } FreelistStyle;
 enum { MANUAL = 8, REFCOUNT = 16, GCD = 32 } MallocStyle;
 
 /* Not mandatory. If you want to support copying GC, you are free
- * to think about how to achieve that! 
+ * to think about how to achieve that!
  */
 enum { NON_COPYING = 64, COPYING = 128 } GCStyle;
 
@@ -51,36 +51,36 @@ typedef unsigned int(*Local)(void *ptr);
  * (mark-sweep)
  */
 typedef struct {
-  TypedAllocator alloc;
-  Global         collect;
-} GC;
+    TypedAllocator alloc;
+    Global         collect;
+    } GC;
 
 /* Functions for reference counting memory manager */
 typedef struct {
-  Local       retain;
-  Manipulator release;
-  Local       count;
-} Refcount;
+    Local       retain;
+    Manipulator release;
+    Local       count;
+    } Refcount;
 
 /* Functions for the manual memory manager */
 typedef struct {
-  RawAllocator alloc;
-  Global       avail;
-  Manipulator  free; 
-} manual, *Manual; 
+    RawAllocator alloc;
+    Global       avail;
+    Manipulator  free;
+    } manual, *Manual;
 
 /* Functions for the manual memory manager */
 typedef struct {
-  RawAllocator alloc;
-  Refcount     rc; 
-  GC           gc; 
-} managed, *Managed;
+    RawAllocator alloc;
+    Refcount     rc;
+    GC           gc;
+    } managed, *Managed;
 
 /* Return type specification for iMalloc */
 typedef union {
-  manual  manual;
-  managed managed;
-} style;
+    manual  manual;
+    managed managed;
+    } style;
 
 
 //////////////////// Public Functions ////////////////////
@@ -88,7 +88,7 @@ typedef union {
 /* Initiates the malloc library to be used. memsiz defines the
  * maximum amount of memory that can be used. flags specifies kind
  * of memory manager and allows fine-tunes some options.
- */ 
+ */
 struct style *iMalloc(chunk_size memsiz, unsigned int flags);
 
 #endif
