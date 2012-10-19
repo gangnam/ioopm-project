@@ -8,6 +8,23 @@ struct chunk
     bool free; // true if the chunk is free, else false
 };
 
+static bool fits(Chunk c, int bytes) {
+  return c && (c->size >= bytes && c->free);
+}
+
+static void *split(Chunk c, int bytes) {
+  if (c->size > bytes) {
+    c->next = malloc(sizeof(chunk));
+    c->next->start = c->start + bytes;
+    c->next->size  = c->size  - bytes;
+    c->next->next  = NULL;
+    c->next->free  = 1;
+  }
+  c->free = 0;
+  c->size = bytes;
+  return (void*) c->start;
+}
+
 Chunk init(unsigned int bytes)
 {
     char *memory = (char*) malloc(bytes);
