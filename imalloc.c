@@ -14,7 +14,7 @@ Chunk init(unsigned int bytes) {
 	H->size = bytes;
 	H->next = NULL;
 	H->free = 1;
-	while (--bytes) memory[bytes] = 0;
+	while (bytes) memory[--bytes] = 0;
 	return H;
 }
 
