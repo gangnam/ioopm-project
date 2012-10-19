@@ -43,15 +43,6 @@ void *balloc(Memory mem, chunk_size bytes) {
         }
     }
 
-unsigned int avail(Memory mem) {
-	Chunk c = mem->data;
-// Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
-    int avail = 0;
-    for (; c; c = c->next)
-        if (c->free) avail += c->size;
-    return avail;
-    }
-
 unsigned int increaseReferenceCounter (void *ptr) {
 	ptr->refcount++;
 	return ptr->refcount;
