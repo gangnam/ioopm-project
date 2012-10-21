@@ -44,13 +44,13 @@ void *balloc(Memory mem, chunk_size bytes) {
     }
 
 unsigned int increaseReferenceCounter (void *ptr) {
-	ptr->refcount++;
-	return ptr->refcount;
-}
+    ptr->refcount++;
+    return ptr->refcount;
+    }
 
 unsigned int returnReferenceCounter (void *ptr) {
-	return ptr->refcount;
-}
+    return ptr->refcount;
+    }
 
 struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 // Ignoring free list ordering in this simple example

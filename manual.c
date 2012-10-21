@@ -7,18 +7,18 @@
 #include "priv_imalloc.h"
 
 /* "TypedAllocator"  Returnerar hur många bytes som ska allokeras. T.ex. "***i\0" innebär 3 void pekare samt 1 int = 3*sizeof(void*) + sizeof(int) */
-int typeReader(char* input) {   
+int typeReader(char* input) {
     int multiply = 0, result = 0, i = 0, size;
     while (input[i]) {
-      if (isdigit(input[i])) {
-	multiply *= 10;
-	multiply += (input[i] - 48);   
-	}
+        if (isdigit(input[i])) {
+            multiply *= 10;
+            multiply += (input[i] - 48);
+            }
         else {
             if (multiply == 0) {
                 multiply = 1;
                 }
-	    
+
 
             switch (input[i]) {
 
@@ -41,30 +41,30 @@ int typeReader(char* input) {
                 case 'd': {
                     size = sizeof(double);
                     break;
-		}
-	    default: {
-		  size = sizeof(char);
+                    }
+                default: {
+                    size = sizeof(char);
                     break;
-		}
-	    }
-	    
+                    }
+                }
+
             result += multiply * size;
             multiply = 0;
-	    
-	}
+
+            }
         i++;
-    }
+        }
     if (multiply != 0) {
-      return result + (multiply*sizeof(char));
-	}
+        return result + (multiply*sizeof(char));
+        }
     else {
-    return result;
-}
-}
+        return result;
+        }
+    }
 /*kollar hur mycket plats det finns ledigt i det stora minnet, eller om vi måste skapa ett nytt stort minnes utrymme. */
 unsigned int avail(Memory mem) {
- struct private_manual *d = (struct private_manual*) (&mem - sizeof(void*));
-  Chunk c = d->data;
+    struct private_manual *d = (struct private_manual*) (&mem - sizeof(void*));
+    Chunk c = d->data;
     int avail = 0;
     for (; c; c = c->next) {
         if (c->free) {
@@ -74,10 +74,10 @@ unsigned int avail(Memory mem) {
     return avail;
     }
 
-/* Free funktionen,  
+/* Free funktionen,
 *
 *
-*    KOPIERAT IFRÅN SMALLOC!!!!!!!!!!!!!! 
+*    KOPIERAT IFRÅN SMALLOC!!!!!!!!!!!!!!
 *
 *
 */
@@ -99,7 +99,7 @@ static void *__sfreeSimple(void* address) {
     c->free = 1;
     return c->start;
   } else {
-    return NULL; 
+    return NULL;
   }
 }
 
