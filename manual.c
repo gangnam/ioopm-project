@@ -10,12 +10,9 @@
 int typeReader(char* input) {   
     int multiply = 0, result = 0, i = 0, size;
     while (input[i]) {
-        if (isdigit(input[i])) {
-            multiply *= 10;
-            multiply += (input[i] - 48);
-	    if (isdigit(input[i]) && input[(i+1)] == NULL){
-	      multiply *= sizeof(char);
-	      return multiply;}    
+      if (isdigit(input[i])) {
+	multiply *= 10;
+	multiply += (input[i] - 48);   
 	}
         else {
             if (multiply == 0) {
@@ -57,9 +54,13 @@ int typeReader(char* input) {
 	}
         i++;
     }
+    if (multiply != 0) {
+      return result + (multiply*sizeof(char));
+	}
+    else {
     return result;
 }
-
+}
 /*kollar hur mycket plats det finns ledigt i det stora minnet, eller om vi måste skapa ett nytt stort minnes utrymme. */
 unsigned int avail(Memory mem) {
  struct private_manual *d = (struct private_manual*) (&mem - sizeof(void*));
@@ -166,7 +167,7 @@ void *sfree(void* address) {
 
 
 int main() {
-    int b = typeReader("4\0");
+    int b = typeReader("**4\0");
     printf("answer: %d\n",b);
     b = typeReader("4l\0");
     printf("answer: %d\n",b);
