@@ -6,18 +6,22 @@
 #include "imalloc.h"
 #include "priv_imalloc.h"
 
-/* "TypedAllocator"  Returnerar hur många bytes som ska allokeras. T.ex. "***i" innebär 3 void pekare samt 1 int = 3*sizeof(void*) + sizeof(int) */
+/* "TypedAllocator"  Returnerar hur många bytes som ska allokeras. T.ex. "***i\0" innebär 3 void pekare samt 1 int = 3*sizeof(void*) + sizeof(int) */
 int typeReader(char* input) {   
     int multiply = 0, result = 0, i = 0, size;
     while (input[i]) {
         if (isdigit(input[i])) {
             multiply *= 10;
             multiply += (input[i] - 48);
-            }
+	    if (isdigit(input[i]) && input[(i+1)] == NULL){
+	      multiply *= sizeof(char);
+	      return multiply;}    
+	}
         else {
             if (multiply == 0) {
                 multiply = 1;
                 }
+	    
 
             switch (input[i]) {
 
@@ -40,21 +44,21 @@ int typeReader(char* input) {
                 case 'd': {
                     size = sizeof(double);
                     break;
-                    }
-                default: {
-                    size = sizeof(char);
+		}
+	    default: {
+		  size = sizeof(char);
                     break;
-                    }
-                }
-
+		}
+	    }
+	    
             result += multiply * size;
             multiply = 0;
-
-            }
+	    
+	}
         i++;
-        }
-    return result;
     }
+    return result;
+}
 
 /*kollar hur mycket plats det finns ledigt i det stora minnet, eller om vi måste skapa ett nytt stort minnes utrymme. */
 unsigned int avail(Memory mem) {
@@ -77,7 +81,7 @@ unsigned int avail(Memory mem) {
 *
 */
 
-
+/*
 
 unsigned int sfree(Memory mem, void *ptr) {
 // Back up one pointer in memory to access the first chunk
@@ -136,7 +140,7 @@ void *sfree(void* address) {
   return __sfreeDefrag(address);
 }
 
-
+*/
 
 
 
@@ -162,7 +166,13 @@ void *sfree(void* address) {
 
 
 int main() {
-    int b = typeReader("20i\0");
+    int b = typeReader("4\0");
+    printf("answer: %d\n",b);
+    b = typeReader("4l\0");
+    printf("answer: %d\n",b);
+    b = typeReader("4i\0");
+    printf("answer: %d\n",b);
+    b = typeReader("4c\0");
     printf("answer: %d\n",b);
     return 0;
     }
