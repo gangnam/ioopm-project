@@ -6,7 +6,8 @@
 #include "imalloc.h"
 #include "priv_imalloc.h"
 
-int typeReader(char* input) {
+/* "TypedAllocator" */
+int typeReader(char* input) {   
     int multiply = 0, result = 0, i = 0, size;
     while (input[i]) {
         if (isdigit(input[i])) {
@@ -56,7 +57,7 @@ int typeReader(char* input) {
     }
 
 unsigned int avail(Memory mem) {
-  private_manual *d = (private_manual*) (&mem - sizeof(void*));
+ struct private_manual *d = (struct private_manual*) (&mem - sizeof(void*));
   Chunk c = d->data;
     int avail = 0;
     for (; c; c = c->next) {
@@ -66,6 +67,16 @@ unsigned int avail(Memory mem) {
         }
     return avail;
     }
+
+
+unsigned int sfree(Memory mem, void *ptr) {
+// Back up one pointer in memory to access the first chunk
+Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
+
+
+}
+
+
 
 int main() {
     int b = typeReader("20i\0");
