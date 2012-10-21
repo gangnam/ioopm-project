@@ -20,4 +20,6 @@ test: unittests.c imalloc.c imalloc.h
 # fixar all kod till kodstandarden
 beautify:
 	astyle -A6 *.c *.h
-
+# Backup använder ni an katalog som inte heter git får ni ändra.
+backup:
+	cp -R ~/git ~/projektbackup
