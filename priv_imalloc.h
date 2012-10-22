@@ -1,6 +1,6 @@
 #ifndef __priv_imalloc_h
 #define __priv_imalloc_h
-
+#include <stdbool.h>
 /*
  * priv_imalloc.h
  *
@@ -17,17 +17,22 @@
 
 
 /* Actual return type specifications for iMalloc */
-struct private_manual {
+
+
+typedef struct private_manual {
     void  *data;
     manual functions;
-    };
+  void *freelist;
+    } private_manual;
 
-struct private_managed {
+typedef struct private_managed {
     void   *data;
     managed functions;
-    };
+  freelist *freelist;
+    } private_managed;
 
 typedef struct chunk *Chunk;
+
 
 struct chunk {
     void* start; // pointer to start of memory
@@ -38,5 +43,11 @@ struct chunk {
     int markbit; // 1 if there is a reference to this object on the stack
     };
 
+typedef struct  freelist {
+  Chunk current;
+  Chunk after;
+} freelist;
+
+#define cSTART(ptr) ptr - sizeof(chunk);
 
 #endif

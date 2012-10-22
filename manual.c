@@ -77,20 +77,62 @@ unsigned int avail(Memory mem) {
     return avail;
     }
 
-/* Free funktionen,
-*
-*
-*    KOPIERAT IFRÅN SMALLOC!!!!!!!!!!!!!!
-*
-*
-*/
+/* Free Funktionen, */
 
-/*
 
-unsigned int sfree(Memory mem, void *ptr) {
+/*    Kopierat Ifrån Smalloc!!!!!!!!!!!!!! */
+
+
+unsigned int ascending_free(Memory mem, void *ptr) {
 // Back up one pointer in memory to access the first chunk
-Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
+  private_manual *d = (private_manual*) (&mem - sizeof(void*));
+  freelist list = d->freelist;
+  Chunk c = cSTART(ptr);
+  Chunk temp = NULL;
 
+  for(; list->current->size < c->size; list = list->after) { 
+    temp = list->current;
+  }
+  temp->after = c;
+  c->after = list->current;
+  return d->freelist
+}
+
+///////////////
+
+unsigned int descending_free(Memory mem, void *ptr) {
+// Back up one pointer in memory to access the first chunk
+  private_manual *d = (private_manual*) (&mem - sizeof(void*));
+  freelist list = d->freelist;
+  Chunk c = cSTART(ptr);
+  Chunk temp = NULL;
+
+  for(; list->current->size > c->size; list = list->after) { 
+    temp = list->current;
+  }
+  temp->after = c;
+  c->after = list->current;
+  return d->freelist  
+}
+
+///////////////
+
+unsigned int adress_free(Memory mem, void *ptr) {
+// Back up one pointer in memory to access the first chunk
+  private_manual *d = (private_manual*) (&mem - sizeof(void*));
+  freelist list = d->freelist;
+  Chunk c = cSTART(ptr);
+  Chunk temp = NULL;
+
+  for(; list->current->start < c->start; list = list->after) { 
+    temp = list->current;
+  }
+  temp->after = c;
+  c->after = list->current;
+  combine(  
+return d->freelist  
+}
+  
 }
 
 static void *__sfreeSimple(void* address) {
@@ -143,31 +185,6 @@ void *sfree(void* address) {
   // return __sfreeSimple(address); // Enklare variant som inte defragmenterar
   return __sfreeDefrag(address);
 }
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int main() {
     int b = typeReader("**4\0");
