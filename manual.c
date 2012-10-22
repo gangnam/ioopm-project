@@ -41,9 +41,12 @@ int typeReader(char* input) {
                 case 'd': {
                     size = sizeof(double);
                     break;
-                    }
+		}
+	    case 'c':{
+	      size = sizeof(char);
+	    }
                 default: {
-                    size = sizeof(char);
+		  size = 0;
                     break;
                     }
                 }
@@ -53,7 +56,7 @@ int typeReader(char* input) {
 
             }
         i++;
-        }
+    }
     if (multiply != 0) {
         return result + (multiply*sizeof(char));
         }
@@ -63,7 +66,7 @@ int typeReader(char* input) {
     }
 /*kollar hur mycket plats det finns ledigt i det stora minnet, eller om vi måste skapa ett nytt stort minnes utrymme. */
 unsigned int avail(Memory mem) {
-    struct private_manual *d = (struct private_manual*) (&mem - sizeof(void*));
+    private_manual *d = (private_manual*) (&mem - sizeof(void*));
     Chunk c = d->data;
     int avail = 0;
     for (; c; c = c->next) {
