@@ -9,54 +9,54 @@ static bool fits(Chunk c, int bytes) {
 
 static Chunk split(Chunk c, int bytes) {
     if (c->size > bytes) {
-        c->next = malloc(sizeof(chunk));
-        c->next->start = c->start + bytes;
-        c->next->size  = c->size  - bytes;
-        c->next->next  = NULL;
-        c->next->free  = 1;
-        c->next->refcount = 0;
-        c->next->markbit = 1;
+        Chunk temp;
+        temp->start = c->start + bytes;
+        temp->size  = c->size  - bytes - sizeof(chunk);
+        temp->next  = NULL;
+        temp->free  = 1;
+        temp->refcount = 1;
+        temp->markbit = 1;
         }
     c->free = 0;
     c->size = bytes;
+
+    c->next = (c->start + c->size);
+
+    memcpy(c->next, temp, sizeof(temp));
+
     return Chunk c;
     }
 
 Chunk init(unsigned int bytes) {
-    
-    char *memory = (char*) malloc(bytes);
-    Chunk H = (Chunk) malloc(sizeof(chunk));
 
-    H->start = (void*) memory;
-    H->size = bytes;
-    H->next = NULL;
-    H->free = 1;
-    H->refcount = 0;
-    H->markbit = 1;
+    char *memory = (char*) malloc(bytes);
+
+    Chunk temp;
+    temp->start = memory;
+    temp->size  = bytes;
+    temp->next  = NULL;
+    temp->free  = 1;
+    temp->refcount = 1;
+    temp->markbit = 1;
 
     while (bytes) memory[--bytes] = 0;
-    return H;
+
+    memcpy(memory, temp, sizeof(temp));
+
+    return (Chunk) memory;
     }
 
 Chunk balloc(Memory mem, chunk_size bytes) {
     Chunk c = mem->data;
 // Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
-    while (!fits(c, bytes)) c = c->next;
+    while (!fits(c, bytes+sizeof(chunk))) c = c->next;
+
     if (c) {
         return split(c, bytes);
         }
     else {
         return NULL;
         }
-    }
-
-unsigned int increaseReferenceCounter (Chunk ptr) {
-    ptr->refcount++;
-    return ptr->refcount;
-    }
-
-unsigned int returnReferenceCounter (Chunk ptr) {
-    return ptr->refcount;
     }
 
 struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
