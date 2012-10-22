@@ -123,20 +123,23 @@ unsigned int adress_free(Memory mem, void *ptr) {
   freelist list = d->freelist;
   Chunk c = cSTART(ptr);
   Chunk temp = NULL;
-
+  c->free = 1;
+  combine(mem);
+ 
   for(; list->current->start < c->start; list = list->after) { 
     temp = list->current;
   }
   temp->after = c;
   c->after = list->current;
-  combine(  
+  
 return d->freelist  
 }
   
 }
 
 static void *__sfreeSimple(void* address) {
-  Chunk c = H;
+  private_manual *d = (private_manual*) (&mem - sizeof(void*));
+Chunk c = d->data;
   while (c && c->start != address) {
     c = c->next;
   }
@@ -148,10 +151,23 @@ static void *__sfreeSimple(void* address) {
   }
 }
 
-static void combine(Chunk a, Chunk b) {
-  a->size += b->size;
-  a->next =  b->next;
-  free(b);
+static void combine(Memory mem) {
+  private_manual *d = (private_manual*) (&mem - sizeof(void*));
+  Chunk c = d->data;
+  while (c->next) {
+    if (c->free) {
+      if (c->next->free) {
+	c->size += c->next->size+sizeof(c->next);
+	c->next = c->next->next;
+      }
+      else {
+	c = c->next;
+      }
+    } 
+    else {
+      c = c->next;
+    }
+  }
 }
 
 static void *__sfreeDefrag(void* address) {
