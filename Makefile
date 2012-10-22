@@ -1,6 +1,6 @@
 # compiler settings
 C_COMPILER   = gcc
-C_OPTIONS    = -Wall
+C_OPTIONS    = -Wall -g
 
 # Clean settings
 GEN_EXTENSIONS = *.exe
@@ -8,7 +8,7 @@ AUX_EXTENSIONS = *.o
 
 # tar bort onödiga filer
 clean:
-	rm -f *.o *.out *.orig
+	rm -f *.o *.out *.orig manual
 # kör och kompilerar imalloc
 run:
 	$(C_COMPILER) $(C_OPTIONS) imalloc.c -o imalloc.out
@@ -20,4 +20,9 @@ test: unittests.c imalloc.c imalloc.h
 # fixar all kod till kodstandarden
 beautify:
 	astyle -A6 *.c *.h
-
+# Backup använder ni an katalog som inte heter git får ni ändra.
+backup:
+	cp -R ~/git ~/projektbackup
+#testkör manual.
+manual:
+	$(C_COMPILER) manual.c $(C_OPTIONS) -o manual

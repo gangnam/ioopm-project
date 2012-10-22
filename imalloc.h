@@ -22,6 +22,7 @@
 /* Enumeration constants used by to define how the freelist should
  * be sorted.
  */
+/* minst först, störst först, minst adress först*/
 enum { ASCENDING_SIZE = 1, DESCENDING_SIZE = 2, ADDRESS = 4 } FreelistStyle;
 
 /* Enumeration constants used by to specify kind of memory

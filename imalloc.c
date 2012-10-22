@@ -7,31 +7,38 @@ static bool fits(Chunk c, int bytes) {
     return c && (c->size >= bytes && c->free);
     }
 
-static void *split(Chunk c, int bytes) {
+static Chunk split(Chunk c, int bytes) {
     if (c->size > bytes) {
         c->next = malloc(sizeof(chunk));
         c->next->start = c->start + bytes;
         c->next->size  = c->size  - bytes;
         c->next->next  = NULL;
         c->next->free  = 1;
+        c->next->refcount = 0;
+        c->next->markbit = 1;
         }
     c->free = 0;
     c->size = bytes;
-    return (void*) c->start;
+    return Chunk c;
     }
 
 Chunk init(unsigned int bytes) {
+    
     char *memory = (char*) malloc(bytes);
     Chunk H = (Chunk) malloc(sizeof(chunk));
+
     H->start = (void*) memory;
     H->size = bytes;
     H->next = NULL;
     H->free = 1;
+    H->refcount = 0;
+    H->markbit = 1;
+
     while (bytes) memory[--bytes] = 0;
     return H;
     }
 
-void *balloc(Memory mem, chunk_size bytes) {
+Chunk balloc(Memory mem, chunk_size bytes) {
     Chunk c = mem->data;
 // Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
     while (!fits(c, bytes)) c = c->next;
@@ -43,14 +50,14 @@ void *balloc(Memory mem, chunk_size bytes) {
         }
     }
 
-unsigned int increaseReferenceCounter (void *ptr) {
-	ptr->refcount++;
-	return ptr->refcount;
-}
+unsigned int increaseReferenceCounter (Chunk ptr) {
+    ptr->refcount++;
+    return ptr->refcount;
+    }
 
-unsigned int returnReferenceCounter (void *ptr) {
-	return ptr->refcount;
-}
+unsigned int returnReferenceCounter (Chunk ptr) {
+    return ptr->refcount;
+    }
 
 struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 // Ignoring free list ordering in this simple example
