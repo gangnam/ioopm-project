@@ -1,10 +1,9 @@
-#ifndef __manual__
-#define __manual__
+#ifndef __manual_c
+#define __manual_c
 
 #include <ctype.h>
 #include <stdio.h>
-#include "imalloc.h"
-#include "priv_imalloc.h"
+
 
 /* "TypedAllocator"  Returnerar hur många bytes som ska allokeras. T.ex. "***i\0" innebär 3 void pekare samt 1 int = 3*sizeof(void*) + sizeof(int) */
 int typeReader(char* input) {

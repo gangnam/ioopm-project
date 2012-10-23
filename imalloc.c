@@ -1,8 +1,12 @@
+#ifndef __imalloc_c
+#define __imalloc_c
 #include <stdio.h>
 #include <stdlib.h>
 #include "imalloc.h"
 #include "priv_imalloc.h"
 #include "rc.h"
+#include "manage.h"
+#include "manual.h"
 
 static bool fits(Chunk c, int bytes) {
     return c && (c->size >= bytes && c->free);
@@ -122,3 +126,4 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         return NULL;
     }   
 }
+#endif

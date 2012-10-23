@@ -1,11 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "imalloc.h"
-#include "rc.h"
-#include "priv_imalloc.h"
-
+#ifndef __rc_h
+#define __rc_h
+#include "rc.c"
 unsigned int increaseReferenceCounter (Chunk ptr);
 
 unsigned int decreaseReferenceCounter (Memory mem, Chunk ptr);
 
 unsigned int returnReferenceCounter (Chunk ptr);
+#endif 

@@ -14,8 +14,8 @@ run:
 	$(C_COMPILER) $(C_OPTIONS) imalloc.c -o imalloc.out
 
 # Kör testerna
-test: unittests.c imalloc.c imalloc.h
-	$(C_COMPILER) $(C_OPTIONS) unittests.c imalloc.c -o unittests -lcunit
+test: unittests.c
+	$(C_COMPILER) $(C_OPTIONS) unittests.c imalloc.c manage.c manual.c priv_imalloc.c rc.c -o unittests -lcunit
 	./unittests
 # fixar all kod till kodstandarden
 beautify:

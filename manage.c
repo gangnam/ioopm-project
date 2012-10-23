@@ -1,10 +1,10 @@
 
-#ifndef __manage
-#define __manage
+#ifndef __manage_c
+#define __manage_c
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "manage.h"
+
 
 
 
@@ -27,13 +27,20 @@ void GC(Chunk c) {
 }
 */
 
-void setZero (chunk c) {
+void setZero (Chunk c) {
+  // ni kan inte stoppa in minnets adress i en chunk.
   Chunk c=c->start;
   while (c->next) {
     c->markbit=0;  
     c=c->next;
   }
   break;
+  /* följande bör fungera
+  while (c) {
+    c->markbit=0;  
+    c=c->next;
+  }
+  */
 }
 
 
@@ -90,7 +97,7 @@ void printPtr(void *ptr, void *ignore) {
 // t.ex. printPtr
 traverseStack(AddresSpace h, MarkFun f, void *p) {
     }
-
+/*
 Steg 1 Iterera över listan över samtliga objekt på heapen och sätt
 mark-biten till 0.
 Steg 2 Sök igenom stacken efter pekare till objekt på heapen, och med
@@ -100,3 +107,4 @@ Steg 3 Iterera över listan över samtliga objekt på heapen och frigör
 alla vars mark-bit fortfarande är 0.
 
 
+*/
