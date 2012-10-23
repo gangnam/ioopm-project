@@ -15,7 +15,7 @@ run:
 
 # Kör testerna
 test: unittests.c
-	$(C_COMPILER) $(C_OPTIONS) unittests.c imalloc.c manage.c manual.c priv_imalloc.c rc.c -o unittests -lcunit
+	$(C_COMPILER) $(C_OPTIONS) unittests.c imalloc.c manual.c priv_imalloc.c rc.c -o unittests -lcunit
 	./unittests
 # fixar all kod till kodstandarden
 beautify:

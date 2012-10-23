@@ -1,27 +1,28 @@
-#ifndef __rc_c
-#define __rc_c 
+
 #include <stdio.h>
 #include <stdlib.h>
+#include "priv_imalloc.h"
+#include "imalloc.h"
 
-
-
-unsigned int increaseReferenceCounter (Chunk ptr) {
-    ptr->refcount++;
-    return ptr->refcount;
+unsigned int increaseReferenceCounter (void *ptr) {
+    Chunk temp = ((Chunk) &ptr-sizeof(struct chunk));
+    temp->refcount++;
+    return temp->refcount;
     }
 
-unsigned int decreaseReferenceCounter (Memory mem, Chunk ptr) {
-    ptr->refcount--;
+unsigned int decreaseReferenceCounter (Memory mem, void *ptr) {
+    Chunk temp = ((Chunk) &ptr-sizeof(struct chunk));
+    temp->refcount--;
     // do some cool stuff
-    if (ptr->refcount == 0) {
-        ptr->free = 1;
+    if (temp->refcount == 0) {
+        temp->free = 1;
 
-    } 
+        }
 
-    return ptr->refcount;
+    return temp->refcount;
     }
 
-unsigned int returnReferenceCounter (Chunk ptr) {
-    return ptr->refcount;
+unsigned int returnReferenceCounter (void *ptr) {
+    Chunk temp = ((Chunk) &ptr-sizeof(struct chunk));
+    return temp->refcount;
     }
-    #endif

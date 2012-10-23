@@ -7,12 +7,13 @@
 
 
 
-
-void GC(Chunk c) {
-  setZero(c);
-  //STEG2
-  freeObj(c);
-}
+// denna funktion kan inte heta GC
+// döper om denna då den finns i imalloc.h
+void collectGarbage(Chunk c) {
+    setZero(c);
+    //STEG2
+    freeObj(c);
+    }
 
 
 //STEG 1:
@@ -22,26 +23,26 @@ void GC(Chunk c) {
     retun c->markbit;
   }
   else {
-    retun c->markbit; 
+    retun c->markbit;
   }
 }
 */
 
 void setZero (Chunk c) {
-  // ni kan inte stoppa in minnets adress i en chunk.
-  Chunk c=c->start;
-  while (c->next) {
-    c->markbit=0;  
-    c=c->next;
-  }
-  break;
-  /* följande bör fungera
-  while (c) {
-    c->markbit=0;  
-    c=c->next;
-  }
-  */
-}
+    // ni kan inte stoppa in minnets adress i en chunk.
+    Chunk c=c->start;
+    while (c->next) {
+        c->markbit=0;
+        c=c->next;
+        }
+    break;
+    /* följande bör fungera
+    while (c) {
+      c->markbit=0;
+      c=c->next;
+    }
+    */
+    }
 
 
 /* chunk* endPtr(chunk c) {
@@ -56,30 +57,30 @@ void setZero (Chunk c) {
 
 //STEG 2:
 void traverseStack(AdressSpace h, Markfun f, void *p) {
-}
+    }
 c->start <= r) &&  (c->start+c->size)<=r) {
- }
- else
-ta bort
-
-
-
-  //STEG 3:
-  void freeObj (chunk c) {
-  Chunk c=c->start;
-  if (c->next) { 
-    while (c->markbit==0) {
-      Chunk temp = c;    
-      free(c);
-      temp = c->next;
     }
-  }
-  else {
-    if (c->markbit==0 ) {
-      free(c);
+else
+    ta bort
+
+
+
+    //STEG 3:
+    void freeObj (chunk c) {
+    Chunk c=c->start;
+    if (c->next) {
+        while (c->markbit==0) {
+            Chunk temp = c;
+            free(c);
+            temp = c->next;
+            }
+        }
+    else {
+        if (c->markbit==0 ) {
+            free(c);
+            }
+        }
     }
-  }
-}
 
 
 

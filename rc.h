@@ -1,9 +1,9 @@
-#ifndef __rc_h
-#define __rc_h
-#include "rc.c"
-unsigned int increaseReferenceCounter (Chunk ptr);
+#ifndef __rc_h_
+#define __rc_h_
 
-unsigned int decreaseReferenceCounter (Memory mem, Chunk ptr);
+unsigned int increaseReferenceCounter (void *ptr);
 
-unsigned int returnReferenceCounter (Chunk ptr);
-#endif 
+unsigned int decreaseReferenceCounter (Memory mem, void *ptr);
+
+unsigned int returnReferenceCounter (void *ptr);
+#endif

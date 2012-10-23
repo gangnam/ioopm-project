@@ -1,22 +1,22 @@
-#ifndef __imalloc_c
-#define __imalloc_c
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "imalloc.h"
-#include "priv_imalloc.h"
 #include "rc.h"
-#include "manage.h"
+//#include "manage.h"
 #include "manual.h"
-
+#include "priv_imalloc.h"
 static bool fits(Chunk c, int bytes) {
     return c && (c->size >= bytes && c->free);
     }
 
 static Chunk split(Chunk c, int bytes) {
+    Chunk temp;
     if (c->size > bytes) {
-        Chunk temp;
+
         temp->start = c->start + bytes;
-        temp->size  = c->size  - bytes - sizeof(chunk);
+        temp->size  = c->size  - bytes - sizeof(struct chunk);
         temp->next  = NULL;
         temp->free  = 1;
         temp->refcount = 1;
@@ -30,8 +30,9 @@ static Chunk split(Chunk c, int bytes) {
     memcpy(c->next, temp, sizeof(temp));
 
     // remove C from freelist
+    // add the splitted chunk to freelist
 
-    return Chunk c;
+    return c;
     }
 
 Chunk init(unsigned int bytes) {
@@ -53,77 +54,80 @@ Chunk init(unsigned int bytes) {
     return (Chunk) memory;
     }
 
-Chunk balloc(Memory mem, chunk_size bytes) {
-    Chunk c = ((Chunk) ((char*) mem)-sizeof(void*))->data;
+void *balloc(Memory mem, chunk_size bytes) {
+    //Chunk c = mem->data;
 // Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
-    freelist list = ((Chunk) ((char*) mem)-sizeof(void*))->freelist;
-    while (!fits(list->current, bytes+sizeof(chunk))) list = list->after; // 
+    private_manual *d = (private_manual*) (&mem - sizeof(void*));
+    Freelist list =   d->flist;
+    while (!fits(list->current, bytes+sizeof(struct chunk))) list = list->after; //
 
     if (list) {
-        return split(list->current, bytes);
+        return split(list->current, bytes)->start;
         }
-    else {
-        return NULL;
-        }
+
+    return NULL;
+
     }
 
-void whatSort (int flags) {
+Manipulator whatSort (int flags) {
 
     if (flags & ADDRESS) {
-        return address_free;
-    }
+        return adress_free;
+        }
     else if (flags & DESCENDING_SIZE) {
         return descending_free;
-    }
+        }
     else {
         return ascending_free;
+        }
     }
-}
 
 struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 // Ignoring free list ordering in this simple example
-    
-    if (flags <= 12) {
-        private_manual *mgr = malloc(sizeof(private_manual));
-        mgr->data = init(memsiz);
-        mgr->functions->alloc = balloc;
-        mgr->functions->avail = avail;
-        mgr->functions->free = whatSort(flags - 8);
 
-        return &(mgr->functions);
-    }
+    if (flags <= 12) {
+        private_manual *mgr = (private_manual*) malloc(sizeof(private_manual));
+        mgr->data = init(memsiz);
+        mgr->functions.alloc = balloc;
+        mgr->functions.avail = avail;
+        mgr->functions.free = whatSort(flags - 8);
+
+        return (Memory) &(mgr->functions);
+        }
     else if (flags <= 52) {
         private_managed *mgr = malloc(sizeof(private_managed));
         mgr->data = init(memsiz);
-        mgr->functions->alloc = balloc;
-        
-        else if (flags >= 48){
-            mgr->functions->rc->retain = increaseReferenceCounter;
-            mgr->functions->rc->release = decreaseReferenceCounter;
-            mgr->functions->rc->count = returnReferenceCounter;
+        mgr->functions.alloc = balloc;
 
-            mgr->functions->gc = ; // NEVER FORGET
-            mgr->functions->gc = ;
+        if (flags >= 48) {
+            mgr->functions.rc.retain = increaseReferenceCounter;
+            mgr->functions.rc.release = decreaseReferenceCounter;
+            mgr->functions.rc.count = returnReferenceCounter;
 
-        }
-        else if (flags >= 32){
-            mgr->functions->gc = ;
-            mgr->functions->gc = ;
+            mgr->functions.gc.alloc = NULL; // NEVER FORGET
+            mgr->functions.gc.collect = NULL;// NEVER FORGET
 
-            mgr->functions->rc = NULL;
-        }
+            }
+        else if (flags >= 32) {
+            mgr->functions.gc.alloc = NULL;// NEVER FORGET
+            mgr->functions.gc.collect = NULL;// NEVER FORGET
+
+            mgr->functions.rc.retain = NULL;
+            mgr->functions.rc.release = NULL;
+            mgr->functions.rc.count = NULL;
+            }
         else {
-            mgr->functions->rc->retain = increaseReferenceCounter;
-            mgr->functions->rc->release = decreaseReferenceCounter;
-            mgr->functions->rc->count = returnReferenceCounter;
+            mgr->functions.rc.retain = increaseReferenceCounter;
+            mgr->functions.rc.release = decreaseReferenceCounter;
+            mgr->functions.rc.count = returnReferenceCounter;
 
-            mgr->functions->gc = NULL;
+            mgr->functions.gc.alloc = NULL; // NEVER FORGET
+            mgr->functions.gc.collect = NULL;// NEVER FORGET
+            }
+
+        return (Memory) &(mgr->functions);
         }
-
-        return &(mgr->functions);
-    }
     else {
         return NULL;
-    }   
-}
-#endif
+        }
+    }
