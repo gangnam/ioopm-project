@@ -54,20 +54,24 @@ Chunk init(unsigned int bytes) {
     return (Chunk) memory;
     }
 
-void *balloc(Memory mem, chunk_size bytes) {
-    //Chunk c = mem->data;
-// Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
+void *balloc(Memory mem, chunk_size bytes, ) {
+  //Chunk c = mem->data;
+  // Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
+  if (isdigit(bytes) > 0) {
     private_manual *d = (private_manual*) (&mem - sizeof(void*));
     Freelist list =   d->flist;
     while (!fits(list->current, bytes+sizeof(struct chunk))) list = list->after; //
 
     if (list) {
-        return split(list->current, bytes)->start;
-        }
+      return split(list->current, bytes)->start;
+    }
 
     return NULL;
-
-    }
+  }
+  else {
+    balloc(mem, typeReader(bytes));
+  }
+}
 
 Manipulator whatSort (int flags) {
 

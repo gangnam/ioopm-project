@@ -56,10 +56,10 @@ int typeReader(char *input) {
     i++;
   }
   if (multiply != 0) {
-    return balloc(result + (multiply*sizeof(char)));
+    return result + (multiply*sizeof(char));
   }
   else {
-    return balloc(result, 0);
+    return result;
   }
 }
 
