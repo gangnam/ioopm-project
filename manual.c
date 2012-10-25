@@ -43,7 +43,6 @@ unsigned int ascending_free(Memory mem, void *ptr) {
     private_manual *d = (private_manual*) (&mem - sizeof(void*));
     Freelist list = d->flist;
     Chunk c = (Chunk) (&ptr-sizeof(struct chunk));
-    Chunk temp = NULL;
     c->free = 1;
     combine(mem);
     for(; list->current->size < c->size; list = list->after);
@@ -52,7 +51,7 @@ unsigned int ascending_free(Memory mem, void *ptr) {
     new->after = list->after;
     list->after = new;
 
-    return &(d->flist->current); //fel return?
+    return 0; /* &(d->flist->current); */ //fel return?
     }
 
 ///////////////
@@ -62,7 +61,6 @@ unsigned int descending_free(Memory mem, void *ptr) {
     private_manual *d = (private_manual*) (&mem - sizeof(void*));
     Freelist list = d->flist;
     Chunk c = (Chunk) (&ptr-sizeof(struct chunk));
-    Chunk temp = NULL;
     c->free = 1;
     combine(mem);
     for(; list->current->size > c->size; list = list->after);
@@ -70,7 +68,7 @@ unsigned int descending_free(Memory mem, void *ptr) {
     new->current = c;
     new->after = list->after;
     list->after = new;
-    return &(d->flist->current);
+    return 0; /* &(d->flist->current); */
     }
 
 ///////////////
@@ -80,11 +78,8 @@ unsigned int adress_free(Memory mem, void *ptr) {
     private_manual *d = (private_manual*) (&mem - sizeof(void*));
     Freelist list = d->flist;
     Chunk c = (Chunk) (&ptr-sizeof(struct chunk));
-    Freelist temp = NULL;
-
     c->free = 1;
     combine(mem);
-
     for(; list->current->start < c->start; list = list->after);
     Freelist new;
     new->current = c;
@@ -92,19 +87,11 @@ unsigned int adress_free(Memory mem, void *ptr) {
     list->after = new;
     
     
-    return &(d->flist->current); //fel return?
+    return 0; /* &(d->flist->current); */ //fel return?
     }
 
 
 int main() {
-    int b = typeReader("**4\0");
-    printf("answer: %d\n",b);
-    b = typeReader("4l\0");
-    printf("answer: %d\n",b);
-    b = typeReader("4i\0");
-    printf("answer: %d\n",b);
-    b = typeReader("4c\0");
-    printf("answer: %d\n",b);
     return 0;
     }
 
