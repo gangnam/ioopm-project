@@ -22,64 +22,6 @@ static void combine(Memory mem) {
         }
     }
 
-/* "TypedAllocator"  Returnerar hur många bytes som ska allokeras. T.ex. "***i\0" innebär 3 void pekare samt 1 int = 3*sizeof(void*) + sizeof(int) */
-int typeReader(char *input) {
-    int multiply = 0, result = 0, i = 0, size;
-    while (input[i]) {
-        if (isdigit(input[i])) {
-            multiply *= 10;
-            multiply += (input[i] - 48);
-            }
-        else {
-            if (multiply == 0) {
-                multiply = 1;
-                }
-
-
-            switch (input[i]) {
-
-                case '*' : {
-                    size = sizeof(void*);
-                    break;
-                    }
-                case 'i' : {
-                    size = sizeof(int);
-                    break;
-                    }
-                case 'l' : {
-                    size = sizeof(long);
-                    break;
-                    }
-                case 'f' : {
-                    size = sizeof(float);
-                    break;
-                    }
-                case 'd': {
-                    size = sizeof(double);
-                    break;
-                    }
-                case 'c': {
-                    size = sizeof(char);
-                    }
-                default: {
-                    size = 0;
-                    break;
-                    }
-                }
-
-            result += multiply * size;
-            multiply = 0;
-
-            }
-        i++;
-        }
-    if (multiply != 0) {
-        return result + (multiply*sizeof(char));
-        }
-    else {
-        return result;
-        }
-    }
 /*kollar hur mycket plats det finns ledigt i det stora minnet, eller om vi måste skapa ett nytt stort minnes utrymme. */
 unsigned int avail(Memory mem) {
     private_manual *d = (private_manual*) (&mem - sizeof(void*));
@@ -94,9 +36,6 @@ unsigned int avail(Memory mem) {
     }
 
 /* Free Funktionen, */
-
-
-/*    Kopierat Ifrån Smalloc!!!!!!!!!!!!!! */
 
 
 unsigned int ascending_free(Memory mem, void *ptr) {
