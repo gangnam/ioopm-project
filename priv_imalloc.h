@@ -17,18 +17,18 @@
 
 
 /* Actual return type specifications for iMalloc */
-
+typedef struct freelist *Freelist;
 
 typedef struct private_manual {
     void  *data;
     manual functions;
-    struct freelist *flist;
+    Freelist flist;
     } private_manual;
 
 typedef struct private_managed {
     void   *data;
     managed functions;
-    struct freelist *flist;
+    Freelist flist;
     } private_managed;
 
 typedef struct chunk *Chunk;
@@ -45,7 +45,7 @@ struct chunk {
 
 typedef struct freelist {
     Chunk current;
-    struct freelist *after;
+    Freelist after;
     } freelist, *Freelist;
 
 #define cSTART(ptr) ptr - sizeof(chunk);
