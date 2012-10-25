@@ -41,6 +41,16 @@ void fits(void) {
     }
 
 
+void testGC(void) {
+
+
+  //testfall för GC
+
+
+}
+
+
+
 int main() {
     CU_pSuite pSuiteGC = NULL;
     CU_pSuite pSuiteref = NULL;
@@ -68,7 +78,7 @@ int main() {
     if (
 
         //lägg till test för GC här
-
+	(NULL == CU_add_test(pSuiteref, "test of garbage collector()", testGC))
     ) {
         CU_cleanup_registry();
         return CU_get_error();
