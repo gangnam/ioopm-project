@@ -69,10 +69,12 @@ int typeReader(char *input) {
 // denna funktion kan inte heta GC
 // döper om denna då den finns i imalloc.h
 void collectGarbage(Chunk c) {
+  if(c){
     setZero(c);
     //STEG2
     freeObj(c);
-    }
+  }
+}
 
 
 //STEG 1:
@@ -88,24 +90,14 @@ void collectGarbage(Chunk c) {
 */
 
 void setZero (Chunk c) {
-    // ni kan inte stoppa in minnets adress i en chunk.
-    Chunk c=c->start;
-    while (c->next) {
-        c->markbit=0;
-        c=c->next;
-        }
-    break;
-    /* följande bör fungera
-    while (c) {
-      c->markbit=0;
-      c=c->next;
-    }
-    */
-    }
+  while (c) {
+    c->markbit=0;
+    c=c->next;
+  }    
+}
 
 
-/* chunk* endPtr(chunk c) {
-  c=c->start;
+/* Chunk endPtr(chunk c) {
   while(c->next) {
     c=c->next;
   }
@@ -115,6 +107,7 @@ void setZero (Chunk c) {
 */
 
 //STEG 2:
+/*
 void traverseStack(AdressSpace h, Markfun f, void *p) {
     }
 c->start <= r) &&  (c->start+c->size)<=r) {
@@ -122,24 +115,46 @@ c->start <= r) &&  (c->start+c->size)<=r) {
 else
     ta bort
 
+*/
 
+// Kollar om given pekare pekar in i någon chunk, 1 om den gör det annars 0
+int inChunk(void *ptr) {
+}
 
-    //STEG 3:
-    void freeObj (chunk c) {
-    Chunk c=c->start;
-    if (c->next) {
-        while (c->markbit==0) {
-            Chunk temp = c;
-            free(c);
-            temp = c->next;
-            }
-        }
-    else {
-        if (c->markbit==0 ) {
-            free(c);
-            }
-        }
-    }
+// Kollar om rotpekaren i givna adressrymden pekar in i en chunk och markerar
+// den i sådana fall
+void (*MarkFun)(void *ptr, void *data) { //chunklist som data?
+  //chunklist?
+  if (inChunk(ptr)==1) {  //Pekar in i chunk?
+    c->markbit=1;
+    c->free=1;
+    while(c) { //traversera heapen o markera alla objekt som påträffas med 1
+      
+    } 
+  }
+}
+
+//pekar in i en chunk?
+//om ja var börjar den?
+//markera chunk
+//traversera heap och fortsätt markera
+
+  /*  if (inChunk(ptr)==1) {
+      int chend= ((c->size) + c->start); 
+      if (c->start >= ptr && ptr >= chend) {
+      c->markbit=1;
+      c->free=1;
+      }
+      }
+  */
+
+//STEG 3:
+void freeObj (Chunk c) {
+  while (c) {
+    c->free = !(c->markbit);  
+    c = c->next;
+  }
+}
 
 
 
