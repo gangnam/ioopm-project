@@ -12,10 +12,10 @@ chunk combine(Memory mem, Chunk orginal) {
     if (c->free) {
       if (c->next->free) {
 	c->size += c->next->size+sizeof(c->next); //varför c->next??
-	c->next->combined = 2;
+	c->next->combined = 1;
 	c->next = c->next->next;
 	c->combined = 1;
-	i = i+1;
+	i++;
 	e = c;
       }
       else {
@@ -81,31 +81,13 @@ unsigned int ascending_free(Memory mem, void *ptr) {
   c = combine(mem, c);
   
   while (list){
-    if(list->current->combined == 1){
-      if(list->after){
-	if(list->after->current->combined == 2){
-	  list->after->current->combined = 0;
-	  list->after = list->after->after;
-	}else{ //Tredje Det är tänkt att den aldrig ska komma hit.
-	  return 0;
-	}
-      }else { //Andra Det är tänkt att den aldrig ska komma hit.
-	
-      }
-      
-    }else {//Första
-      list = list->after
-	}
+    if(list->current->combined == 1)
+     
   }//while
   
-//for(; orginal->current->size < c->size; orginal = orginal->after);
-  else { list = list->after
-      
-      //innebär att vi ska ta bort nått ur freelistan.
-      //när combined == 2 ska den chunken tas bort ur freelistan!
-      c->combined = 0;
-  }
-  else{ 
+for(; orginal->current->size < c->size; orginal = orginal->after);
+
+ 
     Freelist new;
     new->current = c;
     new->after = list->after;
