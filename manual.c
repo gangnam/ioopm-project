@@ -3,24 +3,57 @@
 #include "imalloc.h"
 #include "priv_imalloc.h"
 
-static void combine(Memory mem) {
-    private_manual *d = (private_manual*) (&mem - sizeof(void*));
-    Chunk c = d->data;
-    while (c->next) {
-        if (c->free) {
-            if (c->next->free) {
-                c->size += c->next->size+sizeof(c->next);
-                c->next = c->next->next;
-                }
-            else {
-                c = c->next;
-                }
-            }
-        else {
-            c = c->next;
-            }
-        }
+chunk combine(Memory mem, Chunk orginal) {
+  private_manual *d = (private_manual*) (&mem - sizeof(void*));
+  Chunk c = d->data;
+  Chunk e;
+  int i = 0;
+  while (c->next) {
+    if (c->free) {
+      if (c->next->free) {
+	c->size += c->next->size+sizeof(c->next); //varför c->next??
+	c->next->combined = 2;
+	c->next = c->next->next;
+	c->combined = 1;
+	i = i+1;
+	e = c;
+      }
+      else {
+	c = c->next;
+      }
     }
+    else {
+      c = c->next;
+    }
+  }//while
+  if (i>0){
+    return e;
+  }
+  else {
+    return orginal; 
+  }
+}
+
+
+
+/* static void combine(Memory mem) { */
+/*     private_manual *d = (private_manual*) (&mem - sizeof(void*)); */
+/*     Chunk c = d->data; */
+/*     while (c->next) { */
+/*         if (c->free) { */
+/*             if (c->next->free) { */
+/* 	      c->size += c->next->size+sizeof(c->next); //varför c->next?? */
+/*                 c->next = c->next->next; */
+/*                 } */
+/*             else { */
+/*                 c = c->next; */
+/*                 } */
+/*             } */
+/*         else { */
+/*             c = c->next; */
+/*             } */
+/*         } */
+/*     } */
 
 /*kollar hur mycket plats det finns ledigt i det stora minnet, eller om vi måste skapa ett nytt stort minnes utrymme. */
 unsigned int avail(Memory mem) {
@@ -39,20 +72,48 @@ unsigned int avail(Memory mem) {
 
 
 unsigned int ascending_free(Memory mem, void *ptr) {
-// Back up one pointer in memory to access the first chunk
-    private_manual *d = (private_manual*) (&mem - sizeof(void*));
-    Freelist list = d->flist;
-    Chunk c = (Chunk) (&ptr-sizeof(struct chunk));
-    c->free = 1;
-    combine(mem);
-    for(; list->current->size < c->size; list = list->after);
+  // Back up one pointer in memory to access the first chunk
+  private_manual *d = (private_manual*) (&mem - sizeof(void*));
+  Freelist list = d->flist;
+  Chunk c = (Chunk) (&ptr-sizeof(struct chunk));
+  Freelist orginal = list;
+  c->free = 1;
+  c = combine(mem, c);
+  
+  while (list){
+    if(list->current->combined == 1){
+      if(list->after){
+	if(list->after->current->combined == 2){
+	  list->after->current->combined = 0;
+	  list->after = list->after->after;
+	}else{ //Tredje Det är tänkt att den aldrig ska komma hit.
+	  return 0;
+	}
+      }else { //Andra Det är tänkt att den aldrig ska komma hit.
+	
+      }
+      
+    }else {//Första
+      list = list->after
+	}
+  }//while
+  
+//for(; orginal->current->size < c->size; orginal = orginal->after);
+  else { list = list->after
+      
+      //innebär att vi ska ta bort nått ur freelistan.
+      //när combined == 2 ska den chunken tas bort ur freelistan!
+      c->combined = 0;
+  }
+  else{ 
     Freelist new;
     new->current = c;
     new->after = list->after;
     list->after = new;
-
-    return 0; /* &(d->flist->current); */ //fel return?
-    }
+    
+    return  &(d->flist);  //fel return?
+  }
+}
 
 ///////////////
 
