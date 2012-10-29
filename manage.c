@@ -123,7 +123,7 @@ else
 // den i sådana fall
 void mf(void *ptr, void *data) {
   Chunk c = data;
-  
+
   while(c){
     int chend= ((c->size) + c->start); 
       if (c >= ptr && ptr <= chend) {
