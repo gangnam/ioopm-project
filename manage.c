@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 /* "TypedAllocator"  Returnerar hur många bytes som ska allokeras. T.ex. "***i\0" innebär 3 void pekare samt 1 int = 3*sizeof(void*) + sizeof(int) */
-int typeReader(char *input) {
+int typeReader(Memory mem, char *input) {
   int multiply = 0, result = 0, i = 0, size;
   while (input[i]) {
     if (isdigit(input[i])) {
@@ -56,10 +56,10 @@ int typeReader(char *input) {
     i++;
   }
   if (multiply != 0) {
-    return result + (multiply*sizeof(char));
+    return balloc(mem ,result + (multiply*sizeof(char)));
   }
   else {
-    return result;
+    return balloc(mem, result);
   }
 }
 
@@ -71,7 +71,8 @@ int typeReader(char *input) {
 void collectGarbage(Chunk c) {
   if(c){
     setZero(c);
-    //STEG2
+    traverseStack(as, mf, c);//as skall vara adressspace
+    
     freeObj(c);
   }
 }
@@ -131,7 +132,7 @@ void mf(void *ptr, void *data) {
 
         void *i = c->start;
         while(i>chend){
-          mf(i,data);
+          mf(i,data);   
           i++; 
         }
       }
@@ -165,19 +166,9 @@ void freeObj (Chunk c) {
 
 
 
-
-
-
-
-//ska printa ut alla rotpekare
-void printPtr(void *ptr, void *ignore) {
-    printf("%p\n", ptr);
-    }
-
 //traverserar/skannar stacken inom en viss adresssrymd h, där f kan vara
 // t.ex. printPtr
-traverseStack(AddresSpace h, MarkFun f, void *p) {
-    }
+
 /*
 Steg 1 Iterera över listan över samtliga objekt på heapen och sätt
 mark-biten till 0.
