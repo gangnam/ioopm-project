@@ -117,22 +117,28 @@ else
 
 */
 
-// Kollar om given pekare pekar in i någon chunk, 1 om den gör det annars 0
-int inChunk(void *ptr) {
-}
+
 
 // Kollar om rotpekaren i givna adressrymden pekar in i en chunk och markerar
 // den i sådana fall
-void (*MarkFun)(void *ptr, void *data) { //chunklist som data?
-  //chunklist?
-  if (inChunk(ptr)==1) {  //Pekar in i chunk?
-    c->markbit=1;
-    c->free=1;
-    while(c) { //traversera heapen o markera alla objekt som påträffas med 1
-      
-    } 
+void mf(void *ptr, void *data) {
+  Chunk c = data;
+  
+  while(c){
+    int chend= ((c->size) + c->start); 
+      if (c >= ptr && ptr <= chend) {
+        c->markbit=1;
+
+        void *i = c->start;
+        while(i>chend){
+          mf(i,data);
+          i++; 
+        }
+      }
+    c=c->next
   }
 }
+
 
 //pekar in i en chunk?
 //om ja var börjar den?
