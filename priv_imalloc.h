@@ -41,7 +41,8 @@ struct chunk {
     bool free; // true if the chunk is free, else false
     int refcount; // number of references to the chunk (on the heap or otherwise)
     int markbit; // 1 if there is a reference to this object on the stack
-    };
+  int combined;
+};
 
 typedef struct freelist {
     Chunk current;
