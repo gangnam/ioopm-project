@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,21 +6,22 @@
 //#include "manage.h"
 #include "manual.h"
 #include "priv_imalloc.h"
+
 static bool fits(Chunk c, int bytes) {
     return c && (c->size >= bytes && c->free);
-    }
+}
 
 static Chunk split(Chunk c, int bytes) {
-    Chunk temp;
+    Chunk temp; // kanske allokera
     if (c->size > bytes) {
 
         temp->start = c->start + bytes;
-        temp->size  = c->size  - bytes - sizeof(struct chunk);
-        temp->next  = NULL;
+        temp->size  = c->size  - bytes - sizeof(chunk);
+        temp->next = c->next;
         temp->free  = 1;
         temp->refcount = 1;
         temp->markbit = 1;
-        }
+    }
     c->free = 0;
     c->size = bytes;
 
@@ -29,109 +29,179 @@ static Chunk split(Chunk c, int bytes) {
 
     memcpy(c->next, temp, sizeof(temp));
 
-    // remove C from freelist
-    // add the splitted chunk to freelist
+    free(temp);
+
+    //removeFromFreelist(c);
+    //addToFreelist(c->next); // tre olika
 
     return c;
-    }
+}
+/*
+char *init(unsigned int bytes, unsigned int headerSize) {
 
-Chunk init(unsigned int bytes) {
+    int totalSize = bytes+headerSize;
+    char *memory = (char*) malloc(totalSize);
 
-    char *memory = (char*) malloc(bytes);
+    while (totalSize) memory[totalSize--] = 0;
 
-    Chunk temp;
-    temp->start = memory;
+    Chunk temp = (Chunk) malloc(sizeof(chunk));
+    temp->start = memory+headerSize+sizeof(chunk);
     temp->size  = bytes;
     temp->next  = NULL;
     temp->free  = 1;
     temp->refcount = 1;
     temp->markbit = 1;
 
-    while (bytes) memory[--bytes] = 0;
+    memcpy((memory+headerSize), temp, sizeof(chunk));
 
-    memcpy(memory, temp, sizeof(temp));
-
-    return (Chunk) memory;
+    return memory;
     }
+*/
+void *balloc(Memory mem, chunk_size bytes) {
+    //Chunk c = mem->data;
+    // Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
+    void **temp = (void*) (&mem - sizeof(void*));
 
-void *balloc(Memory mem, chunk_size bytes, ) {
-  //Chunk c = mem->data;
-  // Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
-  if (isdigit(bytes) > 0) {
-    private_manual *d = (private_manual*) (&mem - sizeof(void*));
-    Freelist list =   d->flist;
-    while (!fits(list->current, bytes+sizeof(struct chunk))) list = list->after; //
+    Chunk c = (Chunk) temp;
 
-    if (list) {
-      return split(list->current, bytes)->start;
+    //Freelist list = d->flist;
+    while (!fits(c, bytes+sizeof(chunk))) c = c->next; //
+
+    if (c) {
+        return split(c, bytes)->start;
     }
 
     return NULL;
-  }
-  else {
-    balloc(mem, typeReader(bytes));
-  }
 }
 
 Manipulator whatSort (int flags) {
 
     if (flags & ADDRESS) {
         return adress_free;
-        }
+    }
     else if (flags & DESCENDING_SIZE) {
         return descending_free;
-        }
+    }
     else {
         return ascending_free;
-        }
     }
+}
 
 struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 // Ignoring free list ordering in this simple example
 
+    // 1. gör minnet
+    // 2. allokera private
+    // 3. allokera functions
+    // 4. lägg in chunk
+    // 5. peka
+
     if (flags <= 12) {
-        private_manual *mgr = (private_manual*) malloc(sizeof(private_manual));
-        mgr->data = init(memsiz);
-        mgr->functions.alloc = balloc;
-        mgr->functions.avail = avail;
-        mgr->functions.free = whatSort(flags - 8);
 
-        return (Memory) &(mgr->functions);
+        int totalSize = memsiz+sizeof(private_manual)+sizeof(manual);
+        char *memory = (char*) malloc(totalSize);
+
+        while (totalSize) memory[totalSize--] = 0;
+        
+        private_manual *man = (private_manual *) malloc(sizeof(private_manual));
+        Manual functions = (Manual) malloc(sizeof(manual));
+
+        memcpy(memory, man, sizeof(private_manual));
+        memcpy((memory+sizeof(private_manual)), functions, sizeof(manual));
+
+        free(man);
+        free(functions);
+
+        man = (private_manual *) memory;
+
+        man->data = (void *) (memory+sizeof(private_manual)+sizeof(manual));
+        man->functions = (manual *) (memory+sizeof(private_manual));
+        man->functions->alloc = balloc;
+        man->functions->avail = avail;
+        man->functions->free = whatSort(flags - 8);
+
+        Chunk temp = (Chunk) malloc(sizeof(chunk));
+        temp->start = (memory+sizeof(private_manual)+sizeof(manual)+sizeof(chunk));
+        temp->size  = (memsiz-sizeof(chunk));
+        temp->next  = NULL;
+        temp->free  = 1;
+        temp->refcount = 1;
+        temp->markbit = 1;
+
+        memcpy((memory+sizeof(private_managed)+sizeof(managed)), temp, sizeof(chunk));
+
+        return (Memory) (man->functions);
+    }
+    else if (flags <= 48) {
+
+        int totalSize = memsiz+sizeof(private_managed)+sizeof(managed);
+        char *memory = (char*) malloc(totalSize);
+
+        while (totalSize) memory[totalSize--] = 0;
+        
+        private_managed *mgr = (private_managed *) malloc(sizeof(private_managed));
+        Managed functions = (Managed) malloc(sizeof(managed));
+
+        memcpy(memory, mgr, sizeof(private_managed));
+        memcpy((memory+sizeof(private_managed)), functions, sizeof(managed));
+
+        free(mgr);
+        free(functions);
+
+        mgr = (private_managed *) memory;
+
+        mgr->data = (void *) (memory+sizeof(private_managed)+sizeof(managed));
+        mgr->functions = (managed *) (memory+sizeof(private_managed));
+        mgr->functions->alloc = balloc;
+
+        if (flags == 48) {
+            mgr->functions->rc.retain = increaseReferenceCounter;
+            mgr->functions->rc.release = decreaseReferenceCounter;
+            mgr->functions->rc.count = returnReferenceCounter;
+
+            mgr->functions->gc.alloc = NULL;//typeReader;
+            mgr->functions->gc.collect = NULL;// NEVER FORGET
         }
-    else if (flags <= 52) {
-        private_managed *mgr = malloc(sizeof(private_managed));
-        mgr->data = init(memsiz);
-        mgr->functions.alloc = balloc;
+        else if (flags == 32) {
+            mgr->functions->gc.alloc = NULL;//typeReader;
+            mgr->functions->gc.collect = NULL;// NEVER FORGET
 
-        if (flags >= 48) {
-            mgr->functions.rc.retain = increaseReferenceCounter;
-            mgr->functions.rc.release = decreaseReferenceCounter;
-            mgr->functions.rc.count = returnReferenceCounter;
-
-            mgr->functions.gc.alloc = NULL; // NEVER FORGET
-            mgr->functions.gc.collect = NULL;// NEVER FORGET
-
-            }
-        else if (flags >= 32) {
-            mgr->functions.gc.alloc = NULL;// NEVER FORGET
-            mgr->functions.gc.collect = NULL;// NEVER FORGET
-
-            mgr->functions.rc.retain = NULL;
-            mgr->functions.rc.release = NULL;
-            mgr->functions.rc.count = NULL;
-            }
+            mgr->functions->rc.retain = NULL;
+            mgr->functions->rc.release = NULL;
+            mgr->functions->rc.count = NULL;
+        }
         else {
-            mgr->functions.rc.retain = increaseReferenceCounter;
-            mgr->functions.rc.release = decreaseReferenceCounter;
-            mgr->functions.rc.count = returnReferenceCounter;
+            mgr->functions->rc.retain = increaseReferenceCounter;
+            mgr->functions->rc.release = decreaseReferenceCounter;
+            mgr->functions->rc.count = returnReferenceCounter;
 
-            mgr->functions.gc.alloc = NULL; // NEVER FORGET
-            mgr->functions.gc.collect = NULL;// NEVER FORGET
-            }
-
-        return (Memory) &(mgr->functions);
+            mgr->functions->gc.alloc = NULL;
+            mgr->functions->gc.collect = NULL;
         }
+
+        Chunk temp = (Chunk) malloc(sizeof(chunk));
+        temp->start = (memory+sizeof(private_managed)+sizeof(managed)+sizeof(chunk));
+        temp->size  = (memsiz-sizeof(chunk));
+        temp->next  = NULL;
+        temp->free  = 1;
+        temp->refcount = 1;
+        temp->markbit = 1;
+
+        memcpy((memory+sizeof(private_managed)+sizeof(managed)), temp, sizeof(chunk));
+
+        return (Memory) (mgr->functions);
+    }
     else {
         return NULL;
-        }
     }
+}
+
+int main(void) {
+    Memory mfun = iMalloc(1 Kb, 48);
+    private_managed *temp = (private_managed *) (((void*) mfun)-sizeof(private_managed));
+    Chunk c = temp->data;
+    void *hej = c->start;
+    unsigned int i = temp->functions->rc.count(hej);
+    printf("%u\n", i);
+    return 0;
+}

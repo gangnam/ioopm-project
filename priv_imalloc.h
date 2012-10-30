@@ -48,6 +48,7 @@ struct chunk {
 typedef struct freelist {
     Chunk current;
     Freelist after;
+    int listType; // ASCENDING_SIZE = 1, DESCENDING_SIZE = 2, ADDRESS = 4
     } freelist, *Freelist;
 
 #define cSTART(ptr) ptr - sizeof(chunk);

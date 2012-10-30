@@ -1,5 +1,6 @@
 #ifndef __rc_h_
 #define __rc_h_
+#include "imalloc.h"
 
 unsigned int increaseReferenceCounter (void *ptr);
 
