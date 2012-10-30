@@ -30,6 +30,7 @@ typedef struct private_managed {
     void   *data;
     Managed functions;
     Freelist flist;
+    void *size;
     } private_managed;
 
 typedef struct chunk *Chunk;
