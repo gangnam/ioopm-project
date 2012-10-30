@@ -5,8 +5,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
 /* "TypedAllocator"  Returnerar hur många bytes som ska allokeras. T.ex. "***i\0" innebär 3 void pekare samt 1 int = 3*sizeof(void*) + sizeof(int) */
-int typeReader(Memory mem, char *input) {
+void *typeReader(Memory mem, char *input) {
   int multiply = 0, result = 0, i = 0, size;
   while (input[i]) {
     if (isdigit(input[i])) {
@@ -76,8 +77,6 @@ void collectGarbage(Memory mem) {
     as.start = c;
     as.end = (mem + mem->size);
     traverseStack(as, mf, c);//as skall vara adressspace
-    
-
     freeObj(c);
   }
 }
