@@ -2,7 +2,6 @@
 #define __manual_h
 
 unsigned int avail(Memory mem);
-int typeReader(char* input);
 unsigned int ascending_free(Memory mem, void *ptr);
 unsigned int descending_free(Memory mem, void *ptr);
 unsigned int adress_free(Memory mem, void *ptr);

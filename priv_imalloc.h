@@ -19,12 +19,20 @@
 
 /* Actual return type specifications for iMalloc */
 typedef struct freelist *Freelist;
+<<<<<<< HEAD
+typedef struct metafreelist {
+    Freelist first;
+    int listType; //1 ascending 2 descending 4 adress
+    int size;
+    } metafreelist , *Metafreelist;
+=======
 
 typedef struct metafreelist {
     Freelist first;
     int listType;
 } metafreelist, *Metafreelist;
 
+>>>>>>> origin/master
 typedef struct private_manual {
     void  *data;
     Manual functions;
@@ -47,7 +55,7 @@ struct chunk {
     int refcount; // number of references to the chunk (on the heap or otherwise)
     int markbit; // 1 if there is a reference to this object on the stack
     int combined;
-} chunk;
+    } chunk;
 
 typedef struct freelist {
     Chunk current;
