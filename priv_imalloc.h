@@ -19,20 +19,14 @@
 
 /* Actual return type specifications for iMalloc */
 typedef struct freelist *Freelist;
-<<<<<<< HEAD
+
 typedef struct metafreelist {
     Freelist first;
     int listType; //1 ascending 2 descending 4 adress
     int size;
     } metafreelist , *Metafreelist;
-=======
 
-typedef struct metafreelist {
-    Freelist first;
-    int listType;
-} metafreelist, *Metafreelist;
 
->>>>>>> origin/master
 typedef struct private_manual {
     void  *data;
     Manual functions;
