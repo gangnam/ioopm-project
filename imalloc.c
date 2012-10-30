@@ -4,14 +4,14 @@
 #include "imalloc.h"
 #include "rc.h"
 //#include "manage.h"
-#include "manual.h"
+//#include "manual.h"
 #include "priv_imalloc.h"
 
 static bool fits(Chunk c, int bytes) {
     return c && (c->size >= bytes && c->free);
 }
 
-static Chunk split(Chunk c, int bytes) {
+static Chunk split(Memory mem, Chunk c, int bytes) {
     Chunk temp; // kanske allokera
     if (c->size > bytes) {
 
@@ -31,8 +31,8 @@ static Chunk split(Chunk c, int bytes) {
 
     free(temp);
 
-    //removeFromFreelist(c);
-    //addToFreelist(c->next); // tre olika
+    //removeFromFreelist(mem, c);
+    //addToFreelist(mem, c->next); // tre olika
 
     return c;
 }
@@ -68,14 +68,14 @@ void *balloc(Memory mem, chunk_size bytes) {
     while (!fits(c, bytes+sizeof(chunk))) c = c->next; //
 
     if (c) {
-        return split(c, bytes)->start;
+        return split(mem, c, bytes)->start;
     }
 
     return NULL;
 }
 
 Manipulator whatSort (int flags) {
-
+/*
     if (flags & ADDRESS) {
         return adress_free;
     }
@@ -85,6 +85,8 @@ Manipulator whatSort (int flags) {
     else {
         return ascending_free;
     }
+    */
+    return 0;
 }
 
 struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
@@ -117,7 +119,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         man->data = (void *) (memory+sizeof(private_manual)+sizeof(manual));
         man->functions = (manual *) (memory+sizeof(private_manual));
         man->functions->alloc = balloc;
-        man->functions->avail = avail;
+        man->functions->avail = NULL;//avail;
         man->functions->free = whatSort(flags - 8);
 
         Chunk temp = (Chunk) malloc(sizeof(chunk));
@@ -132,7 +134,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 
         return (Memory) (man->functions);
     }
-    else if (flags <= 48) {
+    else if (flags <= 52) {
 
         int totalSize = memsiz+sizeof(private_managed)+sizeof(managed);
         char *memory = (char*) malloc(totalSize);
@@ -154,7 +156,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         mgr->functions = (managed *) (memory+sizeof(private_managed));
         mgr->functions->alloc = balloc;
 
-        if (flags == 48) {
+        if (flags >= 48) {
             mgr->functions->rc.retain = increaseReferenceCounter;
             mgr->functions->rc.release = decreaseReferenceCounter;
             mgr->functions->rc.count = returnReferenceCounter;
@@ -162,7 +164,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
             mgr->functions->gc.alloc = NULL;//typeReader;
             mgr->functions->gc.collect = NULL;// NEVER FORGET
         }
-        else if (flags == 32) {
+        else if (flags >= 32) {
             mgr->functions->gc.alloc = NULL;//typeReader;
             mgr->functions->gc.collect = NULL;// NEVER FORGET
 
@@ -202,6 +204,9 @@ int main(void) {
     Chunk c = temp->data;
     void *hej = c->start;
     unsigned int i = temp->functions->rc.count(hej);
+    printf("%u\n", i);
+    temp->functions->rc.retain(hej);
+    i = temp->functions->rc.count(hej);
     printf("%u\n", i);
     return 0;
 }

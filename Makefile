@@ -27,5 +27,5 @@ backup:
 manual:
 	$(C_COMPILER) manual.c $(C_OPTIONS) -o manual
 
-random: imalloc.c imalloc.h manual.c manual.h priv_imalloc.h rc.c rc.h
-	$(C_COMPILER) $(C_OPTIONS) imalloc.c manual.c rc.c -o random
+random: imalloc.c imalloc.h priv_imalloc.h rc.c rc.h
+	$(C_COMPILER) $(C_OPTIONS) imalloc.c rc.c -o random
