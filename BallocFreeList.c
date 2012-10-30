@@ -19,12 +19,15 @@ void RemoveFromFreelist(Memory mem, chunk c){
 }
 
 void InsertToFreelist(Memory mem, chunk c){
-  private_manual *d = (private_manual*) (&mem - sizeof(void*));
+
+
+
+ private_manual *d = (private_manual*) (&mem - sizeof(void*));
     Freelist list = d->flist;
     Freelist prev = list;
     Freelist new;
     int i = 0;
-    if (list->INTEGER! == 1){
+    /*if (list->INTEGER! == 1){
       while(list) {
         if (list->current->size < c->size) {
 	  prev = list;
@@ -64,7 +67,7 @@ while(list) {
     prev->after = new;
     
       }
-    }
+    }*/
 }
     
     

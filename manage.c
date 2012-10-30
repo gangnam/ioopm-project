@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 
-/* "TypedAllocator"  Returnerar hur många bytes som ska allokeras. T.ex. "***i\0" innebär 3 void pekare samt 1 int = 3*sizeof(void*) + sizeof(int) */
+/* "TypedAllocator"  T.ex. "***i\0" innebär 3 void pekare samt 1 int = 3*sizeof(void*) + sizeof(int) */
 void *typeReader(Memory mem, char *input) {
   int multiply = 0, result = 0, i = 0, size;
   while (input[i]) {
@@ -82,18 +82,6 @@ void collectGarbage(Memory mem) {
 }
 
 
-//STEG 1:
-//void iterateHeap(Heap h)
-/*int isMarked(Chunk c) {
-  if (c->markbit == 1) {
-    retun c->markbit;
-  }
-  else {
-    retun c->markbit;
-  }
-}
-*/
-
 void setZero (Chunk c) {
   while (c) {
     c->markbit=0;
@@ -101,26 +89,6 @@ void setZero (Chunk c) {
   }    
 }
 
-
-/* Chunk endPtr(chunk c) {
-  while(c->next) {
-    c=c->next;
-  }
-  *endPtr=(c->start)+(c->size)
-    return *endPtr;
-}
-*/
-
-//STEG 2:
-/*
-void traverseStack(AdressSpace h, Markfun f, void *p) {
-    }
-c->start <= r) &&  (c->start+c->size)<=r) {
-    }
-else
-    ta bort
-
-*/
 
 
 
@@ -145,21 +113,6 @@ void mf(void *ptr, void *data) {
 }
 
 
-//pekar in i en chunk?
-//om ja var börjar den?
-//markera chunk
-//traversera heap och fortsätt markera
-
-  /*  if (inChunk(ptr)==1) {
-      int chend= ((c->size) + c->start); 
-      if (c->start >= ptr && ptr >= chend) {
-      c->markbit=1;
-      c->free=1;
-      }
-      }
-  */
-
-//STEG 3:
 void freeObj (Chunk c) {
   while (c) {
     c->free = !(c->markbit);  
@@ -168,10 +121,6 @@ void freeObj (Chunk c) {
 }
 
 
-
-
-//traverserar/skannar stacken inom en viss adresssrymd h, där f kan vara
-// t.ex. printPtr
 
 /*
 Steg 1 Iterera över listan över samtliga objekt på heapen och sätt

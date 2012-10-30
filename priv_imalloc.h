@@ -29,7 +29,7 @@ typedef struct private_managed {
     void   *data;
     managed functions;
     Freelist flist;
-    void *size;
+    int size;
     } private_managed;
 
 typedef struct chunk *Chunk;
@@ -44,6 +44,8 @@ struct chunk {
     int markbit; // 1 if there is a reference to this object on the stack
   int combined;
 };
+
+
 
 typedef struct freelist {
     Chunk current;
