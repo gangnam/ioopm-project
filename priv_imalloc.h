@@ -19,11 +19,12 @@
 
 /* Actual return type specifications for iMalloc */
 typedef struct freelist *Freelist;
-typedef struct metafreelist{
-Freelist first;
-int listType; //1 ascending 2 descending 4 adress
 
-}metafreelist , *Metafreelist;
+typedef struct metafreelist {
+    Freelist first;
+    int listType;
+} metafreelist, *Metafreelist;
+
 typedef struct private_manual {
     void  *data;
     Manual functions;
@@ -34,7 +35,6 @@ typedef struct private_managed {
     void   *data;
     Managed functions;
     Metafreelist flist;
-    int size;
     } private_managed;
 
 typedef struct chunk *Chunk;
@@ -48,8 +48,6 @@ struct chunk {
     int markbit; // 1 if there is a reference to this object on the stack
     int combined;
 } chunk;
-
-
 
 typedef struct freelist {
     Chunk current;

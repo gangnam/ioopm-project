@@ -4,7 +4,7 @@
 #include "imalloc.h"
 #include "rc.h"
 //#include "manage.h"
-//#include "manual.h"
+#include "manual.h"
 #include "priv_imalloc.h"
 
 static bool fits(Chunk c, int bytes) {
@@ -60,7 +60,8 @@ char *init(unsigned int bytes, unsigned int headerSize) {
 void *balloc(Memory mem, chunk_size bytes) {
     //Chunk c = mem->data;
     // Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
-    void **temp = (void*) (&mem - sizeof(void*));
+    
+    void *temp = (void *) (((void*) mem)-(sizeof(void*)*3));
 
     Chunk c = (Chunk) temp;
 
@@ -75,7 +76,7 @@ void *balloc(Memory mem, chunk_size bytes) {
 }
 
 Manipulator whatSort (int flags) {
-/*
+
     if (flags & ADDRESS) {
         return adress_free;
     }
@@ -85,7 +86,6 @@ Manipulator whatSort (int flags) {
     else {
         return ascending_free;
     }
-    */
     return 0;
 }
 
@@ -119,8 +119,9 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         man->data = (void *) (memory+sizeof(private_manual)+sizeof(manual));
         man->functions = (manual *) (memory+sizeof(private_manual));
         man->functions->alloc = balloc;
-        man->functions->avail = NULL;//avail;
+        man->functions->avail = avail;
         man->functions->free = whatSort(flags - 8);
+        
 
         Chunk temp = (Chunk) malloc(sizeof(chunk));
         temp->start = (memory+sizeof(private_manual)+sizeof(manual)+sizeof(chunk));
@@ -130,7 +131,17 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         temp->refcount = 1;
         temp->markbit = 1;
 
-        memcpy((memory+sizeof(private_managed)+sizeof(managed)), temp, sizeof(chunk));
+        memcpy((memory+sizeof(private_manual)+sizeof(manual)), temp, sizeof(chunk));
+
+        Freelist node = (Freelist) malloc(sizeof(freelist));
+        node->current = (Chunk) (memory+sizeof(private_manual)+sizeof(manual));
+        node->after = NULL;
+
+        Metafreelist head = (Metafreelist) malloc(sizeof(metafreelist));
+        head->listType = (flags-8);
+        head->first = node;
+
+        man->flist = head;
 
         return (Memory) (man->functions);
     }
@@ -156,6 +167,8 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         mgr->functions = (managed *) (memory+sizeof(private_managed));
         mgr->functions->alloc = balloc;
 
+        int i;
+
         if (flags >= 48) {
             mgr->functions->rc.retain = increaseReferenceCounter;
             mgr->functions->rc.release = decreaseReferenceCounter;
@@ -163,6 +176,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 
             mgr->functions->gc.alloc = NULL;//typeReader;
             mgr->functions->gc.collect = NULL;// NEVER FORGET
+            i = flags-48;
         }
         else if (flags >= 32) {
             mgr->functions->gc.alloc = NULL;//typeReader;
@@ -171,6 +185,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
             mgr->functions->rc.retain = NULL;
             mgr->functions->rc.release = NULL;
             mgr->functions->rc.count = NULL;
+            i = flags-32;
         }
         else {
             mgr->functions->rc.retain = increaseReferenceCounter;
@@ -179,6 +194,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 
             mgr->functions->gc.alloc = NULL;
             mgr->functions->gc.collect = NULL;
+            i = flags-16;
         }
 
         Chunk temp = (Chunk) malloc(sizeof(chunk));
@@ -191,6 +207,16 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 
         memcpy((memory+sizeof(private_managed)+sizeof(managed)), temp, sizeof(chunk));
 
+        Freelist node = (Freelist) malloc(sizeof(freelist));
+        node->current = (Chunk) (memory+sizeof(private_managed)+sizeof(managed));
+        node->after = NULL;
+
+        Metafreelist head = (Metafreelist) malloc(sizeof(metafreelist));
+        head->listType = i;
+        head->first = node;
+        
+        mgr->flist = head;
+
         return (Memory) (mgr->functions);
     }
     else {
@@ -199,14 +225,16 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 }
 
 int main(void) {
-    Memory mfun = iMalloc(1 Kb, 48);
-    private_managed *temp = (private_managed *) (((void*) mfun)-sizeof(private_managed));
+    Manual mfun = (Manual) iMalloc(1 Kb, 9);
+    unsigned int i = mfun->avail(mfun);
+    printf("%u\n", i);
+    /*private_manual *temp = (private_manual *) (((void*) mfun)-sizeof(private_managed));
     Chunk c = temp->data;
     void *hej = c->start;
     unsigned int i = temp->functions->rc.count(hej);
-    printf("%u\n", i);
+    printf("%u\n", i); 
     temp->functions->rc.retain(hej);
     i = temp->functions->rc.count(hej);
-    printf("%u\n", i);
+    printf("%u\n", i);*/
     return 0;
 }
