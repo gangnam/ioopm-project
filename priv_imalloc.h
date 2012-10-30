@@ -1,6 +1,7 @@
 #ifndef __priv_imalloc_h
 #define __priv_imalloc_h
 #include <stdbool.h>
+#include "imalloc.h"
 /*
  * priv_imalloc.h
  *
@@ -21,18 +22,17 @@ typedef struct freelist *Freelist;
 
 typedef struct private_manual {
     void  *data;
-    manual functions;
+    Manual functions;
     Freelist flist;
     } private_manual;
 
 typedef struct private_managed {
     void   *data;
-    managed functions;
+    Managed functions;
     Freelist flist;
     } private_managed;
 
 typedef struct chunk *Chunk;
-
 
 struct chunk {
     void* start; // pointer to start of memory
@@ -41,14 +41,14 @@ struct chunk {
     bool free; // true if the chunk is free, else false
     int refcount; // number of references to the chunk (on the heap or otherwise)
     int markbit; // 1 if there is a reference to this object on the stack
-  int combined;
-};
+    int combined;
+} chunk;
 
 typedef struct freelist {
     Chunk current;
     Freelist after;
     int listType; // ASCENDING_SIZE = 1, DESCENDING_SIZE = 2, ADDRESS = 4
-    } freelist, *Freelist;
+    } freelist;
 
 #define cSTART(ptr) ptr - sizeof(chunk);
 
