@@ -81,7 +81,12 @@ unsigned int ascending_free(Memory mem, void *ptr) {
     c = combine(mem, c);
     Freelist prev = list;
     Freelist new;
-
+    
+    if (list->current->combined == 1) {
+      list->current->combined = 0;
+      d->flist = list->after;
+      list = list->after;
+    }
     while (list) {
         if(list->current->combined == 1) {
             list->current->combined = 0;
@@ -94,6 +99,13 @@ unsigned int ascending_free(Memory mem, void *ptr) {
             }
         }
     prev = orginal;
+    
+    if (orginal->current->size > c->size){
+      new->current = c;
+      new->after = orginal->after;
+      d->flist = new;
+      return  (d->flist);
+    }
     while(orginal) {
         if (orginal->current->size < c->size) {
             prev = orginal;
@@ -124,7 +136,12 @@ unsigned int descending_free(Memory mem, void *ptr) {
     c = combine(mem, c);
     Freelist prev = list;
     Freelist new;
-
+    
+    if (list->current->combined == 1) {
+      list->current->combined = 0;
+      d->flist = list->after;
+      list = list->after;
+    }
     while (list) {
         if(list->current->combined == 1) {
             list->current->combined = 0;
@@ -137,6 +154,13 @@ unsigned int descending_free(Memory mem, void *ptr) {
             }
         }
     prev = orginal;
+    
+    if (orginal->current->size < c->size){
+      new->current = c;
+      new->after = orginal->after;
+      d->flist = new;
+      return  (d->flist);
+    }
     while(orginal) {
         if (orginal->current->size > c->size) {
             prev = orginal;
@@ -170,6 +194,11 @@ unsigned int adress_free(Memory mem, void *ptr) {
     Freelist prev = list;
     Freelist new;
 
+    if (list->current->combined == 1) {
+      list->current->combined = 0;
+      d->flist = list->after;
+      list = list->after;
+    }
     while (list) {
         if(list->current->combined == 1) {
             list->current->combined = 0;
@@ -182,6 +211,13 @@ unsigned int adress_free(Memory mem, void *ptr) {
             }
         }
     prev = orginal;
+    
+if (orginal->current->start > c->start){
+      new->current = c;
+      new->after = orginal->after;
+      d->flist = new;
+      return  (d->flist);
+    }
     while(orginal) {
         if (orginal->current->start < c->start) {
             prev = orginal;
