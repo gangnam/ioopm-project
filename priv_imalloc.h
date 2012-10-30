@@ -19,17 +19,21 @@
 
 /* Actual return type specifications for iMalloc */
 typedef struct freelist *Freelist;
+typedef struct metafreelist{
+Freelist first;
+int listType; //1 ascending 2 descending 4 adress
 
+}metafreelist , *Metafreelist;
 typedef struct private_manual {
     void  *data;
     Manual functions;
-    Freelist flist;
+    Metafreelist flist;
     } private_manual;
 
 typedef struct private_managed {
     void   *data;
     Managed functions;
-    Freelist flist;
+    Metafreelist flist;
     int size;
     } private_managed;
 
@@ -50,7 +54,6 @@ struct chunk {
 typedef struct freelist {
     Chunk current;
     Freelist after;
-    int listType; // ASCENDING_SIZE = 1, DESCENDING_SIZE = 2, ADDRESS = 4
     } freelist;
 
 #define cSTART(ptr) ptr - sizeof(chunk);
