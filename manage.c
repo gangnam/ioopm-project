@@ -68,11 +68,16 @@ int typeReader(Memory mem, char *input) {
 
 // denna funktion kan inte heta GC
 // döper om denna då den finns i imalloc.h
-void collectGarbage(Chunk c) {
+void collectGarbage(Memory mem) {
+  Chunk c = mem - sizeof(void*);
   if(c){
     setZero(c);
+    adressspace as;
+    as.start = c;
+    as.end = (mem + mem->size);
     traverseStack(as, mf, c);//as skall vara adressspace
     
+
     freeObj(c);
   }
 }
