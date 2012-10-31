@@ -7,7 +7,7 @@ Chunk combine(Memory mem, Chunk original) {
     Metafreelist flist=d->flist;
     Freelist list = flist->first;
     Chunk c = d->data;
-    Chunk e;
+    Chunk e = NULL;
     int i = 0;
     Freelist prev = list;
     while (c->next) {
@@ -79,7 +79,7 @@ unsigned int ascending_free(Memory mem, void *ptr) {
     c->free = 1;
     c = combine(mem, c);
     Freelist prev = list;
-    Freelist new;
+    Freelist new = NULL;
     
     if (list->current->size > c->size){
       new->current = c;
@@ -117,7 +117,7 @@ unsigned int descending_free(Memory mem, void *ptr) {
     c->free = 1;
     c = combine(mem, c);
     Freelist prev = list;
-    Freelist new;
+    Freelist new = NULL;
     
     if (list->current->size < c->size){
       new->current = c;
@@ -157,7 +157,7 @@ unsigned int adress_free(Memory mem, void *ptr) {
     c->free = 1;
     c = combine(mem, c);
     Freelist prev = list;
-    Freelist new;
+    Freelist new = NULL;
 
 if (list->current->start > c->start){
       new->current = c;
