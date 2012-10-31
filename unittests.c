@@ -1,12 +1,11 @@
 
 #include <string.h>
 #include "CUnit/Basic.h"
-#include "imalloc.c"
 #include "imalloc.h"
+#include "priv_imalloc.h"
 #include "rc.h"
 #include "Garbage.h"
 #include "rootset.h"
-#include "priv_imalloc.h"
 #include "freelist.h"
 
 
