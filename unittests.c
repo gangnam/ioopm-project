@@ -83,10 +83,58 @@ void testBALLOC()
   Managed mem = (Managed) iMalloc(1 Kb, REFCOUNT + DESCENDING_SIZE);
   void *a = mem->alloc((Memory)mem,10);
   void *b = mem->alloc((Memory)mem,25);
-  //void *c = mem->alloc((Memory)mem,12);
+  void *c = mem->alloc((Memory)mem,12);
+  void *d = mem->alloc((Memory)mem,12);
+  void *e = mem->alloc((Memory)mem,12);
   Chunk a1 = (Chunk) (a-sizeof(chunk));
   Chunk b1 = (Chunk) (b-sizeof(chunk));
+  Chunk c1 = (Chunk) (c-sizeof(chunk));
+  Chunk d1 = (Chunk) (d-sizeof(chunk));
+  Chunk e1 = (Chunk) (e-sizeof(chunk));
   CU_ASSERT(a1->next == b1);
+  CU_ASSERT(b1->next == c1);
+  CU_ASSERT(c1->next == d1);
+  CU_ASSERT(d1->next == e1);
+  //CU_ASSERT(a1->next == b1);
+
+}
+void testFREELIST()
+{
+  Manual mem = (Manual) iMalloc(1 Kb, MANUAL + DESCENDING_SIZE);
+  Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
+  Metafreelist flist = *meta;
+
+  void *a = mem->alloc((Memory)mem,10);
+  void *b = mem->alloc((Memory)mem,25);
+  void *c = mem->alloc((Memory)mem,12);
+  void *d = mem->alloc((Memory)mem,45);
+  void *e = mem->alloc((Memory)mem,50);
+
+  Chunk e1 = (Chunk) (e-sizeof(chunk));
+  Freelist list = flist->first;
+  CU_ASSERT(list->current == e1->next);
+  CU_ASSERT(list->after == NULL);
+
+  mem->free((Memory) mem, c);
+  list = flist->first;
+  CU_ASSERT(list->after->current->start == c);
+
+  mem->free((Memory) mem, d);
+  list = flist->first;
+  CU_ASSERT(list->after->current->start == c);
+  Chunk c1 = (Chunk) (c-sizeof(chunk));
+  CU_ASSERT(c < d && d < (c1->start + c1->size));
+
+  mem->free((Memory) mem, a);
+  mem->free((Memory) mem, b);
+  mem->free((Memory) mem, e);
+
+  list = flist->first;
+  CU_ASSERT(list->current->start == a);
+  CU_ASSERT(list->current->next == NULL);
+  CU_ASSERT(list->current->size == 984);
+  CU_ASSERT(list->after->current == list->current);
+  CU_ASSERT(list->after == NULL);
 
 }
 
@@ -118,7 +166,8 @@ int main() {
 
         //lägg till test för GC här
 	(NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of manual + ascending", testMANUAL_ASCENDING)) ||
-  (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test balloc", testBALLOC))
+  (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test balloc", testBALLOC)) ||
+  (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freelist", testFREELIST))
     ) {
         CU_cleanup_registry();
         return CU_get_error();

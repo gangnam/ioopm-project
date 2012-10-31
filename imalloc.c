@@ -12,10 +12,10 @@ static bool fits(Chunk c, int bytes) {
 }
 
 void *split(Memory mem, Chunk c, int bytes) {
-    
-    Chunk temp = (Chunk) malloc(sizeof(chunk));
-    temp->start = (c->start + bytes + sizeof(chunk));
-    temp->size  = (c->size  - bytes - sizeof(chunk));
+
+    Chunk temp = (Chunk) (c->start + bytes);
+    temp->start = ((void*)temp + sizeof(chunk));
+    temp->size  = (c->size - bytes - sizeof(chunk));
     temp->next = c->next;
     temp->free  = 1;
     temp->refcount = 1;
@@ -25,13 +25,13 @@ void *split(Memory mem, Chunk c, int bytes) {
     c->free = 0;
     c->size = bytes;
 
-    c->next = (c->start + c->size);
+    c->next = temp;//(Chunk) (c->start + c->size);
 
-    memcpy(c->next, temp, sizeof(chunk));
+    //memcpy(c->next, temp, sizeof(chunk));
 
-    free(temp);
+    //free(temp);
 
-    InsertFreeList(mem, c->next); // tre olika
+    InsertFreeList(mem, temp); // tre olika
     RemoveFromFreelist(mem, c);
     
     return c->start;
@@ -96,25 +96,25 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 
         while (totalSize) memory[totalSize--] = 0;
         
-        private_manual *man = (private_manual *) malloc(sizeof(private_manual));
-        Manual functions = (Manual) malloc(sizeof(manual));
+        private_manual *man = (private_manual *) memory;
+        Manual functions = (Manual) (memory+sizeof(private_manual));
 
-        memcpy(memory, man, sizeof(private_manual));
-        memcpy((memory+sizeof(private_manual)), functions, sizeof(manual));
+        //memcpy(memory, man, sizeof(private_manual));
+        //memcpy((memory+sizeof(private_manual)), functions, sizeof(manual));
 
-        free(man);
-        free(functions);
+        //free(man);
+        //free(functions);
 
         man = (private_manual *) memory;
 
         man->data = (void *) (memory+sizeof(private_manual)+sizeof(manual));
-        man->functions = (manual *) (memory+sizeof(private_manual));
+        man->functions = functions;//(Manual) (memory+sizeof(private_manual));
         man->functions->alloc = balloc;
         man->functions->avail = avail;
         man->functions->free = whatSort(flags - 8);
         
 
-        Chunk temp = (Chunk) malloc(sizeof(chunk));
+        Chunk temp = (Chunk) (memory+sizeof(private_manual)+sizeof(manual));
         temp->start = (memory+sizeof(private_manual)+sizeof(manual)+sizeof(chunk));
         temp->size  = (memsiz-sizeof(chunk));
         temp->next  = NULL;
@@ -122,7 +122,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         temp->refcount = 1;
         temp->markbit = 1;
 
-        memcpy((memory+sizeof(private_manual)+sizeof(manual)), temp, sizeof(chunk));
+        //memcpy((memory+sizeof(private_manual)+sizeof(manual)), temp, sizeof(chunk));
 
         Freelist node = (Freelist) malloc(sizeof(freelist));
         node->current = (Chunk) (memory+sizeof(private_manual)+sizeof(manual));
@@ -144,14 +144,14 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 
         while (totalSize) memory[totalSize--] = 0;
         
-        private_managed *mgr = (private_managed *) malloc(sizeof(private_managed));
-        Managed functions = (Managed) malloc(sizeof(managed));
+        private_managed *mgr = (private_managed *) memory;
+        Managed functions = (Managed) (memory+sizeof(private_managed));
 
-        memcpy(memory, mgr, sizeof(private_managed));
-        memcpy((memory+sizeof(private_managed)), functions, sizeof(managed));
+        // memcpy(memory, mgr, sizeof(private_managed));
+        // memcpy((memory+sizeof(private_managed)), functions, sizeof(managed));
 
-        free(mgr);
-        free(functions);
+        // free(mgr);
+        // free(functions);
 
         mgr = (private_managed *) memory;
 
@@ -189,7 +189,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
             i = flags-16;
         }
 
-        Chunk temp = (Chunk) malloc(sizeof(chunk));
+        Chunk temp = (Chunk) (memory+sizeof(private_managed)+sizeof(managed));
         temp->start = (memory+sizeof(private_managed)+sizeof(managed)+sizeof(chunk));
         temp->size  = (memsiz-sizeof(chunk));
         temp->next  = NULL;
@@ -197,7 +197,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         temp->refcount = 1;
         temp->markbit = 1;
 
-        memcpy((memory+sizeof(private_managed)+sizeof(managed)), temp, sizeof(chunk));
+        //memcpy((memory+sizeof(private_managed)+sizeof(managed)), temp, sizeof(chunk));
 
         Freelist node = (Freelist) malloc(sizeof(freelist));
         node->current = (Chunk) (memory+sizeof(private_managed)+sizeof(managed));

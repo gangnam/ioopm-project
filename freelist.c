@@ -38,13 +38,16 @@ Chunk combine(Memory mem, Chunk original) {
     if (i>0) {
     
         if (list->current->combined == 1) {
-          list->current->combined = 0;
-          flist->first = list->after;
-          list = list->after;
+            list->current->combined = 0;
+            flist->first = list->after;
+            list = list->after;
         }
         else {
             while (list) {
                 if(list->current->combined == 1) {
+                    /*if(flist->first == list) {
+                        flist->first = list->after;
+                    }*/
                     list->current->combined = 0;
                     prev->after = list->after;
                     list = list->after;
@@ -52,6 +55,9 @@ Chunk combine(Memory mem, Chunk original) {
                 else {
                     prev = list;
                     list = list->after;
+                }
+                if(list && list->after) {
+                   if (list->current == list->after->current) list->after = NULL;
                 }
             }
         }
@@ -87,32 +93,41 @@ unsigned int ascending_free(Memory mem, void *ptr) {
     
     c->free = 1;
     c = combine(mem, c);
-    Freelist prev = list;
-    Freelist new = (Freelist) malloc(sizeof(freelist));
-    
-    if (list->current->size > c->size){
-      new->current = c;
-      new->after = list->after;
-      flist->first = new;
-      return  0;
+    if(flist->first == NULL) {
+        Freelist new = (Freelist) malloc(sizeof(freelist));
+        new->current = c;
+        new->after = NULL;
+        flist->first = new;
     }
-    while(list) {
-        if (list->current->size < c->size) {
-            prev = list;
-            list = list->after;
+    else {
+        Freelist prev = list;
+        Freelist new = (Freelist) malloc(sizeof(freelist));
+        
+        if (list->current->size > c->size){
+          new->current = c;
+          new->after = list->after;
+          flist->first = new;
+          return  0;
+        }
+        while(list) {
+            if (list->current->size < c->size) {
+                prev = list;
+                list = list->after;
             }
-        else {
-            new->current = c;
-            new->after = list->after;
-            list->after = new;
-            return 0;
+            else {
+                new->current = c;
+                new->after = list->after;
+                list->after = new;
+                return 0;
             }
         }
-    new->current = c;
-    new->after = prev->after;
-    prev->after = new;
-    return 0;
+        new->current = c;
+        new->after = prev->after;
+        prev->after = new;
+        return 0;
     }
+    return 0;
+}
 
 ///////////////
 
@@ -125,32 +140,41 @@ unsigned int descending_free(Memory mem, void *ptr) {
     
     c->free = 1;
     c = combine(mem, c);
-    Freelist prev = list;
-    Freelist new = (Freelist) malloc(sizeof(freelist));
-    
-    if (list->current->size < c->size){
-      new->current = c;
-      new->after = list->after;
-      flist->first = new;
-      return  0;
+    if(flist->first == NULL) {
+        Freelist new = (Freelist) malloc(sizeof(freelist));
+        new->current = c;
+        new->after = NULL;
+        flist->first = new;
     }
-    while(list) {
-        if (list->current->size > c->size) {
-            prev = list;
-            list = list->after;
+    else {
+        Freelist prev = list;
+        Freelist new = (Freelist) malloc(sizeof(freelist));
+        
+        if (list->current->size < c->size){
+          new->current = c;
+          new->after = list->after;
+          flist->first = new;
+          return  0;
+        }
+        while(list) {
+            if (list->current->size > c->size) {
+                prev = list;
+                list = list->after;
             }
-        else {
-            new->current = c;
-            new->after = list->after;
-            list->after = new;
-            return  0;
+            else {
+                new->current = c;
+                new->after = list->after;
+                list->after = new;
+                return  0;
             }
         }
-    new->current = c;
-    new->after = prev->after;
-    prev->after = new;
-    return 0;
+        new->current = c;
+        new->after = prev->after;
+        prev->after = new;
+        return 0;
     }
+    return 0;
+}
 
     
 
