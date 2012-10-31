@@ -84,6 +84,11 @@ typedef union {
     } style;
 
 
+/*
+static bool fits(Chunk c, int bytes);
+static Chunk split(Memory mem, Chunk c, int bytes);
+void *balloc(Memory mem, chunk_size bytes);
+Manipulator whatSort (int flags);*/
 //////////////////// Public Functions ////////////////////
 
 /* Initiates the malloc library to be used. memsiz defines the
@@ -91,5 +96,7 @@ typedef union {
  * of memory manager and allows fine-tunes some options.
  */
 struct style *iMalloc(chunk_size memsiz, unsigned int flags);
+
+
 
 #endif

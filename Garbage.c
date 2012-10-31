@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-
+#include "priv_imalloc.h"
+#include "rootset.h"
 
 
 
@@ -128,11 +129,4 @@ void collectGarbage(Memory mem) {
     }
 
 
-
-
-int main(){
-  Memory mfun = iMalloc(1 Kb, 48);
-
-return 0;
-}
 #endif

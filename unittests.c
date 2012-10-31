@@ -1,9 +1,8 @@
 
 #include <string.h>
 #include "CUnit/Basic.h"
-
+#include "imalloc.c"
 #include "imalloc.h"
-//#include "manage.h"
 #include "rc.h"
 #include "Garbage.h"
 #include "rootset.h"
@@ -64,7 +63,7 @@ void testMANUAL_ADDRESS() {
 void testGCD_REFCOUNT_DESCENDING()
 {
   Managed mem = (Managed) iMalloc(1 Mb, GCD + REFCOUNT + DESCENDING_SIZE);
-  CU_ASSERT(mem->rc != NULL);
+  //CU_ASSERT(mem->rc != NULL);
   CU_ASSERT(mem->rc.release == decreaseReferenceCounter);
   CU_ASSERT(mem->rc.retain == increaseReferenceCounter);
   CU_ASSERT(mem->rc.count == returnReferenceCounter);

@@ -1,6 +1,6 @@
 #include <ctype.h>
 #include <stdio.h>
-
+#include "priv_imalloc.h"
 
 Chunk combine(Memory mem, Chunk original) {
     private_manual *d = (private_manual*) (((void*)mem) - (sizeof(void*)*3));
