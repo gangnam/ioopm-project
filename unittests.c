@@ -42,7 +42,7 @@ void testMANUAL_ASCENDING(void) {
   Chunk c = temp->data;
   CU_ASSERT(c->size == (1 Mb - sizeof(chunk)));
   CU_ASSERT(c->free == 1);
-  CU_ASSERT(c->start == (c+sizeof(chunk)));
+  CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
   
 }
 void testMANUAL_ADDRESS() {
@@ -55,7 +55,7 @@ void testMANUAL_ADDRESS() {
   Chunk c = temp->data;
   CU_ASSERT(c->size == (1 Mb - sizeof(chunk)));
   CU_ASSERT(c->free == 1);
-  CU_ASSERT(c->start == (c+sizeof(chunk)));
+  CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
 
 }
 
@@ -74,13 +74,8 @@ void testGCD_REFCOUNT_DESCENDING()
   Chunk c = temp->data;
   CU_ASSERT(c->size == (1 Mb - sizeof(chunk)));
   CU_ASSERT(c->free == 1);
-  CU_ASSERT(c->start == (c+sizeof(chunk)));
+  CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
 }
-
-
-
-
-
 
 int main() {
     CU_pSuite pSuiteGCD_REFCOUNT_DESCENDING = NULL;
