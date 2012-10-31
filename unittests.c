@@ -137,6 +137,33 @@ void testFREELIST()
   CU_ASSERT(list->after == NULL);
 
 }
+void testREFCOUNT()
+{
+  Managed mem = (Managed) iMalloc(1 Mb, REFCOUNT + DESCENDING_SIZE);
+  Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
+  Metafreelist flist = *meta;
+  Freelist list = flist->first;
+  void *a = mem->alloc((Memory)mem,10);
+  Chunk a1 = (Chunk) (a-sizeof(chunk));
+
+  CU_ASSERT(mem->rc.count(a)==1);
+
+  mem->rc.retain(a);
+
+  CU_ASSERT(mem->rc.count(a)==2);
+  CU_ASSERT(list->current = a1->next);
+
+  mem->rc.release(mem, a);
+  mem->rc.release(mem, a);
+
+  CU_ASSERT(mem->rc.count(a)==0);
+
+  list = flist->first;
+  
+  CU_ASSERT(list->current == a1);
+  CU_ASSERT(a1->next == NULL);
+
+}
 
 int main() {
     CU_pSuite pSuiteGCD_REFCOUNT_DESCENDING = NULL;
@@ -175,7 +202,8 @@ int main() {
 
     if (
         //lägg till test för REFCOUNT här
-        (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of manual + adress", testMANUAL_ADDRESS))
+        (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of manual + adress", testMANUAL_ADDRESS))||
+        (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test refcount", testREFCOUNT))
     ) {
         CU_cleanup_registry();
         return CU_get_error();
