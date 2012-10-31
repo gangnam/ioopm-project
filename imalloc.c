@@ -214,18 +214,18 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         return NULL;
     }
 }
-
+/*
 int main(void) {
     Manual mfun = (Manual) iMalloc(1 Kb, 9);
     unsigned int i = mfun->avail(mfun);
     printf("%u\n", i);
-    /*private_manual *temp = (private_manual *) (((void*) mfun)-sizeof(private_managed));
+    private_manual *temp = (private_manual *) (((void*) mfun)-sizeof(private_managed));
     Chunk c = temp->data;
     void *hej = c->start;
     unsigned int i = temp->functions->rc.count(hej);
     printf("%u\n", i); 
     temp->functions->rc.retain(hej);
     i = temp->functions->rc.count(hej);
-    printf("%u\n", i);*/
+    printf("%u\n", i);
     return 0;
-}
+}*/

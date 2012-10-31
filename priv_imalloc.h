@@ -1,7 +1,7 @@
 #ifndef __priv_imalloc_h
 #define __priv_imalloc_h
 #include <stdbool.h>
-#include "imalloc.c"
+#include "imalloc.h"
 /*
  * priv_imalloc.h
  *
