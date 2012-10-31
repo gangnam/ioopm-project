@@ -5,7 +5,6 @@
 #include "freelist.h"
 #include "rc.h"
 #include "Garbage.h"
-
 #include "rootset.h"
 
 static bool fits(Chunk c, int bytes) {
@@ -166,13 +165,13 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
             mgr->functions->rc.release = decreaseReferenceCounter;
             mgr->functions->rc.count = returnReferenceCounter;
 
-            mgr->functions->gc.alloc = NULL;//typeReader;
-            mgr->functions->gc.collect = NULL;// NEVER FORGET
+            mgr->functions->gc.alloc = typeReader;
+            mgr->functions->gc.collect = collectGarbage;// NEVER FORGET
             i = flags-48;
         }
         else if (flags >= 32) {
-            mgr->functions->gc.alloc = NULL;//typeReader;
-            mgr->functions->gc.collect = NULL;// NEVER FORGET
+            mgr->functions->gc.alloc = typeReader;
+            mgr->functions->gc.collect = collectGarbage;// NEVER FORGET
 
             mgr->functions->rc.retain = NULL;
             mgr->functions->rc.release = NULL;
