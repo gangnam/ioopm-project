@@ -2,6 +2,7 @@
 #define __manual_h
 #include "priv_imalloc.h"
 
+
 unsigned int avail(Memory mem);
 unsigned int ascending_free(Memory mem, void *ptr);
 unsigned int descending_free(Memory mem, void *ptr);

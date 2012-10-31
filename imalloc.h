@@ -83,7 +83,7 @@ typedef union {
     managed managed;
     } style;
 
-
+void *balloc(Memory mem, chunk_size bytes);
 /*
 static bool fits(Chunk c, int bytes);
 static Chunk split(Memory mem, Chunk c, int bytes);
