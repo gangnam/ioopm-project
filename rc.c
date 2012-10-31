@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "priv_imalloc.h"
+#include "freelist.h"
 
 unsigned int increaseReferenceCounter (void *ptr) {
     Chunk temp = (Chunk) (ptr-sizeof(chunk));
@@ -13,7 +14,7 @@ unsigned int decreaseReferenceCounter (Memory mem, void *ptr) {
     temp->refcount--;
     if (temp->refcount == 0) {
         temp->free = 1;
-        //InsertToFreelist(mem, temp);
+        InsertFreeList(mem, temp);
     }
     return temp->refcount;
 }

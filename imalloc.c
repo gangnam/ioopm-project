@@ -14,8 +14,8 @@ static bool fits(Chunk c, int bytes) {
 void *split(Memory mem, Chunk c, int bytes) {
     
     Chunk temp = (Chunk) malloc(sizeof(chunk));
-    temp->start = c->start + bytes;
-    temp->size  = c->size  - bytes - sizeof(chunk);
+    temp->start = (c->start + bytes + sizeof(chunk));
+    temp->size  = (c->size  - bytes - sizeof(chunk));
     temp->next = c->next;
     temp->free  = 1;
     temp->refcount = 1;
@@ -31,9 +31,9 @@ void *split(Memory mem, Chunk c, int bytes) {
 
     free(temp);
 
-    RemoveFromFreelist(mem, c);
     InsertFreeList(mem, c->next); // tre olika
-
+    RemoveFromFreelist(mem, c);
+    
     return c->start;
 }
 
@@ -129,8 +129,9 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         node->after = NULL;
 
         Metafreelist head = (Metafreelist) malloc(sizeof(metafreelist));
-        head->listType = (flags-8);
         head->first = node;
+        head->listType = (flags-8);
+        head->size = memsiz;
 
         man->flist = head;
 
@@ -203,8 +204,9 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         node->after = NULL;
 
         Metafreelist head = (Metafreelist) malloc(sizeof(metafreelist));
-        head->listType = i;
         head->first = node;
+        head->listType = i;
+        head->size = memsiz;
         
         mgr->flist = head;
 
