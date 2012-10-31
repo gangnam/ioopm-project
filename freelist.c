@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include "priv_imalloc.h"
 
+
+
+/* Letar igenom freelistan och om den hittar en chunk som skall 
+frigöras så tar den ut den chunken samtidigt som den pekar om */
 Chunk combine(Memory mem, Chunk original) {
 
     void **priv = (void**) ((void*) mem-(sizeof(void*)*3));
@@ -62,7 +66,7 @@ Chunk combine(Memory mem, Chunk original) {
     }
 }
 
-/*kollar hur mycket plats det finns ledigt i det stora minnet, eller om vi måste skapa ett nytt stort minnes utrymme. */
+/* Kollar hur mycket plats det finns ledigt i det stora minnet, eller om vi måste skapa ett nytt stort minnes utrymme. */
 unsigned int avail(Memory mem) {
     private_manual *temp = (private_manual *) (((void*) mem)-sizeof(private_manual));
     Chunk c = temp->data;
@@ -75,9 +79,11 @@ unsigned int avail(Memory mem) {
     return avail;
     }
 
-/* Free Funktionen, */
 
 
+
+/*Letar efter rätt plats att placera chunken i Freelistan, denna funktion sorterar enligt ascending,
+dvs minst först och störst sist. */
 unsigned int ascending_free(Memory mem, void *ptr) {
     // Back up one pointer in memory to access the first chunk
     Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
@@ -116,6 +122,8 @@ unsigned int ascending_free(Memory mem, void *ptr) {
 
 ///////////////
 
+/* Tar in en chunk och letar efter rätt plats att placera den i freelistan, 
+nu i descending sortering. Dvs störst först och minst sist*/
 unsigned int descending_free(Memory mem, void *ptr) {
    // Back up one pointer in memory to access the first chunk
     Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
@@ -155,7 +163,9 @@ unsigned int descending_free(Memory mem, void *ptr) {
     
 
 ///////////////
-
+/* Tar in en chunk och letar efter rätt plats att placera den i freelistan, 
+nu i descending sortering. Dvs störst först och minst sist*/ 
+ */
 unsigned int adress_free(Memory mem, void *ptr) {
     // Back up one pointer in memory to access the first chunk
     Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
@@ -192,7 +202,7 @@ unsigned int adress_free(Memory mem, void *ptr) {
     return 0;
 }
 
-
+/*Tar bort en chunk ur freelistan och pekar om*/
 void RemoveFromFreelist(Memory mem, Chunk c) {
     Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
     Metafreelist flist = *meta;
@@ -215,6 +225,10 @@ void RemoveFromFreelist(Memory mem, Chunk c) {
     }
 }
 
+
+/* Lägger in en chunk i freelistan, chunken är markerad för vilken sorering 
+den har och markeringen avgör vilken sortering den får vid insättning i freelistan. 
+Dessa är: ascending = 1, descending = 2 och  adress = 4. */
 void InsertFreeList(Memory mem, Chunk c) {
     Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
     Metafreelist list = *meta;
