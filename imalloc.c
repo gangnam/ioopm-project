@@ -156,7 +156,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         mgr = (private_managed *) memory;
 
         mgr->data = (void *) (memory+sizeof(private_managed)+sizeof(managed));
-        mgr->functions = (managed *) (memory+sizeof(private_managed));
+        mgr->functions = functions;//(managed *) (memory+sizeof(private_managed));
         mgr->functions->alloc = balloc;
 
         int i;

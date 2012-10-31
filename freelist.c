@@ -189,7 +189,6 @@ unsigned int descending_free(Memory mem, void *ptr) {
 ///////////////
 /* Tar in en chunk och letar efter rätt plats att placera den i freelistan, 
 nu i descending sortering. Dvs störst först och minst sist*/ 
- */
 unsigned int adress_free(Memory mem, void *ptr) {
     // Back up one pointer in memory to access the first chunk
     Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
