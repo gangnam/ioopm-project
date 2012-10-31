@@ -142,24 +142,24 @@ void testREFCOUNT()
   Managed mem = (Managed) iMalloc(1 Mb, REFCOUNT + DESCENDING_SIZE);
   Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
   Metafreelist flist = *meta;
-  Freelist list = flist->first;
+  
   void *a = mem->alloc((Memory)mem,10);
   Chunk a1 = (Chunk) (a-sizeof(chunk));
-
+  Freelist list = flist->first;
   CU_ASSERT(mem->rc.count(a)==1);
 
   mem->rc.retain(a);
 
   CU_ASSERT(mem->rc.count(a)==2);
-  CU_ASSERT(list->current = a1->next);
+  CU_ASSERT(list->current == a1->next);
 
-  mem->rc.release(mem, a);
-  mem->rc.release(mem, a);
+  mem->rc.release((Memory)mem, a);
+  mem->rc.release((Memory)mem, a);
 
   CU_ASSERT(mem->rc.count(a)==0);
 
   list = flist->first;
-  
+
   CU_ASSERT(list->current == a1);
   CU_ASSERT(a1->next == NULL);
 
