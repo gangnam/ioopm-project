@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "priv_imalloc.h"
-#include "imalloc.h"
+
 
 unsigned int increaseReferenceCounter (void *ptr) {
     Chunk temp = (Chunk) (ptr-sizeof(chunk));

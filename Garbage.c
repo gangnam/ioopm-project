@@ -5,10 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#include "rootset.h"
-#include "BallocFreeList.c"
-#include "priv_imalloc.h"
-#include "imalloc.h"
+
 
 
 

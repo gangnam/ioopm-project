@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "imalloc.h"
 #include "rc.h"
-//#include "manage.h"
-#include "manual.h"
+#include "Garbage.h"
+#include "freelist.h"
 #include "priv_imalloc.h"
+#include "rootset.h"
 
 static bool fits(Chunk c, int bytes) {
     return c && (c->size >= bytes && c->free);

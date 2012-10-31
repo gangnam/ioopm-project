@@ -5,8 +5,10 @@
 #include "imalloc.h"
 //#include "manage.h"
 #include "rc.h"
-#include "manual.h"
+#include "Garbage.h"
+#include "rootset.h"
 #include "priv_imalloc.h"
+#include "freelist.h"
 
 
 int init_suite_manual(void) {
