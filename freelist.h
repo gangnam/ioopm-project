@@ -9,8 +9,9 @@ unsigned int adress_free(Memory mem, void *ptr);
 //static void *__sfreeSimple(void* address);
 //static void combine(Memory mem);
 //static void *__sfreeDefrag(void* address);
-void *sfree(void* address);
+
 void InsertFreeList(Memory mem, Chunk c);
 void RemoveFromFreelist(Memory mem, Chunk c);
+Chunk combine(Memory mem, Chunk original);
 
 #endif

@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "priv_imalloc.h"
 #include "rc.h"
 #include "Garbage.h"
 #include "freelist.h"
-#include "priv_imalloc.h"
 #include "rootset.h"
 
 static bool fits(Chunk c, int bytes) {
