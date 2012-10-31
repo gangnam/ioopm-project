@@ -11,7 +11,7 @@ static bool fits(Chunk c, int bytes) {
     return c && (c->size >= (bytes+sizeof(chunk)) && c->free);
 }
 
-static Chunk split(Memory mem, Chunk c, int bytes) {
+void *split(Memory mem, Chunk c, int bytes) {
     
     Chunk temp = (Chunk) malloc(sizeof(chunk));
     temp->start = c->start + bytes;
@@ -34,7 +34,7 @@ static Chunk split(Memory mem, Chunk c, int bytes) {
     RemoveFromFreelist(mem, c);
     InsertFreeList(mem, c->next); // tre olika
 
-    return c;
+    return c->start;
 }
 
 Chunk getChunk(Memory mem, chunk_size bytes) {
@@ -59,7 +59,7 @@ void *balloc(Memory mem, chunk_size bytes) {
     Chunk c = getChunk(mem, bytes);
 
     if (c) {
-        return split(mem, c, bytes)->start;
+        return split(mem, c, bytes);
     }
     else {
         return NULL;

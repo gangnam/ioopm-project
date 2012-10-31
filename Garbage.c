@@ -1,15 +1,13 @@
+
 #ifndef __manage_c
 #define __manage_c
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#include "rootset.h"
 #include "priv_imalloc.h"
-#include "imalloc.h"
-
-
-
+#include "rootset.h"
+#include "freelist.h"
 
 /* "TypedAllocator"  T.ex. "***i\0" innebär 3 void pekare samt 1 int = 3*sizeof(void*) + sizeof(int) */
 void *typeReader(Memory mem, char *input) {
@@ -63,10 +61,10 @@ void *typeReader(Memory mem, char *input) {
         i++;
         }
     if (multiply != 0) {
-        return balloc(mem ,(chunk_size)(result + (multiply*sizeof(char))));
+        return balloc(mem ,(unsigned int)(result + (multiply*sizeof(char))));
         }
     else {
-        return balloc(mem, (chunk_size) result);
+        return balloc(mem, (unsigned int)result);
         }
     }
 
@@ -113,7 +111,7 @@ void freeObj (Memory mem,Chunk c) {
     }
 
 
-void collectGarbage(Memory mem) {
+unsigned int collectGarbage(Memory mem) {
     Chunk c = (Chunk) (((void*)mem) - (3*sizeof(void*)));
     Metafreelist list = (((void*)mem)  - (sizeof(void*)));
     if(c) {
@@ -126,6 +124,7 @@ void collectGarbage(Memory mem) {
         free (as);
         freeObj(mem, c);
         }
+        return 0; // konstig
     }
 
 

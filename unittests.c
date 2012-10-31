@@ -4,9 +4,10 @@
 #include "imalloc.h"
 #include "priv_imalloc.h"
 #include "rc.h"
+#include "freelist.h"
 #include "Garbage.h"
 #include "rootset.h"
-#include "freelist.h"
+
 
 
 int init_suite_manual(void) {
@@ -77,6 +78,18 @@ void testGCD_REFCOUNT_DESCENDING()
   CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
 }
 
+void testBALLOC()
+{
+  Managed mem = (Managed) iMalloc(1 Kb, REFCOUNT + DESCENDING_SIZE);
+  void *a = mem->alloc((Memory)mem,10);
+  void *b = mem->alloc((Memory)mem,25);
+  //void *c = mem->alloc((Memory)mem,12);
+  Chunk a1 = (Chunk) (a-sizeof(chunk));
+  Chunk b1 = (Chunk) (b-sizeof(chunk));
+  CU_ASSERT(a1->next == b1);
+
+}
+
 int main() {
     CU_pSuite pSuiteGCD_REFCOUNT_DESCENDING = NULL;
     CU_pSuite pSuiteMANUAL_ADDRESS = NULL;
@@ -104,7 +117,8 @@ int main() {
     if (
 
         //lägg till test för GC här
-	(NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of manual + ascending", testMANUAL_ASCENDING))
+	(NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of manual + ascending", testMANUAL_ASCENDING)) ||
+  (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test balloc", testBALLOC))
     ) {
         CU_cleanup_registry();
         return CU_get_error();
