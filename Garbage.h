@@ -1,9 +1,6 @@
 #ifndef __manage_h
 #define __manage_h
 
-
-
-
 void *typeReader(Memory mem, char *input);
 // Traverserar hepaen och sätter alla objekts markbitar till 0
 void setZero (Chunk c);

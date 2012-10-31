@@ -1,12 +1,12 @@
-
 #ifndef __manage_c
 #define __manage_c
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#include "priv_imalloc.h"
 #include "rootset.h"
+#include "priv_imalloc.h"
+#include "imalloc.h"
 
 
 
@@ -63,10 +63,10 @@ void *typeReader(Memory mem, char *input) {
         i++;
         }
     if (multiply != 0) {
-        return balloc(mem ,(unsigned int)(result + (multiply*sizeof(char))));
+        return balloc(mem ,(chunk_size)(result + (multiply*sizeof(char))));
         }
     else {
-        return balloc(mem, (unsigned int)result);
+        return balloc(mem, (chunk_size) result);
         }
     }
 
