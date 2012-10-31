@@ -8,71 +8,62 @@
 #include "rootset.h"
 
 static bool fits(Chunk c, int bytes) {
-    return c && (c->size >= bytes && c->free);
+    return c && (c->size >= (bytes+sizeof(chunk)) && c->free);
 }
 
 static Chunk split(Memory mem, Chunk c, int bytes) {
-    Chunk temp; // kanske allokera
-    if (c->size > bytes) {
+    
+    Chunk temp = (Chunk) malloc(sizeof(chunk));
+    temp->start = c->start + bytes;
+    temp->size  = c->size  - bytes - sizeof(chunk);
+    temp->next = c->next;
+    temp->free  = 1;
+    temp->refcount = 1;
+    temp->markbit = 1;
+    temp->combined = 0;
 
-        temp->start = c->start + bytes;
-        temp->size  = c->size  - bytes - sizeof(chunk);
-        temp->next = c->next;
-        temp->free  = 1;
-        temp->refcount = 1;
-        temp->markbit = 1;
-    }
     c->free = 0;
     c->size = bytes;
 
     c->next = (c->start + c->size);
 
-    memcpy(c->next, temp, sizeof(temp));
+    memcpy(c->next, temp, sizeof(chunk));
 
     free(temp);
 
-    //removeFromFreelist(mem, c);
-    //addToFreelist(mem, c->next); // tre olika
+    RemoveFromFreelist(mem, c);
+    InsertFreeList(mem, c->next); // tre olika
 
     return c;
 }
-/*
-char *init(unsigned int bytes, unsigned int headerSize) {
 
-    int totalSize = bytes+headerSize;
-    char *memory = (char*) malloc(totalSize);
+Chunk getChunk(Memory mem, chunk_size bytes) {
 
-    while (totalSize) memory[totalSize--] = 0;
+    Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
+    Metafreelist test = *meta;
 
-    Chunk temp = (Chunk) malloc(sizeof(chunk));
-    temp->start = memory+headerSize+sizeof(chunk);
-    temp->size  = bytes;
-    temp->next  = NULL;
-    temp->free  = 1;
-    temp->refcount = 1;
-    temp->markbit = 1;
-
-    memcpy((memory+headerSize), temp, sizeof(chunk));
-
-    return memory;
+    Freelist list = test->first;
+    
+    for(;list;list=list->after) {
+        if(fits(list->current, bytes=sizeof(chunk))) {
+            return list->current;
+        }
     }
-*/
+    return NULL;
+}
+
 void *balloc(Memory mem, chunk_size bytes) {
     //Chunk c = mem->data;
     // Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
     
-    void *temp = (void *) (((void*) mem)-(sizeof(void*)*3));
-
-    Chunk c = (Chunk) temp;
-
-    //Freelist list = d->flist;
-    while (!fits(c, bytes+sizeof(chunk))) c = c->next; //
+    Chunk c = getChunk(mem, bytes);
 
     if (c) {
         return split(mem, c, bytes)->start;
     }
-
-    return NULL;
+    else {
+        return NULL;
+    }
 }
 
 Manipulator whatSort (int flags) {
