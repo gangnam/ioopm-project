@@ -29,3 +29,6 @@ manual:
 
 random: imalloc.c imalloc.h manual.c manual.h priv_imalloc.h rc.c rc.h
 	$(C_COMPILER) $(C_OPTIONS) imalloc.c manual.c rc.c -o random
+	
+gctest: imalloc.c imalloc.h priv_imalloc.h manage.c manage.h BallocFreeList.c manual.c manual.h rc.c rc.h rootset.c rootset.h
+	$(C_COMPILER) $(C_OPTIONS) imalloc.c manage.c BallocFreeList.c manual.c rc.c rootset.c -o random
