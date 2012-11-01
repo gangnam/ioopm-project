@@ -156,6 +156,29 @@ void testREFCOUNT() {
     CU_ASSERT(a1->next == NULL);
     }
 
+void testSETZERO() {
+    Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
+
+    void *a = mem->alloc((Memory)mem,10);
+    void *b = mem->alloc((Memory)mem,25);
+    void *c = mem->alloc((Memory)mem,12);
+    void *d = mem->alloc((Memory)mem,45);
+    void *e = mem->alloc((Memory)mem,50);
+    Chunk a1 = (Chunk) (a-sizeof(chunk));
+    Chunk b1 = (Chunk) (b-sizeof(chunk));  
+    Chunk c1 = (Chunk) (c-sizeof(chunk));
+    Chunk d1 = (Chunk) (d-sizeof(chunk));
+    Chunk e1 = (Chunk) (e-sizeof(chunk));
+    setZero(a1);
+    CU_ASSERT(a1->markbit == 0);
+    CU_ASSERT(b1->markbit == 0);
+    CU_ASSERT(c1->markbit == 0);
+    CU_ASSERT(d1->markbit == 0);
+    CU_ASSERT(e1->markbit == 0);
+
+
+    }
+
 void testAVAIL() 
 {
   int c = (1 Kb- manMetaSize - sizeof(chunk));
@@ -219,7 +242,8 @@ int main() {
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of manual + ascending", testMANUAL_ASCENDING)) ||
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test balloc", testBALLOC)) ||
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test avail", testAVAIL)) ||
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freelist", testFREELIST))
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freelist", testFREELIST))||
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test setZero", testSETZERO))
     ) {
         CU_cleanup_registry();
         return CU_get_error();
