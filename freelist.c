@@ -4,9 +4,6 @@
 #include "priv_imalloc.h"
 
 
-
-/* Letar igenom freelistan och om den hittar en chunk som skall 
-frigöras så tar den ut den chunken samtidigt som den pekar om */
 Chunk combine(Memory mem, Chunk original) {
 
   void **priv = memToChunk(mem);
@@ -41,17 +38,26 @@ Chunk combine(Memory mem, Chunk original) {
 
     if (i>0) {
     
-        if (list->current->combined == 1) {
-            list->current->combined = 0;
-            flist->first = list->after;
-            list = list->after;
+      if (list->current->combined == 1) {	
+	list->current->combined = 0;
+	flist->first = list->after;
+	list = list->after;
+	while(list){
+	if (list->current->combined == 1) {	
+	list->current->combined = 0;
+	flist->first = list->after;
+	list = list->after;
+	}
+	else {
+	  break;
+	}
         }
+      }
         else {
             while (list) {
                 if(list->current->combined == 1) {
-                    /*if(flist->first == list) {
-                        flist->first = list->after;
-                    }*/
+                    
+                    }
                     list->current->combined = 0;
                     prev->after = list->after;
                     list = list->after;
@@ -60,11 +66,9 @@ Chunk combine(Memory mem, Chunk original) {
                     prev = list;
                     list = list->after;
                 }
-                if(list && list->after) {
-                   if (list->current == list->after->current) list->after = NULL;
-                }
+                
             }
-        }
+        
         return e;
     }
     else {
