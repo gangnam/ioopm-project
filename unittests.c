@@ -177,6 +177,21 @@ void testSETZERO() {
     CU_ASSERT(e1->markbit == 0);
     }
 
+void testFREEOBJ() {
+    Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
+    int x = (1 Kb- mgrMetaSize - sizeof(chunk));
+    void *a = mem->alloc((Memory)mem,10);
+    void *b = mem->alloc((Memory)mem,25);
+    void *c = mem->alloc((Memory)mem,12);
+    void *d = mem->alloc((Memory)mem,45);
+    void *e = mem->alloc((Memory)mem,50);
+    Chunk a1 = (Chunk) (a-sizeof(chunk));
+    setZero(a1);
+    freeObj((Memory) mem, a1);
+    CU_ASSERT(avail((Memory)mem) == x);
+
+    }
+
 void testAVAIL() 
 {
   int c = (1 Kb- manMetaSize - sizeof(chunk));
@@ -241,7 +256,8 @@ int main() {
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test balloc", testBALLOC)) ||
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test avail", testAVAIL)) ||
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freelist", testFREELIST))||
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test setZero", testSETZERO))
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test setZero", testSETZERO))||
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freeObj", testFREEOBJ))
     ) {
         CU_cleanup_registry();
         return CU_get_error();
