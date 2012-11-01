@@ -181,10 +181,6 @@ void testFREEOBJ() {
     Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
     int x = (1 Kb- mgrMetaSize - sizeof(chunk));
     void *a = mem->alloc((Memory)mem,10);
-    void *b = mem->alloc((Memory)mem,25);
-    void *c = mem->alloc((Memory)mem,12);
-    void *d = mem->alloc((Memory)mem,45);
-    void *e = mem->alloc((Memory)mem,50);
     Chunk a1 = (Chunk) (a-sizeof(chunk));
     setZero(a1);
     freeObj((Memory) mem, a1);
