@@ -15,17 +15,19 @@ Chunk combine(Memory mem, Chunk original) {
     Freelist list = flist->first;
     
     Chunk e = NULL;
-    int i = 0;
+    // int i = 0;
+    // int o = 0;
     Freelist prev = list;
     while (c->next) {
-        if (c->free) {
-            if (c->next->free) {
-                c->size += (c->next->size+sizeof(chunk));
-                c->next->combined = 1;
-                c->next = c->next->next;
-                c->combined = 1;
-                i++;
-                e = c;
+      if (c->free) {
+	c->combined = 1;
+	if (c->next->free) {
+	  c->size += (c->next->size+sizeof(chunk));
+	  c->next->combined = 1;
+	  c->next = c->next->next;
+	  c->combined = 1;
+	  //i++;
+	  e = c;
             }
             else {
                 c = c->next;
@@ -36,7 +38,7 @@ Chunk combine(Memory mem, Chunk original) {
         }
     }
 
-    if (i>0) {
+    //if (i>0) {
       
       if (list->current->combined == 1) {	
 	while(list){
@@ -66,11 +68,12 @@ Chunk combine(Memory mem, Chunk original) {
             }
 	    
 	    return e;
-    }
-      else {
+	    //}
+	    /*else {
+	
         return original;
     }
-    
+	    */
 }
 
 
