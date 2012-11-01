@@ -21,6 +21,8 @@
 #define memToMeta(mem) (Metafreelist*) ((void*) mem-sizeof(void*))
 #define memToChunk(mem) (void**) ((void*) mem - (sizeof(void*)*3))
 #define ptrToChunk(ptr) (Chunk) (ptr-sizeof(chunk))
+#define manMetaSize (sizeof(private_manual)+sizeof(manual))
+#define mgrMetaSize (sizeof(private_managed)+sizeof(managed))
 
 typedef struct freelist *Freelist;
 
