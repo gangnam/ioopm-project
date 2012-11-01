@@ -66,13 +66,12 @@ Chunk combine(Memory mem, Chunk original) {
             }
 	    
 	    return e;
-	}
     }
       else {
         return original;
     }
     
-}
+
 
 
 
