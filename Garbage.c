@@ -127,9 +127,7 @@ på heapen och frigör alla vars mark-bit fortfarande är 0.
 */
 unsigned int collectGarbage(Memory mem) {
     Chunk c = (Chunk) (((void*)mem) - (3*sizeof(void*)));
-    /* Metafreelist list = (((void*)mem)  - (sizeof(void*))); */
-    Metafreelist *meta = memToMeta(mem);
-    Metafreelist list = *meta;
+    Metafreelist list = memToMeta(mem);
     if(c) {
         setZero(c);
         AddressSpace as = (AddressSpace) malloc(sizeof(addressspace));
