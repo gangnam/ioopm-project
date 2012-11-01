@@ -14,6 +14,14 @@ void *typeReader(Memory mem, char *input);
 // Traverserar hepaen och sätter alla objekts markbitar till 0
 void setZero (Chunk c);
 
+/*
+steg 1 (setZero) : Itererar över listan över samtliga objekt på heapen och sätter mark-biten till 0.
+steg 2 (traverseStack(mf)): Söker igenom stacken efter pekare till objekt på heapen, och med 
+utgångspunkt från dessa objekt, traverserar heapen och markera alla objekt 
+som påträffas genom att mark-biten sätts till 1.
+steg 3 (freeObj): Iterera över listan över samtliga objekt 
+på heapen och frigör alla vars mark-bit fortfarande är 0.
+*/
 unsigned int collectGarbage(Memory mem);
 
 /* 
