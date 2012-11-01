@@ -132,7 +132,6 @@ void testFREELIST()
   CU_ASSERT(list->current->start == a);
   CU_ASSERT(list->current->next == NULL);
   CU_ASSERT(list->current->size == 984);
-  CU_ASSERT(list->after->current == list->current);
   CU_ASSERT(list->after == NULL);
 
 }
@@ -163,7 +162,23 @@ void testREFCOUNT()
   CU_ASSERT(a1->next == NULL);
 
 }
-
+void testAVAIL() {
+  int c = 1 Kb-sizeof(chunk);
+  Manual mem = (Manual) iMalloc(1 Kb, MANUAL + ASCENDING_SIZE);
+  CU_ASSERT(mem->avail(((Memory) mem) == c));
+  void *a = mem->alloc((Memory) mem, 10);
+  CU_ASSERT(mem->avail(((Memory) mem) == c-10-sizeof(chunk)));
+  mem->free((Memory) mem,a);
+  CU_ASSERT(mem->avail(((Memory) mem) == c));
+  
+  a = mem->alloc((Memory) mem, 10);
+  CU_ASSERT(mem->avail(((Memory) mem) == c-10-sizeof(chunk)));
+  void *b = mem->alloc((Memory) mem,30);
+  CU_ASSERT(mem->avail(((Memory) mem) == c-10-sizeof(chunk)-30-sizeof(chunk)));
+  mem->free((Memory) mem,a);
+  mem->free((Memory) mem,b);
+  CU_ASSERT(mem->avail(((Memory) mem) == c));	    
+}
 int main() {
     CU_pSuite pSuiteGCD_REFCOUNT_DESCENDING = NULL;
     CU_pSuite pSuiteMANUAL_ADDRESS = NULL;
@@ -192,8 +207,9 @@ int main() {
 
         //lägg till test för GC här
 	(NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of manual + ascending", testMANUAL_ASCENDING)) ||
-  (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test balloc", testBALLOC)) ||
-  (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freelist", testFREELIST))
+	(NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test balloc", testBALLOC)) ||
+	(NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test avail", testAVAIL)) ||
+	(NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freelist", testFREELIST))
     ) {
         CU_cleanup_registry();
         return CU_get_error();
