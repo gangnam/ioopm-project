@@ -4,13 +4,13 @@
 #include "freelist.h"
 
 unsigned int increaseReferenceCounter (void *ptr) {
-    Chunk temp = (Chunk) (ptr-sizeof(chunk));
+  Chunk temp = ptrToChunk(ptr);
     temp->refcount++;
     return temp->refcount;
 }
 
 unsigned int decreaseReferenceCounter (Memory mem, void *ptr) {
-    Chunk temp = (Chunk) (ptr-sizeof(chunk));
+    Chunk temp = ptrToChunk(ptr);
     temp->refcount--;
     if (temp->refcount == 0) {
         temp->free = 1;
@@ -20,6 +20,6 @@ unsigned int decreaseReferenceCounter (Memory mem, void *ptr) {
 }
 
 unsigned int returnReferenceCounter (void *ptr) {
-    Chunk temp = (Chunk) (ptr-sizeof(chunk));
+    Chunk temp = ptrToChunk(ptr);
     return temp->refcount;
 }
