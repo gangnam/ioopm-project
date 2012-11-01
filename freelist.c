@@ -6,17 +6,14 @@
 
 Chunk combine(Memory mem, Chunk original) {
 
-  void **priv = memToChunk(mem);
-    Chunk c = (Chunk) *priv;
-
-    Metafreelist *meta = memToMeta(mem);
-    Metafreelist flist = *meta;
-
+    Chunk c = memToChunk(mem);
+    Metafreelist flist = memToMeta(mem);
     Freelist list = flist->first;
     
     Chunk e = NULL;
     int i = 0;
     Freelist prev = list;
+    
     while (c->next) {
         if (c->free) {
             if (c->next->free) {
@@ -73,12 +70,10 @@ Chunk combine(Memory mem, Chunk original) {
     
 }
 
-
-
 /* Kollar hur mycket plats det finns ledigt i det stora minnet, eller om vi måste skapa ett nytt stort minnes utrymme. */
 unsigned int avail(Memory mem) {
-    private_manual *temp = (private_manual *) (((void*) mem)-sizeof(private_manual));
-    Chunk c = temp->data;
+
+    Chunk c = memToChunk(mem);
     int avail = 0;
     for (; c; c = c->next) {
         if (c->free) {
@@ -86,17 +81,13 @@ unsigned int avail(Memory mem) {
             }
         }
     return avail;
-    }
-
-
-
+}
 
 /*Letar efter rätt plats att placera chunken i Freelistan, denna funktion sorterar enligt ascending,
 dvs minst först och störst sist. */
 unsigned int ascending_free(Memory mem, void *ptr) {
-    // Back up one pointer in memory to access the first chunk
-  Metafreelist *meta = memToMeta(mem);
-    Metafreelist flist = *meta;
+  
+    Metafreelist flist = memToMeta(mem);
     Freelist list = flist->first;
     Chunk c = ptrToChunk(ptr);
     
@@ -138,14 +129,11 @@ unsigned int ascending_free(Memory mem, void *ptr) {
     return 0;
 }
 
-///////////////
-
 /* Tar in en chunk och letar efter rätt plats att placera den i freelistan, 
 nu i descending sortering. Dvs störst först och minst sist*/
 unsigned int descending_free(Memory mem, void *ptr) {
-   // Back up one pointer in memory to access the first chunk
-  Metafreelist *meta = memToMeta(mem);
-    Metafreelist flist = *meta;
+  
+    Metafreelist flist = memToMeta(mem);
     Freelist list = flist->first;
     Chunk c = ptrToChunk(ptr);
     
@@ -187,15 +175,12 @@ unsigned int descending_free(Memory mem, void *ptr) {
     return 0;
 }
 
-    
-
 ///////////////
 /* Tar in en chunk och letar efter rätt plats att placera den i freelistan, 
 nu i descending sortering. Dvs störst först och minst sist*/ 
 unsigned int adress_free(Memory mem, void *ptr) {
-    // Back up one pointer in memory to access the first chunk
-  Metafreelist *meta = memToMeta(mem);
-  Metafreelist flist = *meta;
+  
+    Metafreelist flist = memToMeta(mem);
     Freelist list = flist->first;
     Chunk c = ptrToChunk(ptr);    
     c->free = 1;
@@ -229,10 +214,10 @@ unsigned int adress_free(Memory mem, void *ptr) {
 
 /*Tar bort en chunk ur freelistan och pekar om*/
 void RemoveFromFreelist(Memory mem, Chunk c) {
-  Metafreelist *meta = memToMeta(mem);
-    Metafreelist flist = *meta;
-
+  
+    Metafreelist flist = memToMeta(mem);
     Freelist list = flist->first;
+
     if (list->current->start == c->start) {
         flist->first = list->after;
     }
@@ -250,15 +235,14 @@ void RemoveFromFreelist(Memory mem, Chunk c) {
     }
 }
 
-
 /* Lägger in en chunk i freelistan, chunken är markerad för vilken sorering 
 den har och markeringen avgör vilken sortering den får vid insättning i freelistan. 
 Dessa är: ascending = 1, descending = 2 och  adress = 4. */
 void InsertFreeList(Memory mem, Chunk c) {
-  Metafreelist *meta = memToMeta(mem);
-    Metafreelist list = *meta;
+  
+    Metafreelist flist = memToMeta(mem);
 
-    int sortType = list->listType;
+    int sortType = flist->listType;
     if (sortType==1) {
         ascending_free(mem, c->start);
     }

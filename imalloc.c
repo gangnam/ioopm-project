@@ -25,13 +25,9 @@ void *split(Memory mem, Chunk c, int bytes) {
     c->free = 0;
     c->size = bytes;
 
-    c->next = temp;//(Chunk) (c->start + c->size);
+    c->next = temp;
 
-    //memcpy(c->next, temp, sizeof(chunk));
-
-    //free(temp);
-
-    InsertFreeList(mem, temp); // tre olika
+    InsertFreeList(mem, temp);
     RemoveFromFreelist(mem, c);
     
     return c->start;
@@ -39,10 +35,8 @@ void *split(Memory mem, Chunk c, int bytes) {
 
 Chunk getChunk(Memory mem, chunk_size bytes) {
 
-  Metafreelist *meta = memToMeta(mem);
-  Metafreelist test = *meta;
-
-    Freelist list = test->first;
+    Metafreelist flist = memToMeta(mem);
+    Freelist list = flist->first;
     
     for(;list;list=list->after) {
         if(fits(list->current, bytes=sizeof(chunk))) {
@@ -53,9 +47,7 @@ Chunk getChunk(Memory mem, chunk_size bytes) {
 }
 
 void *balloc(Memory mem, chunk_size bytes) {
-    //Chunk c = mem->data;
-    // Back up one pointer in memory to access the first chunk Chunk c = (Chunk) ((char*) mem)-sizeof(void*);
-    
+
     Chunk c = getChunk(mem, bytes);
 
     if (c) {
@@ -81,17 +73,10 @@ Manipulator whatSort (int flags) {
 }
 
 struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
-// Ignoring free list ordering in this simple example
-
-    // 1. gör minnet
-    // 2. allokera private
-    // 3. allokera functions
-    // 4. lägg in chunk
-    // 5. peka
 
     if (flags <= 12) {
 
-        int totalSize = memsiz;//+sizeof(private_manual)+sizeof(manual);
+        int totalSize = memsiz;
 
         char *memory = (char*) malloc(totalSize);
 
@@ -100,22 +85,13 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         private_manual *man = (private_manual *) memory;
         Manual functions = (Manual) (memory+sizeof(private_manual));
 
-        //memcpy(memory, man, sizeof(private_manual));
-        //memcpy((memory+sizeof(private_manual)), functions, sizeof(manual));
-
-        //free(man);
-        //free(functions);
-
-
-
         man = (private_manual *) memory;
 
         man->data = (void *) (memory+manMetaSize);
-        man->functions = functions;//(Manual) (memory+sizeof(private_manual));
+        man->functions = functions;
         man->functions->alloc = balloc;
         man->functions->avail = avail;
         man->functions->free = whatSort(flags - 8);
-        
 
         Chunk temp = (Chunk) (memory+manMetaSize);
         temp->start = (memory+manMetaSize+sizeof(chunk));
@@ -124,8 +100,6 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         temp->free  = 1;
         temp->refcount = 1;
         temp->markbit = 1;
-
-        //memcpy((memory+sizeof(private_manual)+sizeof(manual)), temp, sizeof(chunk));
 
         Freelist node = (Freelist) malloc(sizeof(freelist));
         node->current = (Chunk) (memory+manMetaSize);
@@ -150,16 +124,10 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         private_managed *mgr = (private_managed *) memory;
         Managed functions = (Managed) (memory+sizeof(private_managed));
 
-        // memcpy(memory, mgr, sizeof(private_managed));
-        // memcpy((memory+sizeof(private_managed)), functions, sizeof(managed));
-
-        // free(mgr);
-        // free(functions);
-
         mgr = (private_managed *) memory;
 
         mgr->data = (void *) (memory+mgrMetaSize);
-        mgr->functions = functions;//(managed *) (memory+sizeof(private_managed));
+        mgr->functions = functions;
         mgr->functions->alloc = balloc;
 
         int i;
@@ -170,12 +138,12 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
             mgr->functions->rc.count = returnReferenceCounter;
 
             mgr->functions->gc.alloc = typeReader;
-            mgr->functions->gc.collect = collectGarbage;// NEVER FORGET
+            mgr->functions->gc.collect = collectGarbage;
             i = flags-48;
         }
         else if (flags >= 32) {
             mgr->functions->gc.alloc = typeReader;
-            mgr->functions->gc.collect = collectGarbage;// NEVER FORGET
+            mgr->functions->gc.collect = collectGarbage;
 
             mgr->functions->rc.retain = NULL;
             mgr->functions->rc.release = NULL;
@@ -200,8 +168,6 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         temp->refcount = 1;
         temp->markbit = 1;
 
-        //memcpy((memory+sizeof(private_managed)+sizeof(managed)), temp, sizeof(chunk));
-
         Freelist node = (Freelist) malloc(sizeof(freelist));
         node->current = (Chunk) (memory+mgrMetaSize);
         node->after = NULL;
@@ -219,18 +185,3 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         return NULL;
     }
 }
-/*
-int main(void) {
-    Manual mfun = (Manual) iMalloc(1 Kb, 9);
-    unsigned int i = mfun->avail(mfun);
-    printf("%u\n", i);
-    private_manual *temp = (private_manual *) (((void*) mfun)-sizeof(private_managed));
-    Chunk c = temp->data;
-    void *hej = c->start;
-    unsigned int i = temp->functions->rc.count(hej);
-    printf("%u\n", i); 
-    temp->functions->rc.retain(hej);
-    i = temp->functions->rc.count(hej);
-    printf("%u\n", i);
-    return 0;
-}*/
