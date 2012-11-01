@@ -156,22 +156,38 @@ void testREFCOUNT() {
     CU_ASSERT(a1->next == NULL);
     }
 
-void testAVAIL() {
+void testAVAIL() 
+{
   int c = (1 Kb-sizeof(chunk));
-    Manual mem = (Manual) iMalloc(1 Kb, MANUAL + ASCENDING_SIZE);
-    CU_ASSERT(mem->avail((Memory) mem) == c);
-    void *a = mem->alloc((Memory) mem, 10);
-    CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk));
-    mem->free((Memory) mem,a);
-    CU_ASSERT(mem->avail((Memory) mem) == c);
-    a = mem->alloc((Memory) mem, 10);
-    CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk));
-    void *b = mem->alloc((Memory) mem,30);
-    CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk)-30-sizeof(chunk));
-    mem->free((Memory) mem,a);
-    mem->free((Memory) mem,b);
-    CU_ASSERT(mem->avail((Memory) mem) == c);
-    }
+  Manual mem = (Manual) iMalloc(1 Kb, MANUAL + ASCENDING_SIZE);
+  CU_ASSERT(mem->avail((Memory) mem) == c);
+  void *a = mem->alloc((Memory) mem, 10);
+  CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk));
+  mem->free((Memory) mem,a);
+  CU_ASSERT(mem->avail((Memory) mem) == c);
+  a = mem->alloc((Memory) mem, 10);
+  CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk));
+  void *b = mem->alloc((Memory) mem,30);
+  CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk)-30-sizeof(chunk));
+  mem->free((Memory) mem,a);
+  mem->free((Memory) mem,b);
+  CU_ASSERT(mem->avail((Memory) mem) == c);
+  a = mem->alloc((Memory) mem, 10);
+  b = mem->alloc((Memory) mem, 10);
+ void *d = mem->alloc((Memory) mem, 10);
+ void *e = mem->alloc((Memory) mem, 10);
+ void *f = mem->alloc((Memory) mem, 10);
+ void *g = mem->alloc((Memory) mem, 10);
+ int x = 60 + (sizeof(chunk)*6);
+ CU_ASSERT(mem->avail((Memory) mem) == (c - x));
+ mem->free((Memory) mem, a);
+ mem->free((Memory) mem, b);
+ mem->free((Memory) mem, d);
+ mem->free((Memory) mem, e);
+ mem->free((Memory) mem, f);
+ mem->free((Memory) mem, g);
+ CU_ASSERT(mem->avail((Memory) mem) == c);
+}
 
 int main() {
     CU_pSuite pSuiteGCD_REFCOUNT_DESCENDING = NULL;
