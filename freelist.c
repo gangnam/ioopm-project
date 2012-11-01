@@ -37,23 +37,21 @@ Chunk combine(Memory mem, Chunk original) {
     }
 
     if (i>0) {
-    
+      
       if (list->current->combined == 1) {	
 	while(list){
 	  if (list->current->combined == 1) {
-	list->current->combined = 0;
-	flist->first = list->after;
-	list = list->after;
+	    list->current->combined = 0;
+	    flist->first = list->after;
+	    list = list->after;
 	  }
 	  else {
-	    return e;
+	    break;
 	  }
-          
+	  
 	}
       }
-      
-        else {
-            while (list) {
+	while (list) {
                 if(list->current->combined == 1) {
                     
                     list->current->combined = 0;
@@ -73,6 +71,7 @@ Chunk combine(Memory mem, Chunk original) {
       else {
         return original;
     }
+    
 }
 
 
