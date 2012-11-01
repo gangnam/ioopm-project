@@ -40,7 +40,7 @@ void testMANUAL_ASCENDING(void) {
     CU_ASSERT(mem->alloc == balloc);
     private_manual *temp = (private_manual*) (((void*) mem)-sizeof(private_manual));
     Chunk c = temp->data;
-    CU_ASSERT(c->size == (1 Mb - sizeof(chunk)));
+    CU_ASSERT(c->size == (1 Mb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(c->free == 1);
     CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
     }
@@ -52,7 +52,7 @@ void testMANUAL_ADDRESS() {
     CU_ASSERT(mem->alloc == balloc);
     private_manual *temp = (private_manual*) (((void*) mem)-sizeof(private_manual));
     Chunk c = temp->data;
-    CU_ASSERT(c->size == (1 Mb - sizeof(chunk)));
+    CU_ASSERT(c->size == (1 Mb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(c->free == 1);
     CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
     }
@@ -69,7 +69,7 @@ void testGCD_REFCOUNT_DESCENDING() {
     private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed));
 
     Chunk c = temp->data;
-    CU_ASSERT(c->size == (1 Mb - sizeof(chunk)));
+    CU_ASSERT(c->size == (1 Mb - mgrMetaSize - sizeof(chunk)));
     CU_ASSERT(c->free == 1);
     CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
     }
@@ -126,7 +126,7 @@ void testFREELIST() {
     list = flist->first;
     CU_ASSERT(list->current->start == a);
     CU_ASSERT(list->current->next == NULL);
-    CU_ASSERT(list->current->size == 984);
+    CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
     }
 
@@ -158,7 +158,7 @@ void testREFCOUNT() {
 
 void testAVAIL() 
 {
-  int c = (1 Kb-sizeof(chunk));
+  int c = (1 Kb- manMetaSize - sizeof(chunk));
   Manual mem = (Manual) iMalloc(1 Kb, MANUAL + ASCENDING_SIZE);
   CU_ASSERT(mem->avail((Memory) mem) == c);
   void *a = mem->alloc((Memory) mem, 10);
