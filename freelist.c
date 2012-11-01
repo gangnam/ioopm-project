@@ -39,25 +39,23 @@ Chunk combine(Memory mem, Chunk original) {
     if (i>0) {
     
       if (list->current->combined == 1) {	
-	list->current->combined = 0;
-	flist->first = list->after;
-	list = list->after;
 	while(list){
-	if (list->current->combined == 1) {	
+	  if (list->current->combined == 1) {
 	list->current->combined = 0;
 	flist->first = list->after;
 	list = list->after;
+	  }
+	  else {
+	    return e;
+	  }
+          
 	}
-	else {
-	  break;
-	}
-        }
       }
+      
         else {
             while (list) {
                 if(list->current->combined == 1) {
                     
-                    }
                     list->current->combined = 0;
                     prev->after = list->after;
                     list = list->after;
@@ -66,15 +64,18 @@ Chunk combine(Memory mem, Chunk original) {
                     prev = list;
                     list = list->after;
                 }
-                
+		
             }
-        
-        return e;
+	    
+	    return e;
+	}
     }
-    else {
+      else {
         return original;
     }
 }
+
+
 
 /* Kollar hur mycket plats det finns ledigt i det stora minnet, eller om vi måste skapa ett nytt stort minnes utrymme. */
 unsigned int avail(Memory mem) {
