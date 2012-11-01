@@ -1,8 +1,6 @@
 #ifndef __imalloc_h
 #define __imalloc_h
-#define memToMeta(mem) (Metafreelist*) ((void*) mem-sizeof(void*))
-#define memToChunk(mem) (void**) ((void*) mem - (sizeof(void*)*3))
-#define ptrToChunk(ptr) (Chunk) (ptr-sizeof(chunk))
+
 /*
  * imalloc.h
  *
@@ -25,7 +23,7 @@
 /* Enumeration constants used by to define how the freelist should
  * be sorted.
  */
-/* minst först, störst först, minst adress först*/
+
 enum { ASCENDING_SIZE = 1, DESCENDING_SIZE = 2, ADDRESS = 4 } FreelistStyle;
 
 /* Enumeration constants used by to specify kind of memory
@@ -86,12 +84,6 @@ typedef union {
     managed managed;
     } style;
 
-void *balloc(Memory mem, chunk_size bytes);
-/*
-static bool fits(Chunk c, int bytes);
-static Chunk split(Memory mem, Chunk c, int bytes);
-void *balloc(Memory mem, chunk_size bytes);
-Manipulator whatSort (int flags);*/
 //////////////////// Public Functions ////////////////////
 
 /* Initiates the malloc library to be used. memsiz defines the
