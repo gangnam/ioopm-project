@@ -1,7 +1,3 @@
-
-#ifndef __manage_c
-#define __manage_c
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -113,7 +109,9 @@ void freeObj (Memory mem,Chunk c) {
 
 unsigned int collectGarbage(Memory mem) {
     Chunk c = (Chunk) (((void*)mem) - (3*sizeof(void*)));
-    Metafreelist list = (((void*)mem)  - (sizeof(void*)));
+    /* Metafreelist list = (((void*)mem)  - (sizeof(void*))); */
+    Metafreelist *meta = memToMeta(mem);
+    Metafreelist list = *meta;
     if(c) {
         setZero(c);
         AddressSpace as = (AddressSpace) malloc(sizeof(addressspace));
@@ -127,5 +125,3 @@ unsigned int collectGarbage(Memory mem) {
         return 0; // konstig
     }
 
-
-#endif

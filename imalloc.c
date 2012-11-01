@@ -39,8 +39,8 @@ void *split(Memory mem, Chunk c, int bytes) {
 
 Chunk getChunk(Memory mem, chunk_size bytes) {
 
-    Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
-    Metafreelist test = *meta;
+  Metafreelist *meta = memToMeta(mem);
+  Metafreelist test = *meta;
 
     Freelist list = test->first;
     
