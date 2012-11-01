@@ -175,6 +175,7 @@ void testSETZERO() {
     CU_ASSERT(c1->markbit == 0);
     CU_ASSERT(d1->markbit == 0);
     CU_ASSERT(e1->markbit == 0);
+    
     }
 
 void testFREEOBJ() {
