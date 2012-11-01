@@ -182,7 +182,7 @@ unsigned int descending_free(Memory mem, void *ptr) {
             }
         }
         new->current = c;
-        new->after = prev->after;
+        new->after = NULL;
         prev->after = new;
         return 0;
     }
