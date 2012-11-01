@@ -9,10 +9,10 @@
 frigöras så tar den ut den chunken samtidigt som den pekar om */
 Chunk combine(Memory mem, Chunk original) {
 
-    void **priv = (void**) ((void*) mem-(sizeof(void*)*3));
+  void **priv = memToChunk(mem);
     Chunk c = (Chunk) *priv;
 
-    Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
+    Metafreelist *meta = memToMeta(mem);
     Metafreelist flist = *meta;
 
     Freelist list = flist->first;
@@ -92,10 +92,10 @@ unsigned int avail(Memory mem) {
 dvs minst först och störst sist. */
 unsigned int ascending_free(Memory mem, void *ptr) {
     // Back up one pointer in memory to access the first chunk
-    Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
+  Metafreelist *meta = memToMeta(mem);
     Metafreelist flist = *meta;
     Freelist list = flist->first;
-    Chunk c = (Chunk) (ptr-sizeof(chunk));
+    Chunk c = ptrToChunk(ptr);
     
     c->free = 1;
     c = combine(mem, c);
@@ -141,10 +141,10 @@ unsigned int ascending_free(Memory mem, void *ptr) {
 nu i descending sortering. Dvs störst först och minst sist*/
 unsigned int descending_free(Memory mem, void *ptr) {
    // Back up one pointer in memory to access the first chunk
-    Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
+  Metafreelist *meta = memToMeta(mem);
     Metafreelist flist = *meta;
     Freelist list = flist->first;
-    Chunk c = (Chunk) (ptr-sizeof(chunk));
+    Chunk c = ptrToChunk(ptr);
     
     c->free = 1;
     c = combine(mem, c);
@@ -191,11 +191,10 @@ unsigned int descending_free(Memory mem, void *ptr) {
 nu i descending sortering. Dvs störst först och minst sist*/ 
 unsigned int adress_free(Memory mem, void *ptr) {
     // Back up one pointer in memory to access the first chunk
-    Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
-    Metafreelist flist = *meta;
+  Metafreelist *meta = memToMeta(mem);
+  Metafreelist flist = *meta;
     Freelist list = flist->first;
-    Chunk c = (Chunk) (ptr-sizeof(chunk));
-    
+    Chunk c = ptrToChunk(ptr);    
     c->free = 1;
     c = combine(mem, c);
     Freelist prev = list;
@@ -227,7 +226,7 @@ unsigned int adress_free(Memory mem, void *ptr) {
 
 /*Tar bort en chunk ur freelistan och pekar om*/
 void RemoveFromFreelist(Memory mem, Chunk c) {
-    Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
+  Metafreelist *meta = memToMeta(mem);
     Metafreelist flist = *meta;
 
     Freelist list = flist->first;
@@ -253,7 +252,7 @@ void RemoveFromFreelist(Memory mem, Chunk c) {
 den har och markeringen avgör vilken sortering den får vid insättning i freelistan. 
 Dessa är: ascending = 1, descending = 2 och  adress = 4. */
 void InsertFreeList(Memory mem, Chunk c) {
-    Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
+  Metafreelist *meta = memToMeta(mem);
     Metafreelist list = *meta;
 
     int sortType = list->listType;
