@@ -1,5 +1,8 @@
 #ifndef __imalloc_h
 #define __imalloc_h
+#define memToMeta(mem) (Metafreelist*) ((void*) mem-sizeof(void*))
+#define memToChunk(mem) (void**) ((void*) mem - (sizeof(void*)*3))
+#define ptrToChunk(ptr) (Chunk) (ptr-sizeof(chunk))
 /*
  * imalloc.h
  *
