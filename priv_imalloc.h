@@ -18,6 +18,10 @@
 
 
 /* Actual return type specifications for iMalloc */
+#define memToMeta(mem) (Metafreelist*) ((void*) mem-sizeof(void*))
+#define memToChunk(mem) (void**) ((void*) mem - (sizeof(void*)*3))
+#define ptrToChunk(ptr) (Chunk) (ptr-sizeof(chunk))
+
 typedef struct freelist *Freelist;
 
 typedef struct metafreelist {
@@ -56,6 +60,6 @@ typedef struct freelist {
     Freelist after;
     } freelist;
 
-#define cSTART(ptr) ptr - sizeof(chunk);
+void *balloc(Memory mem, chunk_size bytes);
 
 #endif
