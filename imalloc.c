@@ -100,6 +100,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         temp->free  = 1;
         temp->refcount = 1;
         temp->markbit = 1;
+        temp->combined = 0;
 
         Freelist node = (Freelist) malloc(sizeof(freelist));
         node->current = (Chunk) (memory+manMetaSize);
@@ -167,6 +168,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         temp->free  = 1;
         temp->refcount = 1;
         temp->markbit = 1;
+        temp->combined = 0;
 
         Freelist node = (Freelist) malloc(sizeof(freelist));
         node->current = (Chunk) (memory+mgrMetaSize);

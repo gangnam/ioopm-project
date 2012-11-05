@@ -83,24 +83,39 @@ den, den kolla även all data i chunken och antar att det finns en pekare
 som pekar vidare till en annan del på heapen om det finns så går den in och markerar
 den chunken också, detta loopas tills den inte hittar ngn mer pekare.
 */
-
-    void mf(void *ptr, void *data) {
-    Chunk c = data;
+void mf(void *ptr, void *data) {
+    Chunk c = (Chunk) data;
+    void *chend;
+    void *i;
+    //void **p1 = ptr;
+    //printf("%d\n", ptr);
+    printf("hej\n");
+    printf("PTR: %u\n", *(void**)ptr);
 
     while(c) {
-        void *chend = ((c->start)+(c->size));
-        if ((void*)c >= ptr && ptr <= chend) {
-            c->markbit=1;
-
-            void *i = c->start;
-            while(i>chend) {
-                mf(i,data);
-                i++;
+        if(c->markbit!=1){
+            chend = ((c->start)+(c->size));
+            printf("Start: %u\n", c->start);
+            printf("size: %d\n", c->size);
+            printf("END: %u\n", chend);
+            if (((void*)c->start <= *(void**)ptr) && (*(void**)ptr <= (void*)chend)) {
+                printf("ett\n");
+                c->markbit=1;
+                i = c->start;
+                while(i<=(chend-sizeof(void*))) {
+                    mf(&i,data);
+                    i = (void*)((char*)i + 1);
+                    printf("tva\n");
+                    printf("%u\n", i);
                 }
+                break;
             }
+        }        
         c=c->next;
-        }
+        
     }
+    printf("SLUT HÄR!!\n\n");
+}
 
 /*
 Iterera över listan över samtliga objekt 
@@ -125,14 +140,15 @@ som påträffas genom att mark-biten sätts till 1.
 steg 3 (freeObj): Iterera över listan över samtliga objekt 
 på heapen och frigör alla vars mark-bit fortfarande är 0.
 */
+
 unsigned int collectGarbage(Memory mem) {
-    Chunk c = (Chunk) (((void*)mem) - (3*sizeof(void*)));
+    Chunk c = memToChunk(mem);
     Metafreelist list = memToMeta(mem);
     if(c) {
         setZero(c);
         AddressSpace as = (AddressSpace) malloc(sizeof(addressspace));
-        as->start = (char*) c;
-        as->end = (char*)(((void*)mem) + list->size);
+        as->start = (RawPtr) c->start;
+        as->end = (RawPtr)((char*)c + list->size);
 
         traverseStack(as, mf, c);//as skall vara adressspace
         free (as);

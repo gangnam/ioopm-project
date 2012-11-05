@@ -175,16 +175,42 @@ void testSETZERO() {
     CU_ASSERT(c1->markbit == 0);
     CU_ASSERT(d1->markbit == 0);
     CU_ASSERT(e1->markbit == 0);
+
     }
 
 void testFREEOBJ() {
     Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
     int x = (1 Kb- mgrMetaSize - sizeof(chunk));
     void *a = mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
     Chunk a1 = (Chunk) (a-sizeof(chunk));
     setZero(a1);
     freeObj((Memory) mem, a1);
     CU_ASSERT(avail((Memory)mem) == x);
+
+    }
+
+void testCOLLECTGARBAGE() {
+    typedef struct lista *Lista;
+    typedef struct lista  {
+        int current;
+        Lista n;
+
+    }lista;
+    Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
+    Lista a = (Lista)(mem->alloc((Memory)mem, sizeof(lista)));
+    //Lista b = (Lista)(mem->alloc((Memory)mem, sizeof(lista)));
+
+    a->current=1;
+    a->n=NULL;
+    //b->current=2;
+    //b->n=NULL;
+
+    mem->gc.collect((Memory) mem);
+
 
     }
 
@@ -222,6 +248,8 @@ void testAVAIL()
 }
 
 int main() {
+    SET_STACK_BOTTOM CURRENT_SP(__g_stack_bottom__);
+    
     CU_pSuite pSuiteGCD_REFCOUNT_DESCENDING = NULL;
     CU_pSuite pSuiteMANUAL_ADDRESS = NULL;
     CU_pSuite pSuiteMANUAL_ASCENDING = NULL;
@@ -253,7 +281,8 @@ int main() {
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test avail", testAVAIL)) ||
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freelist", testFREELIST))||
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test setZero", testSETZERO))||
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freeObj", testFREEOBJ))
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freeObj", testFREEOBJ))||
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test collectGarbage", testCOLLECTGARBAGE))
     ) {
         CU_cleanup_registry();
         return CU_get_error();
