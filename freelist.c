@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "priv_imalloc.h"
 
-
+/* Letar igenom freelistan efter en chunk som skall tas bort. Markeras till 1 för att sedan länka ur de chunkar som har en 1 markering. Slår sedan ihop tillgängliga lediga utrymmen efter urlänkning. */
 Chunk combine(Memory mem, Chunk original) {
 
     Chunk c = memToChunk(mem);

@@ -22,7 +22,4 @@ void InsertFreeList(Memory mem, Chunk c);
 /*Tar bort en chunk ur freelistan och pekar om*/
 void RemoveFromFreelist(Memory mem, Chunk c);
 
-/* Letar igenom freelistan efter en chunk som skall tas bort. Markeras till 1 för att sedan länka ur de chunkar som har en 1 markering. Slår sedan ihop tillgängliga lediga utrymmen efter urlänkning. */
-Chunk combine(Memory mem, Chunk original);
-
 #endif
