@@ -4,7 +4,7 @@
 #include "freelist.h"
 
 unsigned int increaseReferenceCounter (void *ptr) {
-  Chunk temp = ptrToChunk(ptr);
+    Chunk temp = ptrToChunk(ptr);
     temp->refcount++;
     return temp->refcount;
 }

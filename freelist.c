@@ -10,13 +10,14 @@ Chunk combine(Memory mem, Chunk original) {
     Metafreelist flist = memToMeta(mem);
     Freelist list = flist->first;
     
-    Chunk e = NULL;
+    Chunk e = original;
     int i = 0;
     Freelist prev = list;
     
     while (c->next) {
       if (c->free) {
 	c->combined = 1;
+	i++;
 	if (c->next->free) {
 	  c->size += (c->next->size+sizeof(chunk));
 	  c->next->combined = 1;
@@ -35,7 +36,9 @@ Chunk combine(Memory mem, Chunk original) {
     }
 
     if (i>0) {
-      
+      if(list == NULL){
+	return e;
+      }else {
       if (list->current->combined == 1) {	
 	while(list){
 	  if (list->current->combined == 1) {
@@ -64,7 +67,8 @@ Chunk combine(Memory mem, Chunk original) {
             }
 	    
 	    return e;
-	    }
+      }
+    }
 	    else {
 	
         return original;
@@ -92,6 +96,7 @@ unsigned int ascending_free(Memory mem, void *ptr) {
     Metafreelist flist = memToMeta(mem);
     Freelist list = flist->first;
     Chunk c = ptrToChunk(ptr);
+    
     
     c->free = 1;
     c = combine(mem, c);

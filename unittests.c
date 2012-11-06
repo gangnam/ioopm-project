@@ -7,8 +7,6 @@
 #include "Garbage.h"
 #include "rootset.h"
 
-
-
 int init_suite_manual(void) {
     return 0;
     }
@@ -76,7 +74,7 @@ void testGCD_REFCOUNT_DESCENDING() {
 
 void testBALLOC() {
     Managed mem = (Managed) iMalloc(1 Kb, REFCOUNT + DESCENDING_SIZE);
-    void *a = mem->alloc((Memory)mem,10);
+    void *a = mem->alloc((Memory)mem,12);
     void *b = mem->alloc((Memory)mem,25);
     void *c = mem->alloc((Memory)mem,12);
     void *d = mem->alloc((Memory)mem,12);
@@ -90,7 +88,15 @@ void testBALLOC() {
     CU_ASSERT(b1->next == c1);
     CU_ASSERT(c1->next == d1);
     CU_ASSERT(d1->next == e1);
-    //CU_ASSERT(a1->next == b1);
+
+    CU_ASSERT(e1->next->size == (1 Kb - (sizeof(chunk)*6) - 12*4 - 25 - mgrMetaSize));
+    
+    InsertFreeList((Memory) mem, a1);
+    CU_ASSERT((memToChunk(mem)) == a1);
+    InsertFreeList((Memory) mem, c1);
+    
+    CU_ASSERT((memToMeta(mem))->first->current == e1->next);
+    CU_ASSERT((memToMeta(mem))->first->after->current == c1);
     }
 
 void testFREELIST() {
@@ -193,24 +199,61 @@ void testFREEOBJ() {
 
     }
 
-void testCOLLECTGARBAGE() {
-    typedef struct lista *Lista;
-    typedef struct lista  {
+void testCOLLECTGARBAGE(){
+    typedef struct tree *Tree;
+    typedef struct tree  {
         int current;
-        Lista n;
+        Tree l;
+        Tree r
 
-    }lista;
+    }tree;
+
+
     Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
-    Lista a = (Lista)(mem->alloc((Memory)mem, sizeof(lista)));
-    //Lista b = (Lista)(mem->alloc((Memory)mem, sizeof(lista)));
+    Tree a = (Tree)(mem->alloc((Memory)mem, sizeof(tree)));
+    Tree b = (Tree)(mem->alloc((Memory)mem, sizeof(tree)));
 
     a->current=1;
-    a->n=NULL;
-    //b->current=2;
-    //b->n=NULL;
+    a->l=b;
+    a->r=NULL;
+    b->current=2;
+    b->l=NULL;
+    b->r=NULL;
 
     mem->gc.collect((Memory) mem);
+    Metafreelist list = memToMeta((Memory)mem);
+    Chunk x = ((Chunk)(ptrToChunk((void*)b)))->next;
+    CU_ASSERT(list->first->current == x);
+//// new test
+    Managed mem2 = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
+    a = (Tree)(mem2->alloc((Memory)mem2, sizeof(tree)));
+    (Tree)(mem2->alloc((Memory)mem2, sizeof(tree)));
 
+    a->current=1;
+    a->l=NULL;
+    a->r=NULL;
+
+    mem2->gc.collect((Memory) mem2);
+    list = memToMeta((Memory)mem2);
+    x = ((Chunk)(ptrToChunk((void*)a)))->next;
+    CU_ASSERT(list->first->current == x);
+    CU_ASSERT(x->next==NULL)
+
+/// NEW TEST
+    Managed mem3 = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
+    a = (Tree)(mem3->alloc((Memory)mem3, sizeof(tree)));
+    b = (Tree)(mem3->alloc((Memory)mem3, sizeof(tree)));
+    Tree c = (Tree)(mem3->alloc((Memory)mem3, sizeof(tree)));
+
+    a->current=1;
+    a->l=NULL;
+    a->r=NULL;
+
+    mem3->gc.collect((Memory) mem3);
+    list = memToMeta((Memory)mem3);
+    x = ((Chunk)(ptrToChunk((void*)a)))->next;
+    CU_ASSERT(list->first->current == x);
+    CU_ASSERT(x->next==NULL)
 
     }
 
@@ -248,8 +291,9 @@ void testAVAIL()
 }
 
 int main() {
-    SET_STACK_BOTTOM CURRENT_SP(__g_stack_bottom__);
     
+    SET_STACK_BOTTOM CURRENT_SP(__g_stack_bottom__);
+
     CU_pSuite pSuiteGCD_REFCOUNT_DESCENDING = NULL;
     CU_pSuite pSuiteMANUAL_ADDRESS = NULL;
     CU_pSuite pSuiteMANUAL_ASCENDING = NULL;

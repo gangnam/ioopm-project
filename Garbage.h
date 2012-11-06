@@ -11,13 +11,13 @@ sedan returneras Chunk->start för den chunk vi allokerat(alltså chunkens minne
 */
 void *typeReader(Memory mem, char *input);
 
-// Traverserar hepaen och sätter alla objekts markbitar till 0
+// Traverserar heapen och sätter alla objekts markbitar till 0
 void setZero (Chunk c);
 
 
 /* 
 Kollar om rotpekaren i givna adressrymden pekar in i en chunk och markerar
-den, den kolla även all data i chunken och antar att det finns en pekare 
+den, den kollar även all data i chunken och antar att det finns en pekare 
 som pekar vidare till en annan del på heapen om det finns så går den in och markerar
 den chunken också, detta loopas tills den inte hittar ngn mer pekare.
 */

@@ -83,38 +83,27 @@ den, den kolla även all data i chunken och antar att det finns en pekare
 som pekar vidare till en annan del på heapen om det finns så går den in och markerar
 den chunken också, detta loopas tills den inte hittar ngn mer pekare.
 */
-void mf(void *ptr, void *data) {
+    void mf(void *ptr, void *data) {
     Chunk c = (Chunk) data;
     void *chend;
     void *i;
-    //void **p1 = ptr;
-    //printf("%d\n", ptr);
-    printf("hej\n");
-    printf("PTR: %u\n", *(void**)ptr);
 
     while(c) {
         if(c->markbit!=1){
             chend = ((c->start)+(c->size));
-            printf("Start: %u\n", c->start);
-            printf("size: %d\n", c->size);
-            printf("END: %u\n", chend);
             if (((void*)c->start <= *(void**)ptr) && (*(void**)ptr <= (void*)chend)) {
-                printf("ett\n");
                 c->markbit=1;
                 i = c->start;
                 while(i<=(chend-sizeof(void*))) {
-                    mf(&i,data);
+                    mf(i,data);
                     i = (void*)((char*)i + 1);
-                    printf("tva\n");
-                    printf("%u\n", i);
                 }
                 break;
+
             }
-        }        
-        c=c->next;
-        
+        }
+            c=c->next;
     }
-    printf("SLUT HÄR!!\n\n");
 }
 
 /*
