@@ -6,7 +6,7 @@
 #include "freelist.h"
 #include "Garbage.h"
 #include "rootset.h"
-
+#include <stdlib.h>
 
 
 int init_suite_manual(void) {
@@ -46,6 +46,7 @@ void testMANUAL_ASCENDING(void) {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
+    free(temp);
 }
 
 void testMANUAL_ADDRESS() {
@@ -61,6 +62,7 @@ void testMANUAL_ADDRESS() {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
+    free(temp);
 }
 
 void testGCD_REFCOUNT_DESCENDING() {
@@ -80,6 +82,7 @@ void testGCD_REFCOUNT_DESCENDING() {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
+    free(temp);
 }
 
 void testCOLLECTGARBAGE() {
@@ -175,7 +178,12 @@ void testCOLLECTGARBAGE() {
     CU_ASSERT(list->first->after->current == q);
     CU_ASSERT((ptrToChunk((void*)b))->next == q);
     CU_ASSERT(list->first->after->after == NULL);
-
+private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed));
+ free(temp);
+temp = (private_managed*) (((void*) mem2)-sizeof(private_managed));
+ free(temp);
+temp = (private_managed*) (((void*) mem3)-sizeof(private_managed));
+ free(temp);
 }
 
 void testBALLOC() {
@@ -208,7 +216,10 @@ void testBALLOC() {
     CU_ASSERT(b == NULL);
     // b1 = (Chunk)(b-sizeof(chunk));
     // printf("%d\n", b1->size);
-
+private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed));
+ free(temp);
+temp = (private_managed*) (((void*) mem2)-sizeof(private_managed));
+ free(temp);
 }
 
 void testFREELIST_ADDRESS() {
@@ -246,7 +257,8 @@ void testFREELIST_ADDRESS() {
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
-
+private_manual *temp = (private_manual*) (((void*) mem)-sizeof(private_manual));
+ free(temp);
 }
 
 void testFREELIST_ASCENDING() {
@@ -284,7 +296,8 @@ void testFREELIST_ASCENDING() {
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
-
+    private_manual *temp = (private_manual*) (((void*) mem)-sizeof(private_manual));
+    free(temp);
 }
 
 
@@ -323,6 +336,8 @@ void testFREELIST() {
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
+    private_manual *temp = (private_manual*) (((void*) mem)-sizeof(private_manual));
+    free(temp);
 }
 
 void testREFCOUNT() {
@@ -349,6 +364,8 @@ void testREFCOUNT() {
 
     CU_ASSERT(list->current == a1);
     CU_ASSERT(a1->next == NULL);
+private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed));
+ free(temp);
 }
 
 
@@ -364,6 +381,8 @@ void testGCD_ASCENDING() {
     setZero(a1);
     freeObj((Memory) mem, a1);
     CU_ASSERT(avail((Memory)mem) == x);
+private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed));
+ free(temp);
 }
 
 
@@ -381,7 +400,8 @@ void testGCD_ADDRESS() {
     setZero(a1);
     freeObj((Memory) mem, a1);
     CU_ASSERT(avail((Memory)mem) == x);
-
+private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed));
+ free(temp);
 }
 
 void testSETZERO() {
@@ -403,7 +423,8 @@ void testSETZERO() {
     CU_ASSERT(c1->markbit == 0);
     CU_ASSERT(d1->markbit == 0);
     CU_ASSERT(e1->markbit == 0);
-
+private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed));
+ free(temp);
 }
 
 void testFREEOBJ() {
@@ -418,7 +439,8 @@ void testFREEOBJ() {
     setZero(a1);
     freeObj((Memory) mem, a1);
     CU_ASSERT(avail((Memory)mem) == x);
-
+private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed));
+ free(temp);
 }
 
 void testAVAIL() {
@@ -451,6 +473,8 @@ void testAVAIL() {
     mem->free((Memory) mem, f);
     mem->free((Memory) mem, g);
     CU_ASSERT(mem->avail((Memory) mem) == c);
+    private_manual *temp = (private_manual*) (((void*) mem)-sizeof(private_manual));
+    free(temp);
 }
 
 int main() {
