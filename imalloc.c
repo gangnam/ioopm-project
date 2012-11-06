@@ -108,7 +108,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         Metafreelist head = (Metafreelist) malloc(sizeof(metafreelist));
         head->first = node;
         head->listType = (flags-8);
-        head->size = memsiz;
+        head->size = memsiz-manMetaSize;
 
         man->flist = head;
 
@@ -175,7 +175,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         Metafreelist head = (Metafreelist) malloc(sizeof(metafreelist));
         head->first = node;
         head->listType = i;
-        head->size = memsiz;
+        head->size = memsiz-mgrMetaSize;
         
         mgr->flist = head;
 
