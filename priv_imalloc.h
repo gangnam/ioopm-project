@@ -18,18 +18,23 @@
 
 
 /* Actual return type specifications for iMalloc */
+/* Backar från mem till Metafreelist */
 #define memToMeta(mem) *((Metafreelist*) ((void*) mem-sizeof(void*)))
+/* Backar från mem till den första chunken */
 #define memToChunk(mem) *((Chunk*) ((void*) mem - (sizeof(void*)*3)))
+/* Backar från allocade minnets start till dess chunk */
 #define ptrToChunk(ptr) (Chunk) (ptr-sizeof(chunk))
+/* Storleken av manual's metadata */
 #define manMetaSize (sizeof(private_manual)+sizeof(manual))
+/* Storleken av managed's metadata */
 #define mgrMetaSize (sizeof(private_managed)+sizeof(managed))
 
 typedef struct freelist *Freelist;
 
 typedef struct metafreelist {
-    Freelist first;
-    int listType; //1 ascending 2 descending 4 adress
-    int size;
+  Freelist first; // Första elementet i freelistan
+  int listType; // 1 ascending 2 descending 4 adress
+  int size; // Storleken av hela heapen
     } metafreelist , *Metafreelist;
 
 
