@@ -2,6 +2,7 @@
 #define __priv_imalloc_h
 #include <stdbool.h>
 #include "imalloc.h"
+#include <stdlib.h>
 /*
  * priv_imalloc.h
  *
@@ -24,6 +25,8 @@
 #define memToChunk(mem) *((Chunk*) ((char*) mem - (sizeof(void*)*3)))
 /* Backar från allocade minnets start till dess chunk */
 #define ptrToChunk(ptr) (Chunk) ((char*)ptr-sizeof(chunk))
+/* Freear ett Manual memory */
+#define freeMem(mem) free((char*) mem-(sizeof(void*)*3))
 /* Storleken av manual's metadata */
 #define manMetaSize (sizeof(private_manual)+sizeof(manual))
 /* Storleken av managed's metadata */
