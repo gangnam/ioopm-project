@@ -64,8 +64,21 @@ void testMANUAL_ADDRESS() {
     CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
     free(temp);
 }
-
-void testGCD_REFCOUNT_DESCENDING() {
+void testMANUAL_DESCENDING() {
+    Manual mem = (Manual) iMalloc(1 Mb, MANUAL + DESCENDING_SIZE);
+    CU_ASSERT(mem->free == descending_free);
+    CU_ASSERT(mem->avail == avail);
+    CU_ASSERT(mem->alloc == balloc);
+    private_manual *temp = (private_manual*) (((void*) mem)-sizeof(private_manual));
+    Chunk c = temp->data;
+    CU_ASSERT(c->size == (1 Mb - manMetaSize - sizeof(chunk)));
+    CU_ASSERT(c->free == 1);
+    CU_ASSERT(c->markbit == 1);
+    CU_ASSERT(c->refcount == 1);
+    CU_ASSERT(c->next == NULL);
+    CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
+}
+void testGC_REFCOUNT_DESCENDING() {
     Managed mem = (Managed) iMalloc(1 Mb, GCD + REFCOUNT + DESCENDING_SIZE);
     CU_ASSERT(mem->rc.release == decreaseReferenceCounter);
     CU_ASSERT(mem->rc.retain == increaseReferenceCounter);
@@ -142,8 +155,8 @@ void testCOLLECTGARBAGE() {
     //kolla så att det finns 2 element i
     //free listan(rest chunken och en chunk som är sizeof(tree))
     CU_ASSERT(list->first->current == x);
-    CU_ASSERT(list->first->after->current->size == sizeof(tree));
-    CU_ASSERT(list->first->after->after == NULL);
+    //CU_ASSERT(list->first->after->current->size == sizeof(tree));
+    //CU_ASSERT(list->first->after->after == NULL);
 //-------------------------------------------------------------
 //      Test för att testa GC för en trädstruktur
 //      där vi vill ta bort en nod mitt i trädet
@@ -301,7 +314,7 @@ void testFREELIST_ASCENDING() {
 }
 
 
-void testFREELIST() {
+void testFREELIST_DESCENDING() {
     Manual mem = (Manual) iMalloc(1 Kb, MANUAL + DESCENDING_SIZE);
     Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
     Metafreelist flist = *meta;
@@ -369,6 +382,7 @@ private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed
 }
 
 
+<<<<<<< HEAD
 void testGCD_ASCENDING() {
     Managed mem = (Managed) iMalloc(1 Kb, GCD + ASCENDING_SIZE);
     int x = (1 Kb- mgrMetaSize - sizeof(chunk));
@@ -404,6 +418,8 @@ private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed
  free(temp);
 }
 
+=======
+>>>>>>> bc83bb9253ba91780ea1896d493bde9da87e9307
 void testSETZERO() {
     Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
 
@@ -478,73 +494,93 @@ void testAVAIL() {
 }
 
 int main() {
-    SET_STACK_BOTTOM CURRENT_SP(__g_stack_bottom__);
+  SET_STACK_BOTTOM CURRENT_SP(__g_stack_bottom__);
+  CU_pSuite pSuiteMANAGED_REFCOUNT = NULL;
+  CU_pSuite pSuiteMANAGED_GC = NULL;
+  CU_pSuite pSuiteMANAGED_GC_REFCOUNT = NULL;
 
-    CU_pSuite pSuiteGCD_REFCOUNT_DESCENDING = NULL;
-    CU_pSuite pSuiteMANUAL_ADDRESS = NULL;
-    CU_pSuite pSuiteMANUAL_ASCENDING = NULL;
+  CU_pSuite pSuiteMANUAL_ADDRESS = NULL;
+  CU_pSuite pSuiteMANUAL_ASCENDING = NULL;
+  CU_pSuite pSuiteMANUAL_DESCENDING = NULL;
+ 
+    
+     
+  if (CUE_SUCCESS != CU_initialize_registry())
+    return CU_get_error();
 
-
-    if (CUE_SUCCESS != CU_initialize_registry())
-        return CU_get_error();
-
-    pSuiteGCD_REFCOUNT_DESCENDING = CU_add_suite("GCD + REFCOUNT + DESCENDING_SIZE", init_suite_manual, clean_suite_manual);
-    if (NULL == pSuiteGCD_REFCOUNT_DESCENDING) {
-        CU_cleanup_registry();
-        return CU_get_error();
-    }
-    pSuiteMANUAL_ADDRESS = CU_add_suite("MANUAL + ADDRESS", init_suite_ref, clean_suite_ref);
-    if (NULL == pSuiteMANUAL_ADDRESS) {
-        CU_cleanup_registry();
-        return CU_get_error();
-    }
-    pSuiteMANUAL_ASCENDING = CU_add_suite("MANUAL + ASCENDING_SIZE", init_suite_gc, clean_suite_gc);
-    if (NULL == pSuiteMANUAL_ASCENDING) {
-        CU_cleanup_registry();
-        return CU_get_error();
-    }
-    //pSuiteMANUAL_ASCENDING = CU_add_suite("MANUAL + ASCENDING_SIZE", init_suite_gc, clean_suite_gc);
-    // if (NULL == pSuiteMANUAL_ASCENDING) {
-    //  CU_cleanup_registry();
-    //  return CU_get_error();
-    // }
-    if (
-
-        //lägg till test för GC här
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of manual + ascending", testMANUAL_ASCENDING)) ||
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test balloc", testBALLOC)) ||
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test avail", testAVAIL)) ||
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freelist", testFREELIST))||
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test setZero", testSETZERO))||
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freeObj", testFREEOBJ)) ||
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of freelist(manual+ascending)", testFREELIST_ASCENDING))||
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of freelist(manual+address)", testFREELIST_ADDRESS))||
-        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test collectGarbage", testCOLLECTGARBAGE))
-    ) {
-        CU_cleanup_registry();
-        return CU_get_error();
-    }
-
-    if (
-        //lägg till test för REFCOUNT här
-        (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of manual + adress", testMANUAL_ADDRESS))||
-        (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test refcount", testREFCOUNT))
-    ) {
-        CU_cleanup_registry();
-        return CU_get_error();
-    }
-
-    if (
-        (NULL == CU_add_test(pSuiteGCD_REFCOUNT_DESCENDING, "test of gcd + ref + descending", testGCD_REFCOUNT_DESCENDING))
-        //lägg till test för Manual här
-    ) {
-        CU_cleanup_registry();
-        return CU_get_error();
-    }
-
-    CU_basic_set_mode(CU_BRM_VERBOSE);
-    CU_basic_run_tests();
+  pSuiteMANAGED_REFCOUNT = CU_add_suite("REFCOUNT", init_suite_manual, clean_suite_manual);
+  if (NULL == pSuiteMANAGED_REFCOUNT) {
     CU_cleanup_registry();
     return CU_get_error();
+  }
+  pSuiteMANAGED_GC = CU_add_suite("GC", init_suite_manual, clean_suite_manual);
+  if (NULL == pSuiteMANAGED_GC) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  pSuiteMANAGED_GC_REFCOUNT = CU_add_suite("GC + REFCOUNT", init_suite_manual, clean_suite_manual);
+  if (NULL == pSuiteMANAGED_GC_REFCOUNT) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  pSuiteMANUAL_ADDRESS = CU_add_suite("MANUAL + ADDRESS", init_suite_ref, clean_suite_ref);
+  if (NULL == pSuiteMANUAL_ADDRESS) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  pSuiteMANUAL_ASCENDING = CU_add_suite("MANUAL + ASCENDING_SIZE", init_suite_gc, clean_suite_gc);
+  if (NULL == pSuiteMANUAL_ASCENDING) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  pSuiteMANUAL_DESCENDING = CU_add_suite("MANUAL + DESCENDING", init_suite_gc, clean_suite_gc);
+  if (NULL == pSuiteMANUAL_DESCENDING) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  if (
+      //TEST FÖR MANUAL (FREELIST)
+      (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Manual_ascending", testMANUAL_ASCENDING)) ||
+      (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of Manual_address", testMANUAL_ADDRESS))||
+      (NULL == CU_add_test(pSuiteMANUAL_DESCENDING, "test of Manual_descening", testMANUAL_DESCENDING)) ||
+      (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Avail", testAVAIL)) ||
+      (NULL == CU_add_test(pSuiteMANUAL_DESCENDING, "test of Freelist_descending", testFREELIST_DESCENDING))||
+      (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Freelist_ascending", testFREELIST_ASCENDING))||
+      (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of Freelist_address", testFREELIST_ADDRESS))
+      ) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  if (
+      //TEST FÖR MANAGED GC
+      (NULL == CU_add_test(pSuiteMANAGED_GC, "test of setZero", testSETZERO))||
+      (NULL == CU_add_test(pSuiteMANAGED_GC, "test of freeObject", testFREEOBJ)) ||
+      (NULL == CU_add_test(pSuiteMANAGED_GC, "test of collectGarbage", testCOLLECTGARBAGE)) 
+      ) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+
+  if (
+      //TEST FÖR MANAGED REFCOUNT
+      (NULL == CU_add_test(pSuiteMANAGED_REFCOUNT, "test of Balloc", testBALLOC)) ||
+      (NULL == CU_add_test(pSuiteMANAGED_REFCOUNT, "test of Refcount", testREFCOUNT))
+      ) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+
+  if (
+      //TEST FÖR MANAGED GC + REFCOUNT 
+      (NULL == CU_add_test(pSuiteMANAGED_GC_REFCOUNT, "test of GC+REF", testGC_REFCOUNT_DESCENDING))
+      ) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+
+  CU_basic_set_mode(CU_BRM_VERBOSE);
+  CU_basic_run_tests();
+  CU_cleanup_registry();
+  return CU_get_error();
 }
 

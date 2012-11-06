@@ -140,7 +140,7 @@ unsigned int collectGarbage(Memory mem) {
         as->end = (RawPtr)((char*)c + list->size);
 
         traverseStack(as, mf, c);//as skall vara adressspace
-        free (as);
+	//   free (as);
         freeObj(mem, c);
     }
     return 0; // konstig
