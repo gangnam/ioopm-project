@@ -11,27 +11,27 @@
 
 int init_suite_manual(void) {
     return 0;
-    }
+}
 
 int clean_suite_manual(void) {
     return 0;
-    }
+}
 
 int init_suite_ref(void) {
     return 0;
-    }
+}
 
 int clean_suite_ref(void) {
     return 0;
-    }
+}
 
 int init_suite_gc(void) {
     return 0;
-    }
+}
 
 int clean_suite_gc(void) {
     return 0;
-    }
+}
 
 void testMANUAL_ASCENDING(void) {
     Manual mem = (Manual) iMalloc(1 Mb, MANUAL + ASCENDING_SIZE);
@@ -46,7 +46,7 @@ void testMANUAL_ASCENDING(void) {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
-    }
+}
 
 void testMANUAL_ADDRESS() {
     Manual mem = (Manual) iMalloc(1 Mb, MANUAL + ADDRESS);
@@ -57,15 +57,14 @@ void testMANUAL_ADDRESS() {
     Chunk c = temp->data;
     CU_ASSERT(c->size == (1 Mb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(c->free == 1);
-     CU_ASSERT(c->markbit == 1);
+    CU_ASSERT(c->markbit == 1);
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
-    }
+}
 
 void testGCD_REFCOUNT_DESCENDING() {
     Managed mem = (Managed) iMalloc(1 Mb, GCD + REFCOUNT + DESCENDING_SIZE);
-    //CU_ASSERT(mem->rc != NULL);
     CU_ASSERT(mem->rc.release == decreaseReferenceCounter);
     CU_ASSERT(mem->rc.retain == increaseReferenceCounter);
     CU_ASSERT(mem->rc.count == returnReferenceCounter);
@@ -81,7 +80,103 @@ void testGCD_REFCOUNT_DESCENDING() {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((void*)c+sizeof(chunk)));
-    }
+}
+
+void testCOLLECTGARBAGE() {
+    //kan användas som både ett träd och en lista.
+    typedef struct tree *Tree;
+    typedef struct tree  {
+        int current;
+        Tree l;
+        Tree r;
+
+    } tree;
+
+// test för att testa GC med 2 "list" noder som båda är pekade på(ingen ska free:as)
+    Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE); // skapa minnet
+    //allokera 2 träd noder
+    Tree a = (Tree)(mem->alloc((Memory)mem, sizeof(tree)));
+    Tree b = (Tree)(mem->alloc((Memory)mem, sizeof(tree)));
+    //kolla om chunken a pekar på chunken b
+    CU_ASSERT((ptrToChunk((void*)a))->next == (ptrToChunk((void*)b)));
+
+    //sätt så att trädet a pekar på trädet b
+    a->current=1;
+    a->l=b;
+    a->r=NULL;
+    b->current=2;
+    b->l=NULL;
+    b->r=NULL;
+
+    //kör Garbage collect som i detta fall inte ska free:a någonting.
+    mem->gc.collect((Memory) mem);
+
+    Metafreelist list = memToMeta((Memory)mem);
+    //sätt "rest" chunken till x
+    Chunk x = ((ptrToChunk((void*)b)))->next;
+    //kolla så att x är den enda chunken i listan
+    CU_ASSERT(list->first->current == x);
+    CU_ASSERT(list->first->after == NULL);
+//-------------------------------------------------------------
+//      Test för att testa för samma fall som innan men när den andra
+//      noden inte har ngt som pekar på den
+
+    Managed mem2 = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
+    (Tree)(mem2->alloc((Memory)mem2, sizeof(tree)));
+    a = (Tree)(mem2->alloc((Memory)mem2, sizeof(tree)));
+    // sätt x till a -> next som i detta fall är "rest" chunken
+    x = ((ptrToChunk((void*)a)))->next;
+    //kolla så att x är "rest" chunken
+    CU_ASSERT(x->size == (1 Kb - sizeof(chunk)*3 - sizeof(tree)*2 - mgrMetaSize));
+
+    a->current=1;
+    a->l=NULL;
+    a->r=NULL;
+
+    mem2->gc.collect((Memory) mem2);
+    list = memToMeta((Memory)mem2);
+
+    //kolla så att det finns 2 element i
+    //free listan(rest chunken och en chunk som är sizeof(tree))
+    CU_ASSERT(list->first->current == x);
+    CU_ASSERT(list->first->after->current->size == sizeof(tree));
+    CU_ASSERT(list->first->after->after == NULL);
+//-------------------------------------------------------------
+//      Test för att testa GC för en trädstruktur
+//      där vi vill ta bort en nod mitt i trädet
+
+    Managed mem3 = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
+    //allokera minne för 5 noder.
+    a = (Tree)(mem3->alloc((Memory)mem3, sizeof(tree)));
+    b = (Tree)(mem3->alloc((Memory)mem3, sizeof(tree)));
+    Tree c = (Tree)(mem3->alloc((Memory)mem3, sizeof(tree)));
+    Tree d = (Tree)(mem3->alloc((Memory)mem3, sizeof(tree)));
+    Tree e = (Tree)(mem3->alloc((Memory)mem3, sizeof(tree)));
+
+    //fixa så att tädet ser ut såhär
+    //      a
+    //    b    c
+    //  d     e
+    // vi tar sedan bort pekningen från a till c så vi har två träd
+    // sen tar vi bort pekaren till c.
+    a->l=b;
+    a->r=NULL;
+    b->l=d;
+    b->r=NULL;
+    c->l=e;
+    c->r=NULL;
+    c=NULL;
+
+    // nu när vi free:ar så skall c tas bort
+    mem3->gc.collect((Memory) mem3);
+    list = memToMeta((Memory) mem3);
+    Chunk q = (ptrToChunk((void*)b))->next;
+    //testa att c är den andra chunken i freelistan efter "rest" chunken
+    CU_ASSERT(list->first->after->current == q);
+    CU_ASSERT((ptrToChunk((void*)b))->next == q);
+    CU_ASSERT(list->first->after->after == NULL);
+
+}
 
 void testBALLOC() {
     Managed mem = (Managed) iMalloc(1 Kb, REFCOUNT + DESCENDING_SIZE);
@@ -99,11 +194,25 @@ void testBALLOC() {
     CU_ASSERT(b1->next == c1);
     CU_ASSERT(c1->next == d1);
     CU_ASSERT(d1->next == e1);
-    //CU_ASSERT(a1->next == b1);
-    }
+
+    Manual mem2 = (Manual) iMalloc(1 Kb, MANUAL + ASCENDING_SIZE);
+
+    a = mem2->alloc((Memory)mem2, (1 Kb - manMetaSize - sizeof(chunk) - 60));
+    a1 = (Chunk)(a-sizeof(chunk));
+    printf("%d\n", a1->size);
+
+    b = mem2->alloc((Memory)mem2, (1 Kb - manMetaSize - sizeof(chunk)));
+    b1 = (Chunk)(b-sizeof(chunk));
+    //printf("%d\n", b1->size);
+
+    CU_ASSERT(b == NULL);
+    // b1 = (Chunk)(b-sizeof(chunk));
+    // printf("%d\n", b1->size);
+
+}
 
 void testFREELIST_ADDRESS() {
-   Manual mem = (Manual) iMalloc(1 Kb,MANUAL + ADDRESS);
+    Manual mem = (Manual) iMalloc(1 Kb,MANUAL + ADDRESS);
     Metafreelist *meta = (Metafreelist*) ((void*) mem-sizeof(void*));
     Metafreelist flist = *meta;
 
@@ -117,17 +226,17 @@ void testFREELIST_ADDRESS() {
     Freelist list = flist->first;
     CU_ASSERT(list->current == e1->next);
     CU_ASSERT(list->after == NULL);
-    
+
     mem->free((Memory) mem, c);
     list = flist->first;
     CU_ASSERT(list->current->start == c);
-    
+
     mem->free((Memory) mem, d);
     list = flist->first;
     CU_ASSERT(list->current->start == c);
     Chunk c1 = (Chunk) (c-sizeof(chunk));
     CU_ASSERT(c < d && d < (c1->start + c1->size));
-   
+
     mem->free((Memory) mem, a);
     mem->free((Memory) mem, b);
     mem->free((Memory) mem, e);
@@ -137,7 +246,7 @@ void testFREELIST_ADDRESS() {
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
- 
+
 }
 
 void testFREELIST_ASCENDING() {
@@ -155,17 +264,17 @@ void testFREELIST_ASCENDING() {
     Freelist list = flist->first;
     CU_ASSERT(list->current == e1->next);
     CU_ASSERT(list->after == NULL);
-    
+
     mem->free((Memory) mem, c);
     list = flist->first;
     CU_ASSERT(list->current->start == c);
-    
+
     mem->free((Memory) mem, d);
     list = flist->first;
     CU_ASSERT(list->current->start == c);
     Chunk c1 = (Chunk) (c-sizeof(chunk));
     CU_ASSERT(c < d && d < (c1->start + c1->size));
-   
+
     mem->free((Memory) mem, a);
     mem->free((Memory) mem, b);
     mem->free((Memory) mem, e);
@@ -175,7 +284,7 @@ void testFREELIST_ASCENDING() {
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
-        
+
 }
 
 
@@ -214,7 +323,7 @@ void testFREELIST() {
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
-    }
+}
 
 void testREFCOUNT() {
     Managed mem = (Managed) iMalloc(1 Mb, REFCOUNT + DESCENDING_SIZE);
@@ -240,38 +349,38 @@ void testREFCOUNT() {
 
     CU_ASSERT(list->current == a1);
     CU_ASSERT(a1->next == NULL);
-    }
+}
 
 
 void testGCD_ASCENDING() {
-  Managed mem = (Managed) iMalloc(1 Kb, GCD + ASCENDING_SIZE);
-  int x = (1 Kb- mgrMetaSize - sizeof(chunk));
-  void *a = mem->alloc((Memory)mem,10);
-  mem->alloc((Memory)mem,10);
-  mem->alloc((Memory)mem,10);
-  mem->alloc((Memory)mem,10);
-  mem->alloc((Memory)mem,10);
-  Chunk a1 = (Chunk) (a-sizeof(chunk));
-  setZero(a1);
-  freeObj((Memory) mem, a1);
-  CU_ASSERT(avail((Memory)mem) == x);
+    Managed mem = (Managed) iMalloc(1 Kb, GCD + ASCENDING_SIZE);
+    int x = (1 Kb- mgrMetaSize - sizeof(chunk));
+    void *a = mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
+    Chunk a1 = (Chunk) (a-sizeof(chunk));
+    setZero(a1);
+    freeObj((Memory) mem, a1);
+    CU_ASSERT(avail((Memory)mem) == x);
 }
 
 
 
 
-void testGCD_ADDRESS(){
- Managed mem = (Managed) iMalloc(1 Kb, GCD + ADDRESS);
-  int x = (1 Kb- mgrMetaSize - sizeof(chunk));
-  void *a = mem->alloc((Memory)mem,10);
-  mem->alloc((Memory)mem,10);
-  mem->alloc((Memory)mem,10);
-  mem->alloc((Memory)mem,10);
-  mem->alloc((Memory)mem,10);
-  Chunk a1 = (Chunk) (a-sizeof(chunk));
-  setZero(a1);
-  freeObj((Memory) mem, a1);
-  CU_ASSERT(avail((Memory)mem) == x);
+void testGCD_ADDRESS() {
+    Managed mem = (Managed) iMalloc(1 Kb, GCD + ADDRESS);
+    int x = (1 Kb- mgrMetaSize - sizeof(chunk));
+    void *a = mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
+    mem->alloc((Memory)mem,10);
+    Chunk a1 = (Chunk) (a-sizeof(chunk));
+    setZero(a1);
+    freeObj((Memory) mem, a1);
+    CU_ASSERT(avail((Memory)mem) == x);
 
 }
 
@@ -284,7 +393,7 @@ void testSETZERO() {
     void *d = mem->alloc((Memory)mem,45);
     void *e = mem->alloc((Memory)mem,50);
     Chunk a1 = (Chunk) (a-sizeof(chunk));
-    Chunk b1 = (Chunk) (b-sizeof(chunk));  
+    Chunk b1 = (Chunk) (b-sizeof(chunk));
     Chunk c1 = (Chunk) (c-sizeof(chunk));
     Chunk d1 = (Chunk) (d-sizeof(chunk));
     Chunk e1 = (Chunk) (e-sizeof(chunk));
@@ -294,8 +403,8 @@ void testSETZERO() {
     CU_ASSERT(c1->markbit == 0);
     CU_ASSERT(d1->markbit == 0);
     CU_ASSERT(e1->markbit == 0);
-    
-    }
+
+}
 
 void testFREEOBJ() {
     Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
@@ -310,46 +419,47 @@ void testFREEOBJ() {
     freeObj((Memory) mem, a1);
     CU_ASSERT(avail((Memory)mem) == x);
 
-    }
+}
 
-void testAVAIL() 
-{
-  int c = (1 Kb- manMetaSize - sizeof(chunk));
-  Manual mem = (Manual) iMalloc(1 Kb, MANUAL + ASCENDING_SIZE);
-  CU_ASSERT(mem->avail((Memory) mem) == c);
-  void *a = mem->alloc((Memory) mem, 10);
-  CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk));
-  mem->free((Memory) mem,a);
-  CU_ASSERT(mem->avail((Memory) mem) == c);
-  a = mem->alloc((Memory) mem, 10);
-  CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk));
-  void *b = mem->alloc((Memory) mem,30);
-  CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk)-30-sizeof(chunk));
-  mem->free((Memory) mem,a);
-  mem->free((Memory) mem,b);
-  CU_ASSERT(mem->avail((Memory) mem) == c);
-  a = mem->alloc((Memory) mem, 10);
-  b = mem->alloc((Memory) mem, 10);
- void *d = mem->alloc((Memory) mem, 10);
- void *e = mem->alloc((Memory) mem, 10);
- void *f = mem->alloc((Memory) mem, 10);
- void *g = mem->alloc((Memory) mem, 10);
- int x = 60 + (sizeof(chunk)*6);
- CU_ASSERT(mem->avail((Memory) mem) == (c - x));
- mem->free((Memory) mem, a);
- mem->free((Memory) mem, b);
- mem->free((Memory) mem, d);
- mem->free((Memory) mem, e);
- mem->free((Memory) mem, f);
- mem->free((Memory) mem, g);
- CU_ASSERT(mem->avail((Memory) mem) == c);
+void testAVAIL() {
+    int c = (1 Kb- manMetaSize - sizeof(chunk));
+    Manual mem = (Manual) iMalloc(1 Kb, MANUAL + ASCENDING_SIZE);
+    CU_ASSERT(mem->avail((Memory) mem) == c);
+    void *a = mem->alloc((Memory) mem, 10);
+    CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk));
+    mem->free((Memory) mem,a);
+    CU_ASSERT(mem->avail((Memory) mem) == c);
+    a = mem->alloc((Memory) mem, 10);
+    CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk));
+    void *b = mem->alloc((Memory) mem,30);
+    CU_ASSERT(mem->avail((Memory) mem) == c-10-sizeof(chunk)-30-sizeof(chunk));
+    mem->free((Memory) mem,a);
+    mem->free((Memory) mem,b);
+    CU_ASSERT(mem->avail((Memory) mem) == c);
+    a = mem->alloc((Memory) mem, 10);
+    b = mem->alloc((Memory) mem, 10);
+    void *d = mem->alloc((Memory) mem, 10);
+    void *e = mem->alloc((Memory) mem, 10);
+    void *f = mem->alloc((Memory) mem, 10);
+    void *g = mem->alloc((Memory) mem, 10);
+    int x = 60 + (sizeof(chunk)*6);
+    CU_ASSERT(mem->avail((Memory) mem) == (c - x));
+    mem->free((Memory) mem, a);
+    mem->free((Memory) mem, b);
+    mem->free((Memory) mem, d);
+    mem->free((Memory) mem, e);
+    mem->free((Memory) mem, f);
+    mem->free((Memory) mem, g);
+    CU_ASSERT(mem->avail((Memory) mem) == c);
 }
 
 int main() {
+    SET_STACK_BOTTOM CURRENT_SP(__g_stack_bottom__);
+
     CU_pSuite pSuiteGCD_REFCOUNT_DESCENDING = NULL;
     CU_pSuite pSuiteMANUAL_ADDRESS = NULL;
     CU_pSuite pSuiteMANUAL_ASCENDING = NULL;
-    
+
 
     if (CUE_SUCCESS != CU_initialize_registry())
         return CU_get_error();
@@ -358,17 +468,17 @@ int main() {
     if (NULL == pSuiteGCD_REFCOUNT_DESCENDING) {
         CU_cleanup_registry();
         return CU_get_error();
-        }
+    }
     pSuiteMANUAL_ADDRESS = CU_add_suite("MANUAL + ADDRESS", init_suite_ref, clean_suite_ref);
     if (NULL == pSuiteMANUAL_ADDRESS) {
         CU_cleanup_registry();
         return CU_get_error();
-        }
+    }
     pSuiteMANUAL_ASCENDING = CU_add_suite("MANUAL + ASCENDING_SIZE", init_suite_gc, clean_suite_gc);
     if (NULL == pSuiteMANUAL_ASCENDING) {
         CU_cleanup_registry();
         return CU_get_error();
-        }
+    }
     //pSuiteMANUAL_ASCENDING = CU_add_suite("MANUAL + ASCENDING_SIZE", init_suite_gc, clean_suite_gc);
     // if (NULL == pSuiteMANUAL_ASCENDING) {
     //  CU_cleanup_registry();
@@ -383,12 +493,13 @@ int main() {
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freelist", testFREELIST))||
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test setZero", testSETZERO))||
         (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test freeObj", testFREEOBJ)) ||
-	(NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of freelist(manual+ascending)", testFREELIST_ASCENDING))
-	|| (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of freelist(manual+address)", testFREELIST_ADDRESS))
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of freelist(manual+ascending)", testFREELIST_ASCENDING))||
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of freelist(manual+address)", testFREELIST_ADDRESS))||
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test collectGarbage", testCOLLECTGARBAGE))
     ) {
         CU_cleanup_registry();
         return CU_get_error();
-        }
+    }
 
     if (
         //lägg till test för REFCOUNT här
@@ -397,7 +508,7 @@ int main() {
     ) {
         CU_cleanup_registry();
         return CU_get_error();
-        }
+    }
 
     if (
         (NULL == CU_add_test(pSuiteGCD_REFCOUNT_DESCENDING, "test of gcd + ref + descending", testGCD_REFCOUNT_DESCENDING))
@@ -405,11 +516,11 @@ int main() {
     ) {
         CU_cleanup_registry();
         return CU_get_error();
-        }
+    }
 
     CU_basic_set_mode(CU_BRM_VERBOSE);
     CU_basic_run_tests();
     CU_cleanup_registry();
     return CU_get_error();
-    }
+}
 

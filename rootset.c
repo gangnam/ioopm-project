@@ -3,10 +3,10 @@
   Solaris info
   From: http://www.ribeiros.co.uk/documents/solaris_memoryarch.pdf
   Page 176
-  On a 32 bit SPARC: 
+  On a 32 bit SPARC:
   Stack starts: 0xFFBEC000
   Stack ends:   0xFF3DC000
-  On a 64 bit SPARC: 
+  On a 64 bit SPARC:
   Stack starts: 0xFFFFFFFF.7FFFC000
   Stack ends:   0xFFFFFFFF.7F7F0000
   On a X86:
@@ -30,55 +30,55 @@ void *__g_stack_bottom__;
 #endif
 
 int inAddressSpace(void *ptr, AddressSpace s) {
-  return s->start <= (char *)ptr && (char *)ptr <= s->end;
+    return s->start <= (char *)ptr && (char *)ptr <= s->end;
 }
 
 void traverseStack(AddressSpace s, MarkFun mark, void *data) {
-  /* 
-     Looks at all sizeof(void*) chunks of bytes from stack_bottom
-     to stack_top and if they contain a bit-pattern that, when
-     treated as a pointer, looks into the address space denoted
-     by s, call mark and pass along the extra argument data. 
-  */
+    /*
+       Looks at all sizeof(void*) chunks of bytes from stack_bottom
+       to stack_top and if they contain a bit-pattern that, when
+       treated as a pointer, looks into the address space denoted
+       by s, call mark and pass along the extra argument data.
+    */
 
-  void *stack_top;
-  CURRENT_SP(stack_top);
+    void *stack_top;
+    CURRENT_SP(stack_top);
 #ifdef DEBUG
-  printf("Scanning addresses %p to %p (%d)\n", min(stack_top, stack_bottom), 
-	                                       max(stack_top, stack_bottom), 
-	                                       max(stack_top, stack_bottom)-min(stack_top, stack_bottom));
+    printf("Scanning addresses %p to %p (%d)\n", min(stack_top, stack_bottom),
+           max(stack_top, stack_bottom),
+           max(stack_top, stack_bottom)-min(stack_top, stack_bottom));
 #endif
 
-  jmp_buf buf;
-  void *end = (void *) &buf+sizeof(jmp_buf);
-  setjmp(buf);
-  for (void *cursor = (void *) &buf;
-       end-cursor >= sizeof(void*);
-       ++cursor) {
+    jmp_buf buf;
+    void *end = (void *) &buf+sizeof(jmp_buf);
+    setjmp(buf);
+    for (void *cursor = (void *) &buf;
+            end-cursor >= sizeof(void*);
+            ++cursor) {
 #ifdef __sparc__
-    if (((uintptr_t) cursor) % ALIGNMENT != 0)
-      continue;
+        if (((uintptr_t) cursor) % ALIGNMENT != 0)
+            continue;
 #endif
 #ifdef DEBUG
-    printf("Found pointer to %p\n", *(void**)cursor);
+        printf("Found pointer to %p\n", *(void**)cursor);
 #endif
-    if (inAddressSpace(*(void**)cursor, s)) {
-      mark(cursor, data);
+        if (inAddressSpace(*(void**)cursor, s)) {
+            mark(cursor, data);
+        }
     }
-  }
 
-  for (void *cursor = stack_top;
-       __g_stack_bottom__-cursor >= sizeof(void*); 
-       ++cursor) {
+    for (void *cursor = stack_top;
+            __g_stack_bottom__-cursor >= sizeof(void*);
+            ++cursor) {
 #ifdef __sparc__
-    if (((uintptr_t) cursor) % ALIGNMENT != 0)
-      continue;
+        if (((uintptr_t) cursor) % ALIGNMENT != 0)
+            continue;
 #endif
 #ifdef DEBUG
-    printf("Found pointer to %p\n", *(void**)cursor);
+        printf("Found pointer to %p\n", *(void**)cursor);
 #endif
-    if (inAddressSpace(*(void**)cursor, s)) {
-      mark(cursor, data);
+        if (inAddressSpace(*(void**)cursor, s)) {
+            mark(cursor, data);
+        }
     }
-  }
 }

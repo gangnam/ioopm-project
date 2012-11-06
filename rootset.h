@@ -4,7 +4,7 @@
 
 #include <stddef.h>
 
-/* 
+/*
    NOTE: rpb (and ebp, fp) all point to the start of the current
    frame, and not to the top of the stack, i.e., it's where the
    frame starts and not where it would be safe to push a new
@@ -51,8 +51,8 @@ typedef void*(*Allocator)(size_t size);
 typedef char * RawPtr;
 
 typedef struct {
-  RawPtr start;
-  RawPtr end;
+    RawPtr start;
+    RawPtr end;
 } addressspace, *AddressSpace;
 
 
