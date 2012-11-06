@@ -1,14 +1,15 @@
 #ifndef __rc_h_
 #define __rc_h_
-#include "imalloc.h"
 
-/*ökar referens pekaren och retunerar referenspekaren till chunken*/
+/* rc.retain
+   Ökar referensräknaren med ett och returnerar hur många referenser den har. */
 unsigned int increaseReferenceCounter (void *ptr);
 
-/*Tar bort en pekare och när chunken inte har kvar några referenser 
-så läggs chunken i freelistan*/
+/* rc.release
+   Minskar referensräknaren med ett returnerar tillbaka hur många referenser den har till chunken. Om referensräknaren går ner till 0 så tas chunken bort och läggs till free-listan. */
 unsigned int decreaseReferenceCounter (Memory mem, void *ptr);
 
-/*retunerar referenspekare till en chunk */
+/* rc.count
+   returnerar antal referenser till chunken. */
 unsigned int returnReferenceCounter (void *ptr);
 #endif
