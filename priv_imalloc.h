@@ -19,11 +19,11 @@
 
 /* Actual return type specifications for iMalloc */
 /* Backar från mem till Metafreelist */
-#define memToMeta(mem) *((Metafreelist*) ((void*) mem-sizeof(void*)))
+#define memToMeta(mem) *((Metafreelist*) ((char*) mem-sizeof(void*)))
 /* Backar från mem till den första chunken */
-#define memToChunk(mem) *((Chunk*) ((void*) mem - (sizeof(void*)*3)))
+#define memToChunk(mem) *((Chunk*) ((char*) mem - (sizeof(void*)*3)))
 /* Backar från allocade minnets start till dess chunk */
-#define ptrToChunk(ptr) (Chunk) (ptr-sizeof(chunk))
+#define ptrToChunk(ptr) (Chunk) ((char*)ptr-sizeof(chunk))
 /* Storleken av manual's metadata */
 #define manMetaSize (sizeof(private_manual)+sizeof(manual))
 /* Storleken av managed's metadata */

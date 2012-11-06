@@ -83,12 +83,12 @@ den chunken också, detta loopas tills den inte hittar ngn mer pekare.
 */
 void mf(void *ptr, void *data) {
     Chunk c = (Chunk) data;
-    void *chend;
-    void *i;
+    char *chend;
+    char *i;
 
     while(c) {
         if(c->markbit!=1) {
-            chend = ((c->start)+(c->size));
+            chend = (((char*)c->start)+(c->size));
             if (((void*)c->start <= *(void**)ptr) && (*(void**)ptr <= (void*)chend)) {
                 c->markbit=1;
                 i = c->start;
@@ -140,7 +140,7 @@ unsigned int collectGarbage(Memory mem) {
         as->end = (RawPtr)((char*)c + list->size);
 
         traverseStack(as, mf, c);//as skall vara adressspace
-	//   free (as);
+        free (as);
         freeObj(mem, c);
     }
     return 0; // konstig
