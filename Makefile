@@ -1,6 +1,6 @@
 # compiler settings
 C_COMPILER   = gcc 
-C_OPTIONS    = -Wall -g -std=c99 
+C_OPTIONS    = -Wall -g -std=c99 -pedantic
 
 # Clean settings
 GEN_EXTENSIONS = *.exe
