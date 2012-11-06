@@ -96,7 +96,6 @@ unsigned int ascending_free(Memory mem, void *ptr) {
     Freelist list = flist->first;
     Chunk c = ptrToChunk(ptr);
     
-    
     c->free = 1;
     c = combine(mem, c);
     if(flist->first == NULL) {
@@ -128,7 +127,7 @@ unsigned int ascending_free(Memory mem, void *ptr) {
             }
         }
         new->current = c;
-        new->after = prev->after;
+        new->after = NULL;
         prev->after = new;
         return 0;
     }
@@ -186,33 +185,43 @@ unsigned int adress_free(Memory mem, void *ptr) {
   
     Metafreelist flist = memToMeta(mem);
     Freelist list = flist->first;
-    Chunk c = ptrToChunk(ptr);    
+    Chunk c = ptrToChunk(ptr);
+    
     c->free = 1;
     c = combine(mem, c);
-    Freelist prev = list;
-    Freelist new = (Freelist) malloc(sizeof(freelist));
-
-    if (list->current->start > c->start){
+    if(flist->first == NULL) {
+        Freelist new = (Freelist) malloc(sizeof(freelist));
         new->current = c;
-        new->after = list->after;
+        new->after = NULL;
         flist->first = new;
-        return  0;
     }
-    while(list) {
-        if (list->current->start < c->start) {
-            prev = list;
-            list = list->after;
+    else {
+        Freelist prev = list;
+        Freelist new = (Freelist) malloc(sizeof(freelist));
+        
+        if (list->current->start > c->start){
+          new->current = c;
+          new->after = list->after;
+          flist->first = new;
+          return  0;
         }
-        else {
-            new->current = c;
-            new->after = list->after;
-            list->after = new;
-            return  0;
+        while(list) {
+            if (list->current->start < c->start) {
+                prev = list;
+                list = list->after;
+            }
+            else {
+                new->current = c;
+                new->after = list->after;
+                list->after = new;
+                return 0;
+            }
         }
+        new->current = c;
+        new->after = NULL;
+        prev->after = new;
+        return 0;
     }
-    new->current = c;
-    new->after = prev->after;
-    prev->after = new;
     return 0;
 }
 
