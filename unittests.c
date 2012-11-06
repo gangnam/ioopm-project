@@ -382,7 +382,7 @@ private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed
 }
 
 
-<<<<<<< HEAD
+
 void testGCD_ASCENDING() {
     Managed mem = (Managed) iMalloc(1 Kb, GCD + ASCENDING_SIZE);
     int x = (1 Kb- mgrMetaSize - sizeof(chunk));
@@ -418,8 +418,8 @@ private_managed *temp = (private_managed*) (((void*) mem)-sizeof(private_managed
  free(temp);
 }
 
-=======
->>>>>>> bc83bb9253ba91780ea1896d493bde9da87e9307
+
+
 void testSETZERO() {
     Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
 
