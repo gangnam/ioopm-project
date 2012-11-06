@@ -76,7 +76,7 @@ Chunk combine(Memory mem, Chunk original) {
 	    
 }
 
-/* Kollar hur mycket plats det finns ledigt i det stora minnet, eller om vi måste skapa ett nytt stort minnes utrymme. */
+/* Returnerar hur mycket plats det finns ledigt i Memory mem */
 unsigned int avail(Memory mem) {
 
     Chunk c = memToChunk(mem);
@@ -89,8 +89,7 @@ unsigned int avail(Memory mem) {
     return avail;
 }
 
-/*Letar efter rätt plats att placera chunken i Freelistan, denna funktion sorterar enligt ascending,
-dvs minst först och störst sist. */
+/* Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt ascending, dvs minst först och störst sist. */
 unsigned int ascending_free(Memory mem, void *ptr) {
   
     Metafreelist flist = memToMeta(mem);
@@ -136,8 +135,8 @@ unsigned int ascending_free(Memory mem, void *ptr) {
     return 0;
 }
 
-/* Tar in en chunk och letar efter rätt plats att placera den i freelistan, 
-nu i descending sortering. Dvs störst först och minst sist*/
+/* Lägger pekaren ptr's Chunk i freelistan, sorterad enligt descending. Dvs största chunken skall vara först i listan och minst chunken skall vara sist */
+
 unsigned int descending_free(Memory mem, void *ptr) {
   
     Metafreelist flist = memToMeta(mem);
@@ -182,9 +181,7 @@ unsigned int descending_free(Memory mem, void *ptr) {
     return 0;
 }
 
-///////////////
-/* Tar in en chunk och letar efter rätt plats att placera den i freelistan, 
-nu i descending sortering. Dvs störst först och minst sist*/ 
+/* Lägger pekaren ptr's Chunk i freelistan, sorterad efter adresstorlek */
 unsigned int adress_free(Memory mem, void *ptr) {
   
     Metafreelist flist = memToMeta(mem);
