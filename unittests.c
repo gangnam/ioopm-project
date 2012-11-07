@@ -32,8 +32,8 @@ int init_suite_gc(void) {
 int clean_suite_gc(void) {
     return 0;
 }
-// Skapar minne, med ascending sortering. 
-// Skapar en chunk och kollar att den pekar på rätta värden
+ /* Skapar minne, med ascending sortering.  */
+ /* Skapar en chunk och kollar att den pekar på rätta värden */
 void testMANUAL_ASCENDING(void) {
     Manual mem = (Manual) iMalloc(1 Mb, MANUAL + ASCENDING_SIZE);
     CU_ASSERT(mem->free == ascending_free);
@@ -48,8 +48,8 @@ void testMANUAL_ASCENDING(void) {
     CU_ASSERT(c->start == ((char*)c+sizeof(chunk)));
     freeMem(mem);
 }
-// Skapar minne, med adress sortering. 
-// Skapar en chunk och kollar att den pekar på rätta värden
+ /* Skapar minne, med adress sortering.  */
+ /* Skapar en chunk och kollar att den pekar på rätta värden */
 void testMANUAL_ADDRESS() {
     Manual mem = (Manual) iMalloc(1 Mb, MANUAL + ADDRESS);
     CU_ASSERT(mem->free == adress_free);
@@ -66,8 +66,8 @@ void testMANUAL_ADDRESS() {
 }
 
 
-// Skapar minne, med descending sortering. 
-// Skapar en chunk och kollar att den pekar på rätta värden
+ /* Skapar minne, med descending sortering.  */
+ /* Skapar en chunk och kollar att den pekar på rätta värden */
 void testMANUAL_DESCENDING() {
     Manual mem = (Manual) iMalloc(1 Mb, MANUAL + DESCENDING_SIZE);
     CU_ASSERT(mem->free == descending_free);
@@ -83,7 +83,7 @@ void testMANUAL_DESCENDING() {
     freeMem(mem);
 }
 
-//skapar minne med descening sortering och en chunk, samt kollar att pekarna för refcount pekar rätt
+/* skapar minne med descening sortering och en chunk, samt kollar att pekarna för refcount pekar rätt */
 void testGC_REFCOUNT_DESCENDING() {
     Managed mem = (Managed) iMalloc(1 Mb, GCD + REFCOUNT + DESCENDING_SIZE);
     CU_ASSERT(mem->rc.release == decreaseReferenceCounter);
@@ -199,38 +199,40 @@ freeMem(mem);
 freeMem(mem2);
 freeMem(mem3);
 }
-
+/* Testar balloc på managed och manual */
 void testBALLOC() {
     Managed mem = (Managed) iMalloc(1 Kb, REFCOUNT + DESCENDING_SIZE);
+/* Allokerar 5 utrymmen */
     char *a = mem->alloc((Memory)mem,10);
     char *b = mem->alloc((Memory)mem,25);
     char *c = mem->alloc((Memory)mem,12);
     char *d = mem->alloc((Memory)mem,12);
     char *e = mem->alloc((Memory)mem,12);
+/* Backar dem till chunks */
     Chunk a1 = (Chunk) (a-sizeof(chunk));
     Chunk b1 = (Chunk) (b-sizeof(chunk));
     Chunk c1 = (Chunk) (c-sizeof(chunk));
     Chunk d1 = (Chunk) (d-sizeof(chunk));
     Chunk e1 = (Chunk) (e-sizeof(chunk));
+/* Kollar så att dom ligger i rätt ordning */
     CU_ASSERT(a1->next == b1);
     CU_ASSERT(b1->next == c1);
     CU_ASSERT(c1->next == d1);
     CU_ASSERT(d1->next == e1);
-
+    /* Skapar en Manual, allokerar nästan allt minne och försöker sätta in något som inte ryms */
     Manual mem2 = (Manual) iMalloc(1 Kb, MANUAL + ASCENDING_SIZE);
-
     a = mem2->alloc((Memory)mem2, (1 Kb - manMetaSize - sizeof(chunk) - 60));
     a1 = (Chunk)(a-sizeof(chunk));
-
     b = mem2->alloc((Memory)mem2, (1 Kb - manMetaSize - sizeof(chunk)));
     b1 = (Chunk)(b-sizeof(chunk));
-
+    /* Returnar NULL ifall minnet är fullt */
     CU_ASSERT(b == NULL);
+
 freeMem(mem);
 freeMem(mem2);
 }
 
-//skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan 
+/* skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan  */
 void testFREELIST_ADDRESS() {
     Manual mem = (Manual) iMalloc(1 Kb,MANUAL + ADDRESS);
     Metafreelist flist = memToMeta((Memory)mem);
@@ -263,9 +265,7 @@ void testFREELIST_ADDRESS() {
 
     //kollar att adresserna är sorterade i rätt ordning
     CU_ASSERT(c < d && d < ((char*)c1->start + c1->size));
-
     CU_ASSERT(c < d && d < ((char*)c1->start + c1->size));
-
 
     mem->free((Memory) mem, a);
     mem->free((Memory) mem, b);
@@ -281,7 +281,7 @@ void testFREELIST_ADDRESS() {
 freeMem(mem);
 }
 
-//skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan
+/* skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan */
 void testFREELIST_ASCENDING() {
     Manual mem = (Manual) iMalloc(1 Kb,MANUAL + ASCENDING_SIZE);
     Metafreelist flist = memToMeta((Memory) mem);
@@ -333,7 +333,7 @@ void testFREELIST_ASCENDING() {
 freeMem(mem);
 }
 
-//skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan
+/* skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan */
 void testFREELIST_DESCENDING() {
     Manual mem = (Manual) iMalloc(1 Kb, MANUAL + DESCENDING_SIZE);
     Metafreelist flist = memToMeta((Memory) mem);
@@ -383,29 +383,29 @@ void testFREELIST_DESCENDING() {
     CU_ASSERT(list->after == NULL);
     freeMem(mem);
 }
-
+/* Testar refcount */
 void testREFCOUNT() {
     Managed mem = (Managed) iMalloc(1 Mb, REFCOUNT + DESCENDING_SIZE);
     Metafreelist flist = memToMeta((Memory) mem);
-
+/* Allokerar utrymme till a och tar ut a's chunk */
     char *a = mem->alloc((Memory)mem,10);
     Chunk a1 = (Chunk) (a-sizeof(chunk));
     Freelist list = flist->first;
-    CU_ASSERT(mem->rc.count(a)==1);
+    CU_ASSERT(mem->rc.count(a)==1); // Kollar så att counten står på 1
 
-    mem->rc.retain(a);
+    mem->rc.retain(a); // Ökar refcounten.
 
-    CU_ASSERT(mem->rc.count(a)==2);
-    CU_ASSERT(list->current == a1->next);
-
+    CU_ASSERT(mem->rc.count(a)==2); // Kollar så att den är 2
+    CU_ASSERT(list->current == a1->next); // Kollar så att freelistans första element är a1's next
+    /* Releasar 2 gånger på a */
     mem->rc.release((Memory)mem, a);
     mem->rc.release((Memory)mem, a);
 
-    CU_ASSERT(mem->rc.count(a)==0);
+    CU_ASSERT(mem->rc.count(a)==0); // Kollar så att counten = 0
 
     list = flist->first;
 
-    CU_ASSERT(list->current == a1);
+    CU_ASSERT(list->current == a1); // Kollar så att a har blivit friad och kombinerad med den andra chunken
     CU_ASSERT(a1->next == NULL);
 freeMem(mem);
 }
@@ -415,13 +415,13 @@ void testSETZERO() {
     Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
 
     
-    //skapar pekare till minnesytor
+    /* Skapar pekare till minnesytor */
     char *a = mem->alloc((Memory)mem,10);
     char *b = mem->alloc((Memory)mem,25);
     char *c = mem->alloc((Memory)mem,12);
     char *d = mem->alloc((Memory)mem,45);
     char *e = mem->alloc((Memory)mem,50);
-    Chunk a1 = (Chunk) (a-sizeof(chunk));//a1:s metadata
+    Chunk a1 = (Chunk) (a-sizeof(chunk)); // a1:s metadata
 
 
     a = mem->alloc((Memory)mem,10);
@@ -435,9 +435,9 @@ void testSETZERO() {
     Chunk c1 = (Chunk) (c-sizeof(chunk));
     Chunk d1 = (Chunk) (d-sizeof(chunk));
     Chunk e1 = (Chunk) (e-sizeof(chunk));
-    //sätter alla chunks markbitar till 0
-    setZero(a1); 
-    //kollar så att alla markbits är satta till 0
+    
+    setZero(a1); // Sätter alla chunks markbitar till 0
+    /* Kollar så att alla markbits är satta till 0 */
     CU_ASSERT(a1->markbit == 0);
     CU_ASSERT(b1->markbit == 0);
     CU_ASSERT(c1->markbit == 0);
@@ -462,8 +462,7 @@ void testFREEOBJ() {
 freeMem(mem);
 
 }
-//skapar en minnesyta och kollar sedan att det 
-//ledigt utrymmet överensstämmer efter insättning av chunks
+/* Skapar en minnesyta och kollar sedan att det lediga utrymmet överensstämmer efter insättning av chunks */
 void testAVAIL() {
     int c = (1 Kb- manMetaSize - sizeof(chunk));
     Manual mem = (Manual) iMalloc(1 Kb, MANUAL + ASCENDING_SIZE);
@@ -496,7 +495,7 @@ void testAVAIL() {
     CU_ASSERT(mem->avail((Memory) mem) == c);
 freeMem(mem);
 }
-
+/* Kollar om RemoveFromFreelist länkar ur korrekt */
 void testREMOVEFROMFREELIST() {
     Manual mem = (Manual) iMalloc(1 Kb, MANUAL + DESCENDING_SIZE);
     Metafreelist flist = memToMeta((Memory) mem);
@@ -510,16 +509,14 @@ void testREMOVEFROMFREELIST() {
     Chunk d1 = (Chunk) (d-sizeof(chunk));
     mem->free((Memory)mem, a);
     Freelist list = flist->first;
-    CU_ASSERT(list->after->current == a1);
-    CU_ASSERT(list->current == d1->next);
+    CU_ASSERT(list->after->current == a1); // Kollar om a1 är den andra chunken i free-listan
+    CU_ASSERT(list->current == d1->next); // Kollar om den första chunken i free-listan ligger efter d1
 
     mem->free((Memory)mem, c);
     
-    //list = flist->first;
-
-    CU_ASSERT(list->after->after->current == a1);
-    CU_ASSERT(list->after->current == c1);
-    CU_ASSERT(list->current == d1->next);
+    CU_ASSERT(list->after->after->current == a1); // Kollar om a1 har flyttats till bak ett steg i free-listan
+    CU_ASSERT(list->after->current == c1); // Kollar om c1 ligger mellan den som låg efter d1 och före a1
+    CU_ASSERT(list->current == d1->next); // Kollar om den som låg efter d1 är fortfarande först
 
     freeMem(mem);
 }
