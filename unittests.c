@@ -256,6 +256,7 @@ void testFREELIST_ADDRESS() {
     //kollar att den pekar rätt efter borttagning av d, 
     //samt kollar att combine fungerat
     CU_ASSERT(list->current->start == c);
+    CU_ASSERT(list->current->size == 12+45+sizeof(chunk));
     CU_ASSERT(list->current->next->start == e);
     Chunk c1 = (Chunk) (c-sizeof(chunk));
 
@@ -300,12 +301,14 @@ void testFREELIST_ASCENDING() {
     list = flist->first;
     //kollar att freelistan är rätt efter borttagnig av c
     CU_ASSERT(list->current->start == c);
+    
 
     mem->free((Memory) mem, d);
     list = flist->first;
     //kollar att den pekar rätt efter borttagning av d, 
     //samt kollar att combine fungerat
     CU_ASSERT(list->current->start == c);
+    CU_ASSERT(list->current->size == 12+45+sizeof(chunk));
     CU_ASSERT(list->current->next->start == e);
     Chunk c1 = (Chunk) (c-sizeof(chunk));
 
@@ -356,6 +359,7 @@ void testFREELIST_DESCENDING() {
     //kollar att den pekar rätt efter borttagning av d, 
     //samt kollar att combine fungerat
     CU_ASSERT(list->after->current->start == c);
+    CU_ASSERT(list->after->current->size == 12+45+sizeof(chunk));
     CU_ASSERT(list->after->current->next->start == e);     
     Chunk c1 = (Chunk) (c-sizeof(chunk));
 
@@ -376,7 +380,7 @@ void testFREELIST_DESCENDING() {
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
-freeMem(mem);
+    freeMem(mem);
 }
 
 void testREFCOUNT() {
