@@ -140,7 +140,6 @@ unsigned int descending_free(Memory mem, void *ptr) {
     Metafreelist flist = memToMeta(mem);
     Freelist list = flist->first;
     Chunk c = ptrToChunk(ptr);
-
     c->free = 1;
     c = combine(mem, c);
     if(flist->first == NULL) {
@@ -151,10 +150,9 @@ unsigned int descending_free(Memory mem, void *ptr) {
     } else {
         Freelist prev = list;
         Freelist new = (Freelist) malloc(sizeof(freelist));
-
         if (list->current->size < c->size) {
             new->current = c;
-            new->after = list->after;
+            new->after = list->after;//
             flist->first = new;
             return  0;
         }
@@ -164,7 +162,7 @@ unsigned int descending_free(Memory mem, void *ptr) {
                 list = list->after;
             } else {
                 new->current = c;
-                new->after = list->after;
+                new->after = list->after;//
                 list->after = new;
                 return  0;
             }

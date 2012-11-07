@@ -62,8 +62,9 @@ void testMANUAL_ADDRESS() {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((char*)c+sizeof(chunk)));
-freeMem(mem);
+    freeMem(mem);
 }
+
 
 // Skapar minne, med descending sortering. 
 // Skapar en chunk och kollar att den pekar på rätta värden
@@ -79,7 +80,7 @@ void testMANUAL_DESCENDING() {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((char*)c+sizeof(chunk)));
-freeMem(mem);
+    freeMem(mem);
 }
 
 //skapar minne med descening sortering och en chunk, samt kollar att pekarna för refcount pekar rätt
@@ -496,6 +497,33 @@ void testAVAIL() {
 freeMem(mem);
 }
 
+void testREMOVEFROMFREELIST() {
+    Manual mem = (Manual) iMalloc(1 Kb, MANUAL + DESCENDING_SIZE);
+    Metafreelist flist = memToMeta((Memory) mem);
+    char *a = mem->alloc((Memory)mem,10);
+    char *b = mem->alloc((Memory)mem,25);
+    char *c = mem->alloc((Memory)mem,12);
+    char *d = mem->alloc((Memory)mem,14);
+    Chunk a1 = (Chunk) (a-sizeof(chunk));
+    Chunk b1 = (Chunk) (b-sizeof(chunk));
+    Chunk c1 = (Chunk) (c-sizeof(chunk));
+    Chunk d1 = (Chunk) (d-sizeof(chunk));
+    mem->free((Memory)mem, a);
+    Freelist list = flist->first;
+    CU_ASSERT(list->after->current == a1);
+    CU_ASSERT(list->current == d1->next);
+
+    mem->free((Memory)mem, c);
+    
+    //list = flist->first;
+
+    CU_ASSERT(list->after->after->current == a1);
+    CU_ASSERT(list->after->current == c1);
+    CU_ASSERT(list->current == d1->next);
+
+    freeMem(mem);
+}
+
 int main() {
   SET_STACK_BOTTOM CURRENT_SP(__g_stack_bottom__);
   CU_pSuite pSuiteMANAGED_REFCOUNT = NULL;
@@ -549,7 +577,8 @@ int main() {
       (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Avail", testAVAIL)) ||
       (NULL == CU_add_test(pSuiteMANUAL_DESCENDING, "test of Freelist_descending", testFREELIST_DESCENDING))||
       (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Freelist_ascending", testFREELIST_ASCENDING))||
-      (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of Freelist_address", testFREELIST_ADDRESS))
+      (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of Freelist_address", testFREELIST_ADDRESS))||
+      (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of RemoveFromFreeList", testREMOVEFROMFREELIST))
       ) {
     CU_cleanup_registry();
     return CU_get_error();
