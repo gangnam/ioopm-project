@@ -232,19 +232,20 @@ freeMem(mem);
 freeMem(mem2);
 }
 
-/* skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan  */
+/* skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan*/
 void testFREELIST_ADDRESS() {
     Manual mem = (Manual) iMalloc(1 Kb,MANUAL + ADDRESS);
     Metafreelist flist = memToMeta((Memory)mem);
 
+    //skapar pekare till utrymmen 
     char *a = mem->alloc((Memory)mem,10);
     char *b = mem->alloc((Memory)mem,25);
     char *c = mem->alloc((Memory)mem,12);
     char *d = mem->alloc((Memory)mem,45);
     char *e = mem->alloc((Memory)mem,50);
 
-    Chunk e1 = (Chunk) (e-sizeof(chunk));
-    Freelist list = flist->first;
+    Chunk e1 = (Chunk) (e-sizeof(chunk)); //-sizeof(chunk) för att komma åt 
+    Freelist list = flist->first;         //chunkens metadata
     //kollar att freelistan har formats rätt
     CU_ASSERT(list->current == e1->next);
     CU_ASSERT(list->after == NULL);
@@ -437,9 +438,8 @@ void testSETZERO() {
     Chunk e1 = (Chunk) (e-sizeof(chunk));
     
     setZero(a1); // Sätter alla chunks markbitar till 0
-    /* Kollar så att alla markbits är satta till 0 */
-    CU_ASSERT(a1->markbit == 0);
-    CU_ASSERT(b1->markbit == 0);
+    CU_ASSERT(a1->markbit == 0); //kollar så att alla markbitar är
+    CU_ASSERT(b1->markbit == 0); //satta till 0
     CU_ASSERT(c1->markbit == 0);
     CU_ASSERT(d1->markbit == 0);
     CU_ASSERT(e1->markbit == 0);
@@ -449,19 +449,19 @@ void testSETZERO() {
 
 void testFREEOBJ() {
     Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
-    int x = (1 Kb- mgrMetaSize - sizeof(chunk));
-    char *a = mem->alloc((Memory)mem,10);
+    int x = (1 Kb- mgrMetaSize - sizeof(chunk));//1kb- en chunk-metadatastorlek 
+    char *a = mem->alloc((Memory)mem,10);       //för chunken
     mem->alloc((Memory)mem,10);
     mem->alloc((Memory)mem,10);
     mem->alloc((Memory)mem,10);
     mem->alloc((Memory)mem,10);
     Chunk a1 = (Chunk) (a-sizeof(chunk));
-    setZero(a1);
-    freeObj((Memory) mem, a1);
-    CU_ASSERT(avail((Memory)mem) == x);
-freeMem(mem);
-
+    setZero(a1); //sätter a1:s markbit till 0
+    freeObj((Memory) mem, a1); //friar a1
+    CU_ASSERT(avail((Memory)mem) == x);//kollar så att minnet som är kvar efter 
+    freeMem(mem);                      // borttagning av chunk =x                     
 }
+
 /* Skapar en minnesyta och kollar sedan att det lediga utrymmet överensstämmer efter insättning av chunks */
 void testAVAIL() {
     int c = (1 Kb- manMetaSize - sizeof(chunk));
