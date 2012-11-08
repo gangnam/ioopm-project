@@ -529,6 +529,27 @@ void testREMOVEFROMFREELIST() {
     freeMem(mem);
 }
 
+void testTYPEREADER() {
+    Manual mem = (Manual) iMalloc(1 Kb, MANUAL + DESCENDING_SIZE);
+    char *stringen ="i";
+    char *a = typeReader((Memory)mem,stringen);
+    Chunk a1 = (Chunk) (a-sizeof(chunk));
+
+    CU_ASSERT(a1->size == sizeof(int));
+
+    stringen ="3*2i";
+    a = typeReader((Memory)mem,stringen);
+    a1 = (Chunk) (a-sizeof(chunk));
+
+    CU_ASSERT(a1->size == (3*sizeof(void*)+2*sizeof(int)));
+
+    stringen ="10f20d";
+    a = typeReader((Memory)mem,stringen);
+    a1 = (Chunk) (a-sizeof(chunk));
+
+    CU_ASSERT(a1->size == (10*sizeof(float)+20*sizeof(double)));
+
+}
 int main() {
   SET_STACK_BOTTOM CURRENT_SP(__g_stack_bottom__);
   CU_pSuite pSuiteMANAGED_REFCOUNT = NULL;
@@ -583,7 +604,8 @@ int main() {
       (NULL == CU_add_test(pSuiteMANUAL_DESCENDING, "test of Freelist_descending", testFREELIST_DESCENDING))||
       (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Freelist_ascending", testFREELIST_ASCENDING))||
       (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of Freelist_address", testFREELIST_ADDRESS))||
-      (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of RemoveFromFreeList", testREMOVEFROMFREELIST))
+      (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of RemoveFromFreeList", testREMOVEFROMFREELIST))||
+      (NULL == CU_add_test(pSuiteMANUAL_DESCENDING, "test of typeReader", testTYPEREADER))
       ) {
     CU_cleanup_registry();
     return CU_get_error();
