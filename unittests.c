@@ -536,7 +536,7 @@ void testTYPEREADER() {
     Chunk a1 = (Chunk) (a-sizeof(chunk));
 
     CU_ASSERT(a1->size == sizeof(int));
-
+//
     stringen ="3*2i";
     a = typeReader((Memory)mem,stringen);
     a1 = (Chunk) (a-sizeof(chunk));
