@@ -9,6 +9,7 @@
 Chunk combine(Memory mem, Chunk original) {
 
     Chunk c = memToChunk(mem);
+    Chunk temp = c;
     Metafreelist flist = memToMeta(mem);
     Freelist list = flist->first;
 
@@ -16,10 +17,25 @@ Chunk combine(Memory mem, Chunk original) {
     int i = 0;
     Freelist prev = list;
 
+    while (c->next != NULL){
+      if(c->combined == 1){
+	c->combined = 0;}
+      else {
+	c = c->next;
+      }
+      }
+    if(c->combined == 1){
+	c->combined = 0;
+    }
+    c = temp;
     while (c->next) {
         if (c->free) {
+	  if(c != original){
+	    i++;
+	  }else{
             c->combined = 1;
             i++;
+	  }
             if (c->next->free) {
                 c->size += (c->next->size+sizeof(chunk));
                 c->next->combined = 1;
@@ -162,8 +178,8 @@ unsigned int descending_free(Memory mem, void *ptr) {
                 list = list->after;
             } else {
                 new->current = c;
-                new->after = list->after;//
-                list->after = new;
+                new->after = list;//
+                prev->after = new;
                 return  0;
             }
         }
