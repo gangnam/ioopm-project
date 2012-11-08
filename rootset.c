@@ -31,7 +31,7 @@ void *__g_stack_bottom__;
 
 int inAddressSpace(void *ptr, AddressSpace s) {
     return s->start <= (char *)ptr && (char *)ptr <= s->end;
-}
+    }
 
 void traverseStack(AddressSpace s, MarkFun mark, void *data) {
     /*
@@ -64,8 +64,8 @@ void traverseStack(AddressSpace s, MarkFun mark, void *data) {
 #endif
         if (inAddressSpace(*(void**)cursor, s)) {
             mark(cursor, data);
+            }
         }
-    }
 
     for (void *cursor = stack_top;
             __g_stack_bottom__-cursor >= sizeof(void*);
@@ -79,6 +79,6 @@ void traverseStack(AddressSpace s, MarkFun mark, void *data) {
 #endif
         if (inAddressSpace(*(void**)cursor, s)) {
             mark(cursor, data);
+            }
         }
     }
-}

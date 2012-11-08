@@ -53,7 +53,7 @@ typedef char * RawPtr;
 typedef struct {
     RawPtr start;
     RawPtr end;
-} addressspace, *AddressSpace;
+    } addressspace, *AddressSpace;
 
 
 /*

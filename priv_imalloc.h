@@ -38,20 +38,20 @@ typedef struct metafreelist {
     Freelist first; // Första elementet i freelistan
     int listType; // 1 ascending 2 descending 4 adress
     int size; // Storleken av hela heapen
-} metafreelist , *Metafreelist;
+    } metafreelist , *Metafreelist;
 
 
 typedef struct private_manual {
     void  *data;
     Manual functions;
     Metafreelist flist;
-} private_manual;
+    } private_manual;
 
 typedef struct private_managed {
     void   *data;
     Managed functions;
     Metafreelist flist;
-} private_managed;
+    } private_managed;
 
 typedef struct chunk *Chunk;
 
@@ -63,12 +63,12 @@ struct chunk {
     int refcount; // number of references to the chunk (on the heap or otherwise)
     int markbit; // 1 if there is a reference to this object on the stack
     int combined;
-} chunk;
+    } chunk;
 
 typedef struct freelist {
     Chunk current;
     Freelist after;
-} freelist;
+    } freelist;
 
 void *balloc(Memory mem, chunk_size bytes);
 

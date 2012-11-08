@@ -4,7 +4,7 @@
 #include "priv_imalloc.h"
 
 // Ifall vi har två fria chunks bredvid varandra så vill vi slå ihop de två chunksen
-// för att förhindra fragmentering i vår minnesyta. Samt att den ger tillbaka den 
+// för att förhindra fragmentering i vår minnesyta. Samt att den ger tillbaka den
 // ihopslagna chunken ifall den har slagits ihop, anars får vi tillbaka den orörda chunken.
 Chunk combine(Memory mem, Chunk original) {
 
@@ -17,25 +17,27 @@ Chunk combine(Memory mem, Chunk original) {
     int i = 0;
     Freelist prev = list;
 
-    while (c->next != NULL){
-      if(c->combined == 1){
-	c->combined = 0;}
-      else {
-	c = c->next;
-      }
-      }
-    if(c->combined == 1){
-	c->combined = 0;
-    }
+    while (c->next != NULL) {
+        if(c->combined == 1) {
+            c->combined = 0;
+            }
+        else {
+            c = c->next;
+            }
+        }
+    if(c->combined == 1) {
+        c->combined = 0;
+        }
     c = temp;
     while (c->next) {
         if (c->free) {
-	  if(c != original){
-	    i++;
-	  }else{
-            c->combined = 1;
-            i++;
-	  }
+            if(c != original) {
+                i++;
+                }
+            else {
+                c->combined = 1;
+                i++;
+                }
             if (c->next->free) {
                 c->size += (c->next->size+sizeof(chunk));
                 c->next->combined = 1;
@@ -43,54 +45,60 @@ Chunk combine(Memory mem, Chunk original) {
                 c->combined = 1;
                 i++;
                 e = c;
-            } else {
+                }
+            else {
                 c = c->next;
+                }
             }
-        } else {
+        else {
             c = c->next;
+            }
         }
-    }
 
     if (i>0) {
         if(list == NULL) {
             return e;
-        } else {
+            }
+        else {
             if (list->current->combined == 1) {
                 while(list) {
                     if (list->current->combined == 1) {
                         list->current->combined = 0;
-			free(flist->first);
+                        free(flist->first);
                         flist->first = list->after;
                         list = list->after;
-                    } else {
+                        }
+                    else {
                         break;
+                        }
+
+                    }
+                }
+            while (list) {
+                if(list->current->combined == 1) {
+                    list->current->combined = 0;
+                    free(prev->after);
+                    prev->after = list->after;
+                    list = list->after;
+                    }
+                else {
+                    prev = list;
+                    list = list->after;
                     }
 
                 }
-            }
-            while (list) {
-                if(list->current->combined == 1) {
-		  list->current->combined = 0;
-		  free(prev->after);
-		  prev->after = list->after;
-		  list = list->after;
-                } else {
-		  prev = list;
-		  list = list->after;
-                }
-
-            }
 
             return e;
+            }
         }
-    } else {
+    else {
 
-      return e;
+        return e;
+        }
+
     }
 
-}
-
-// Returnerar hur mycket plats det finns ledigt i Memory mem 
+// Returnerar hur mycket plats det finns ledigt i Memory mem
 unsigned int avail(Memory mem) {
 
     Chunk c = memToChunk(mem);
@@ -98,14 +106,14 @@ unsigned int avail(Memory mem) {
     for (; c; c = c->next) {
         if (c->free) {
             avail += c->size;
+            }
         }
-    }
     return avail;
-}
+    }
 
-// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt ascending, 
-// dvs minst först och störst sist. Den kollar även ifall ptr's chunk 
-// kan kombineras för att minska fragmentering i vår minnesyta. 
+// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt ascending,
+// dvs minst först och störst sist. Den kollar även ifall ptr's chunk
+// kan kombineras för att minska fragmentering i vår minnesyta.
 unsigned int ascending_free(Memory mem, void *ptr) {
 
     Metafreelist flist = memToMeta(mem);
@@ -120,7 +128,8 @@ unsigned int ascending_free(Memory mem, void *ptr) {
         new->current = c;
         new->after = NULL;
         flist->first = new;
-    } else {
+        }
+    else {
         Freelist prev = list;
         Freelist new = (Freelist) malloc(sizeof(freelist));
 
@@ -129,28 +138,29 @@ unsigned int ascending_free(Memory mem, void *ptr) {
             new->after = list;
             flist->first = new;
             return  0;
-        }
+            }
         while(list) {
             if (list->current->size < c->size) {
                 prev = list;
                 list = list->after;
-            } else {
+                }
+            else {
                 new->current = c;
                 new->after = list;
                 prev->after = new;
                 return 0;
+                }
             }
-        }
         new->current = c;
         new->after = NULL;
         prev->after = new;
         return 0;
-    }
+        }
     return 0;
-}
+    }
 
-// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt descending, 
-// dvs störst först och minst sist. Den kollar även ifall ptr's chunk 
+// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt descending,
+// dvs störst först och minst sist. Den kollar även ifall ptr's chunk
 // kan kombineras för att minska fragmentering i vår minnesyta.
 unsigned int descending_free(Memory mem, void *ptr) {
 
@@ -165,7 +175,8 @@ unsigned int descending_free(Memory mem, void *ptr) {
         new->current = c;
         new->after = NULL;
         flist->first = new;
-    } else {
+        }
+    else {
         Freelist prev = list;
         Freelist new = (Freelist) malloc(sizeof(freelist));
         if (list->current->size < c->size) {
@@ -173,28 +184,29 @@ unsigned int descending_free(Memory mem, void *ptr) {
             new->after = list;
             flist->first = new;
             return  0;
-        }
+            }
         while(list) {
             if (list->current->size > c->size) {
                 prev = list;
                 list = list->after;
-            } else {
+                }
+            else {
                 new->current = c;
                 new->after = list;//
                 prev->after = new;
                 return  0;
+                }
             }
-        }
         new->current = c;
         new->after = NULL;
         prev->after = new;
         return 0;
-    }
+        }
     return 0;
-}
+    }
 
-// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt adresserna, 
-// dvs chunken med lägst adress först och högst sist. Den kollar även ifall ptr's chunk 
+// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt adresserna,
+// dvs chunken med lägst adress först och högst sist. Den kollar även ifall ptr's chunk
 // kan kombineras för att minska fragmentering i vår minnesyta.
 unsigned int adress_free(Memory mem, void *ptr) {
 
@@ -210,7 +222,8 @@ unsigned int adress_free(Memory mem, void *ptr) {
         new->current = c;
         new->after = NULL;
         flist->first = new;
-    } else {
+        }
+    else {
         Freelist prev = list;
         Freelist new = (Freelist) malloc(sizeof(freelist));
 
@@ -219,25 +232,26 @@ unsigned int adress_free(Memory mem, void *ptr) {
             new->after = list;
             flist->first = new;
             return  0;
-        }
+            }
         while(list) {
             if (list->current->start < c->start) {
                 prev = list;
                 list = list->after;
-            } else {
+                }
+            else {
                 new->current = c;
                 new->after = list;
                 prev->after = new;
                 return 0;
+                }
             }
-        }
         new->current = c;
         new->after = NULL;
         prev->after = new;
         return 0;
-    }
+        }
     return 0;
-}
+    }
 
 // Länkar ur en chunk ur freelistan
 void RemoveFromFreelist(Memory mem, Chunk c) {
@@ -246,26 +260,28 @@ void RemoveFromFreelist(Memory mem, Chunk c) {
     Freelist list = flist->first;
 
     if (list->current->start == c->start) {
-      free(flist->first);
+        free(flist->first);
         flist->first = list->after;
-    } else {
+        }
+    else {
         Freelist prev = list;
         while (list) {
             if(list->current->start == c->start) {
-	      free(prev->after);
+                free(prev->after);
                 prev->after = list->after;
                 list = list->after;
-            } else {
+                }
+            else {
                 prev = list;
                 list = list->after;
+                }
             }
         }
     }
-}
 
 // Lägger in en chunk i freelistan, chunken är markerad för vilken sorering
 // den har och markeringen avgör vilken sortering den får vid insättning i freelistan.
-// Dessa är: ascending = 1, descending = 2 och  adress = 4. 
+// Dessa är: ascending = 1, descending = 2 och  adress = 4.
 void InsertFreeList(Memory mem, Chunk c) {
 
     Metafreelist flist = memToMeta(mem);
@@ -273,9 +289,11 @@ void InsertFreeList(Memory mem, Chunk c) {
     int sortType = flist->listType;
     if (sortType==1) {
         ascending_free(mem, c->start);
-    } else if (sortType==2) {
+        }
+    else if (sortType==2) {
         descending_free(mem, c->start);
-    } else if (sortType==4) {
+        }
+    else if (sortType==4) {
         adress_free(mem, c->start);
+        }
     }
-}

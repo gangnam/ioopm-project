@@ -15,66 +15,68 @@ void *typeReader(Memory mem, char *input) {
         if (isdigit(input[i])) {
             multiply *= 10;
             multiply += (input[i] - 48);
-        } else {
+            }
+        else {
             if (multiply == 0) {
                 multiply = 1;
-            }
+                }
 
             switch (input[i]) {
 
-            case '*' : {
-                size = sizeof(void*);
-                break;
-            }
-            case 'i' : {
-                size = sizeof(int);
-                break;
-            }
-            case 'l' : {
-                size = sizeof(long);
-                break;
-            }
-            case 'f' : {
-                size = sizeof(float);
-                break;
-            }
-            case 'd': {
-                size = sizeof(double);
-                break;
-            }
-            case 'c': {
-                size = sizeof(char);
-            }
-            default: {
-                size = 0;
-                break;
-            }
-            }
+                case '*' : {
+                    size = sizeof(void*);
+                    break;
+                    }
+                case 'i' : {
+                    size = sizeof(int);
+                    break;
+                    }
+                case 'l' : {
+                    size = sizeof(long);
+                    break;
+                    }
+                case 'f' : {
+                    size = sizeof(float);
+                    break;
+                    }
+                case 'd': {
+                    size = sizeof(double);
+                    break;
+                    }
+                case 'c': {
+                    size = sizeof(char);
+                    }
+                default: {
+                    size = 0;
+                    break;
+                    }
+                }
 
             result += multiply * size;
             multiply = 0;
 
-        }
+            }
         i++;
-    }
+        }
     if (multiply != 0) {
         return balloc(mem ,(unsigned int)(result + (multiply*sizeof(char))));
-    } else {
+        }
+    else {
         return balloc(mem, (unsigned int)result);
+        }
     }
-}
 /*
 Itererar över listan över samtliga objekt på heapen och sätter mark-biten till 0.
 */
 
 void setZero (Chunk c) {
     while (c) {
-        if(c->next){
-        c->markbit=0;
-        }
+        if(c->next) {
+            c->markbit=0;
+            }
         c=c->next;
+        }
     }
-}
 
 /*
 Kollar om rotpekaren i givna adressrymden pekar in i en chunk och markerar
@@ -96,16 +98,16 @@ void mf(void *ptr, void *data) {
                 while(i<=(chend-sizeof(void*))) {
                     mf(i,data);
                     i = (void*)((char*)i + 1);
-                }
+                    }
                 break;
 
+                }
             }
-        }
 
         c=c->next;
 
+        }
     }
-}
 
 /*
 Iterera över listan över samtliga objekt
@@ -117,10 +119,10 @@ void freeObj (Memory mem,Chunk c) {
         if (c->markbit==0 && c->free==0) {
             InsertFreeList(mem, c);
 
-        }
+            }
         c = c->next;
+        }
     }
-}
 
 /*
 steg 1 (setZero) : Itererar över listan över samtliga objekt på heapen och sätter mark-biten till 0.
@@ -143,7 +145,7 @@ unsigned int collectGarbage(Memory mem) {
         traverseStack(as, mf, c); // as skall vara adressspace
         free (as);
         freeObj(mem, c);
+        }
+    return 0;
     }
-    return 0; 
-}
 

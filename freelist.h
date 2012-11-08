@@ -4,18 +4,18 @@
 /* Returnerar hur mycket plats det finns ledigt i Memory mem */
 unsigned int avail(Memory mem);
 
-// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt ascending, 
-// dvs minst först och störst sist. Den kollar även ifall ptr's chunk 
+// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt ascending,
+// dvs minst först och störst sist. Den kollar även ifall ptr's chunk
 // kan kombineras för att minska fragmentering i vår minnesyta.
 unsigned int ascending_free(Memory mem, void *ptr);
 
-// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt descending, 
-// dvs störst först och minst sist. Den kollar även ifall ptr's chunk 
+// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt descending,
+// dvs störst först och minst sist. Den kollar även ifall ptr's chunk
 // kan kombineras för att minska fragmentering i vår minnesyta.
 unsigned int descending_free(Memory mem, void *ptr);
 
-// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt adresserna, 
-// dvs chunken med lägst adress först och högst sist. Den kollar även ifall ptr's chunk 
+// Lägger pekaren ptr's Chunk i Freelistan, sorterad enligt adresserna,
+// dvs chunken med lägst adress först och högst sist. Den kollar även ifall ptr's chunk
 // kan kombineras för att minska fragmentering i vår minnesyta.
 unsigned int adress_free(Memory mem, void *ptr);
 

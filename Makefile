@@ -15,11 +15,11 @@ run:
 
 # Kör testerna
 test: unittests.c
-	$(C_COMPILER) $(C_OPTIONS) unittests.c imalloc.c freelist.c priv_imalloc.h rc.c Garbage.c rootset.c -o unittests -lcunit
+	$(C_COMPILER) $(C_OPTIONS) unittests.c imalloc.c freelist.c priv_imalloc.h rc.c Ga	rbage.c rootset.c -o unittests -lcunit
 	./unittests
 # fixar all kod till kodstandarden
 beautify:
-	astyle -A2 *.c *.h
+	astyle -A6 *.c *.h
 
 fin:
 	astyle -A2 *.c *.h

@@ -9,7 +9,7 @@
 /* Kollar om c finns, om bytes rymms i c och om c är fri */
 static bool fits(Chunk c, int bytes) {
     return c && (c->size >= (bytes+sizeof(chunk)) && c->free);
-}
+    }
 /* Skapar en ny chunk som ligger på c->start + bytes plats, och sätter den som fri. Tar även bort c från free-listan. Returnerar c->start. */
 void *split(Memory mem, Chunk c, int bytes) {
 
@@ -30,7 +30,7 @@ void *split(Memory mem, Chunk c, int bytes) {
     RemoveFromFreelist(mem, c);
 
     return c->start;
-}
+    }
 /* Letar i free-listan efter en Chunk som rymmer bytes och är fri och returnerar den. Returnerar NULL om den inte hittar någon med plats. */
 Chunk getChunk(Memory mem, chunk_size bytes) {
 
@@ -40,10 +40,10 @@ Chunk getChunk(Memory mem, chunk_size bytes) {
     for(; list; list=list->after) {
         if(fits(list->current, ((int)bytes))) {
             return list->current;
+            }
         }
-    }
     return NULL;
-}
+    }
 /* Allokerar minne inuti mem av storleken bytes. returnerar en void pekare till starten av minne. Returnerar NULL om den ej rymms. */
 void *balloc(Memory mem, chunk_size bytes) {
 
@@ -51,22 +51,25 @@ void *balloc(Memory mem, chunk_size bytes) {
 
     if (c) {
         return split(mem, c, (int)bytes);
-    } else {
+        }
+    else {
         return NULL;
+        }
     }
-}
 /* Avgör vilken sorts free-funktion som skall användas beroende på flags. */
 Manipulator whatSort (int flags) {
 
     if (flags & ADDRESS) {
         return adress_free;
-    } else if (flags & DESCENDING_SIZE) {
+        }
+    else if (flags & DESCENDING_SIZE) {
         return descending_free;
-    } else {
+        }
+    else {
         return ascending_free;
-    }
+        }
     return 0;
-}
+    }
 /* Huvudfunktionen. Returnerar en virtuell heap med storleken memsiz som har olika egenskaper beroende på flags. */
 struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 
@@ -109,7 +112,8 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         man->flist = head;
 
         return (Memory) (man->functions);
-    } else if (flags <= 52) { // Managed
+        }
+    else if (flags <= 52) {   // Managed
 
         int totalSize = (int) memsiz;
         char *memory = (char*) malloc(totalSize); // Allokerar hela heapen
@@ -135,7 +139,8 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
             mgr->functions->gc.alloc = typeReader;
             mgr->functions->gc.collect = collectGarbage;
             i = flags-48;
-        } else if (flags >= 32) {
+            }
+        else if (flags >= 32) {
             mgr->functions->gc.alloc = typeReader;
             mgr->functions->gc.collect = collectGarbage;
 
@@ -143,7 +148,8 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
             mgr->functions->rc.release = NULL;
             mgr->functions->rc.count = NULL;
             i = flags-32;
-        } else {
+            }
+        else {
             mgr->functions->rc.retain = increaseReferenceCounter;
             mgr->functions->rc.release = decreaseReferenceCounter;
             mgr->functions->rc.count = returnReferenceCounter;
@@ -151,7 +157,7 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
             mgr->functions->gc.alloc = NULL;
             mgr->functions->gc.collect = NULL;
             i = flags-16;
-        }
+            }
         /* Skapar första chunken och sätter den som fri */
         Chunk temp = (Chunk) (memory+mgrMetaSize);
         temp->start = (memory+mgrMetaSize+sizeof(chunk));
@@ -173,7 +179,8 @@ struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
         mgr->flist = head;
 
         return (Memory) (mgr->functions);
-    } else {
+        }
+    else {
         return NULL;
+        }
     }
-}

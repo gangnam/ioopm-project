@@ -11,29 +11,29 @@
 
 int init_suite_manual(void) {
     return 0;
-}
+    }
 
 int clean_suite_manual(void) {
     return 0;
-}
+    }
 
 int init_suite_ref(void) {
     return 0;
-}
+    }
 
 int clean_suite_ref(void) {
     return 0;
-}
+    }
 
 int init_suite_gc(void) {
     return 0;
-}
+    }
 
 int clean_suite_gc(void) {
     return 0;
-}
- /* Skapar minne, med ascending sortering.  */
- /* Skapar en chunk och kollar att den pekar på rätta värden */
+    }
+/* Skapar minne, med ascending sortering.  */
+/* Skapar en chunk och kollar att den pekar på rätta värden */
 void testMANUAL_ASCENDING(void) {
     Manual mem = (Manual) iMalloc(1 Mb, MANUAL + ASCENDING_SIZE);
     CU_ASSERT(mem->free == ascending_free);
@@ -47,9 +47,9 @@ void testMANUAL_ASCENDING(void) {
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((char*)c+sizeof(chunk)));
     freeMem(mem);
-}
- /* Skapar minne, med adress sortering.  */
- /* Skapar en chunk och kollar att den pekar på rätta värden */
+    }
+/* Skapar minne, med adress sortering.  */
+/* Skapar en chunk och kollar att den pekar på rätta värden */
 void testMANUAL_ADDRESS() {
     Manual mem = (Manual) iMalloc(1 Mb, MANUAL + ADDRESS);
     CU_ASSERT(mem->free == adress_free);
@@ -63,11 +63,11 @@ void testMANUAL_ADDRESS() {
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((char*)c+sizeof(chunk)));
     freeMem(mem);
-}
+    }
 
 
- /* Skapar minne, med descending sortering.  */
- /* Skapar en chunk och kollar att den pekar på rätta värden */
+/* Skapar minne, med descending sortering.  */
+/* Skapar en chunk och kollar att den pekar på rätta värden */
 void testMANUAL_DESCENDING() {
     Manual mem = (Manual) iMalloc(1 Mb, MANUAL + DESCENDING_SIZE);
     CU_ASSERT(mem->free == descending_free);
@@ -81,7 +81,7 @@ void testMANUAL_DESCENDING() {
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((char*)c+sizeof(chunk)));
     freeMem(mem);
-}
+    }
 
 /* skapar minne med descening sortering och en chunk, samt kollar att pekarna för refcount pekar rätt */
 void testGC_REFCOUNT_DESCENDING() {
@@ -99,8 +99,8 @@ void testGC_REFCOUNT_DESCENDING() {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((char*)c+sizeof(chunk)));
-freeMem(mem);
-}
+    freeMem(mem);
+    }
 
 void testCOLLECTGARBAGE() {
     //kan användas som både ett träd och en lista.
@@ -110,7 +110,7 @@ void testCOLLECTGARBAGE() {
         Tree l;
         Tree r;
 
-    } tree;
+        } tree;
 
 // test för att testa GC med 2 "list" noder som båda är pekade på(ingen ska free:as)
     Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE); // skapa minnet
@@ -195,26 +195,26 @@ void testCOLLECTGARBAGE() {
     CU_ASSERT(list->first->after->current == q);
     CU_ASSERT((ptrToChunk((void*)b))->next == q);
     CU_ASSERT(list->first->after->after == NULL);
-freeMem(mem);
-freeMem(mem2);
-freeMem(mem3);
-}
+    freeMem(mem);
+    freeMem(mem2);
+    freeMem(mem3);
+    }
 /* Testar balloc på managed och manual */
 void testBALLOC() {
     Managed mem = (Managed) iMalloc(1 Kb, REFCOUNT + DESCENDING_SIZE);
-/* Allokerar 5 utrymmen */
+    /* Allokerar 5 utrymmen */
     char *a = mem->alloc((Memory)mem,10);
     char *b = mem->alloc((Memory)mem,25);
     char *c = mem->alloc((Memory)mem,12);
     char *d = mem->alloc((Memory)mem,12);
     char *e = mem->alloc((Memory)mem,12);
-/* Backar dem till chunks */
+    /* Backar dem till chunks */
     Chunk a1 = (Chunk) (a-sizeof(chunk));
     Chunk b1 = (Chunk) (b-sizeof(chunk));
     Chunk c1 = (Chunk) (c-sizeof(chunk));
     Chunk d1 = (Chunk) (d-sizeof(chunk));
     Chunk e1 = (Chunk) (e-sizeof(chunk));
-/* Kollar så att dom ligger i rätt ordning */
+    /* Kollar så att dom ligger i rätt ordning */
     CU_ASSERT(a1->next == b1);
     CU_ASSERT(b1->next == c1);
     CU_ASSERT(c1->next == d1);
@@ -228,23 +228,23 @@ void testBALLOC() {
     /* Returnar NULL ifall minnet är fullt */
     CU_ASSERT(b == NULL);
 
-freeMem(mem);
-freeMem(mem2);
-}
+    freeMem(mem);
+    freeMem(mem2);
+    }
 
 /* skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan*/
 void testFREELIST_ADDRESS() {
     Manual mem = (Manual) iMalloc(1 Kb,MANUAL + ADDRESS);
     Metafreelist flist = memToMeta((Memory)mem);
 
-    //skapar pekare till utrymmen 
+    //skapar pekare till utrymmen
     char *a = mem->alloc((Memory)mem,10);
     char *b = mem->alloc((Memory)mem,25);
     char *c = mem->alloc((Memory)mem,12);
     char *d = mem->alloc((Memory)mem,45);
     char *e = mem->alloc((Memory)mem,50);
 
-    Chunk e1 = (Chunk) (e-sizeof(chunk)); //-sizeof(chunk) för att komma åt 
+    Chunk e1 = (Chunk) (e-sizeof(chunk)); //-sizeof(chunk) för att komma åt
     Freelist list = flist->first;         //chunkens metadata
     //kollar att freelistan har formats rätt
     CU_ASSERT(list->current == e1->next);
@@ -257,7 +257,7 @@ void testFREELIST_ADDRESS() {
 
     mem->free((Memory) mem, d);
     list = flist->first;
-    //kollar att den pekar rätt efter borttagning av d, 
+    //kollar att den pekar rätt efter borttagning av d,
     //samt kollar att combine fungerat
     CU_ASSERT(list->current->start == c);
     CU_ASSERT(list->current->size == 12+45+sizeof(chunk));
@@ -273,14 +273,14 @@ void testFREELIST_ADDRESS() {
     mem->free((Memory) mem, e);
 
     list = flist->first;
-    //kollar att freelistan är rätt samt hanterar 
+    //kollar att freelistan är rätt samt hanterar
     //combine och gränsfallet när allt är fritt
     CU_ASSERT(list->current->start == a);
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
-freeMem(mem);
-}
+    freeMem(mem);
+    }
 
 /* skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan */
 void testFREELIST_ASCENDING() {
@@ -303,18 +303,18 @@ void testFREELIST_ASCENDING() {
     list = flist->first;
     //kollar att freelistan är rätt efter borttagnig av c
     CU_ASSERT(list->current->start == c);
-    
+
 
     mem->free((Memory) mem, d);
     list = flist->first;
-    //kollar att den pekar rätt efter borttagning av d, 
+    //kollar att den pekar rätt efter borttagning av d,
     //samt kollar att combine fungerat
     CU_ASSERT(list->current->start == c);
     CU_ASSERT(list->current->size == 12+45+sizeof(chunk));
     CU_ASSERT(list->current->next->start == e);
     Chunk c1 = (Chunk) (c-sizeof(chunk));
 
-    //kollar att adresserna är sorterade i rätt ordning 
+    //kollar att adresserna är sorterade i rätt ordning
     CU_ASSERT(c < d && d < ((char*)c1->start + c1->size));
 
     CU_ASSERT(c < d && d < ((char*)c1->start + c1->size));
@@ -325,14 +325,14 @@ void testFREELIST_ASCENDING() {
     mem->free((Memory) mem, e);
 
     list = flist->first;
-    //kollar att freelistan är rätt samt hanterar 
-    //combine och gränsfallet när allt är fritt 
+    //kollar att freelistan är rätt samt hanterar
+    //combine och gränsfallet när allt är fritt
     CU_ASSERT(list->current->start == a);
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
-freeMem(mem);
-}
+    freeMem(mem);
+    }
 
 /* skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan */
 void testFREELIST_DESCENDING() {
@@ -358,11 +358,11 @@ void testFREELIST_DESCENDING() {
 
     mem->free((Memory) mem, d);
     list = flist->first;
-    //kollar att den pekar rätt efter borttagning av d, 
+    //kollar att den pekar rätt efter borttagning av d,
     //samt kollar att combine fungerat
     CU_ASSERT(list->after->current->start == c);
     CU_ASSERT(list->after->current->size == 12+45+sizeof(chunk));
-    CU_ASSERT(list->after->current->next->start == e);     
+    CU_ASSERT(list->after->current->next->start == e);
     Chunk c1 = (Chunk) (c-sizeof(chunk));
 
     //kollar att adresserna är sorterade i rätt ordning
@@ -376,19 +376,19 @@ void testFREELIST_DESCENDING() {
     mem->free((Memory) mem, e);
 
     list = flist->first;
-    //kollar att freelistan är rätt samt hanterar 
+    //kollar att freelistan är rätt samt hanterar
     //combine och gränsfallet när allt är fritt
     CU_ASSERT(list->current->start == a);
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
     freeMem(mem);
-}
+    }
 /* Testar refcount */
 void testREFCOUNT() {
     Managed mem = (Managed) iMalloc(1 Mb, REFCOUNT + DESCENDING_SIZE);
     Metafreelist flist = memToMeta((Memory) mem);
-/* Allokerar utrymme till a och tar ut a's chunk */
+    /* Allokerar utrymme till a och tar ut a's chunk */
     char *a = mem->alloc((Memory)mem,10);
     Chunk a1 = (Chunk) (a-sizeof(chunk));
     Freelist list = flist->first;
@@ -408,14 +408,14 @@ void testREFCOUNT() {
 
     CU_ASSERT(list->current == a1); // Kollar så att a har blivit friad och kombinerad med den andra chunken
     CU_ASSERT(a1->next == NULL);
-freeMem(mem);
-}
+    freeMem(mem);
+    }
 
 
 void testSETZERO() {
     Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
 
-    
+
     /* Skapar pekare till minnesytor */
     char *a = mem->alloc((Memory)mem,10);
     char *b = mem->alloc((Memory)mem,25);
@@ -436,7 +436,7 @@ void testSETZERO() {
     Chunk c1 = (Chunk) (c-sizeof(chunk));
     Chunk d1 = (Chunk) (d-sizeof(chunk));
     Chunk e1 = (Chunk) (e-sizeof(chunk));
-    
+
     setZero(a1); // Sätter alla chunks markbitar till 0
     CU_ASSERT(a1->markbit == 0); //kollar så att alla markbitar är
     CU_ASSERT(b1->markbit == 0); //satta till 0
@@ -445,11 +445,11 @@ void testSETZERO() {
     CU_ASSERT(e1->markbit == 0);
     freeMem(mem);
 
-}
+    }
 
 void testFREEOBJ() {
     Managed mem = (Managed) iMalloc(1 Kb, GCD + DESCENDING_SIZE);
-    int x = (1 Kb- mgrMetaSize - sizeof(chunk));//1kb- en chunk-metadatastorlek 
+    int x = (1 Kb- mgrMetaSize - sizeof(chunk));//1kb- en chunk-metadatastorlek
     char *a = mem->alloc((Memory)mem,10);       //för chunken
     mem->alloc((Memory)mem,10);
     mem->alloc((Memory)mem,10);
@@ -458,9 +458,9 @@ void testFREEOBJ() {
     Chunk a1 = (Chunk) (a-sizeof(chunk));
     setZero(a1); //sätter a1:s markbit till 0
     freeObj((Memory) mem, a1); //friar a1
-    CU_ASSERT(avail((Memory)mem) == x);//kollar så att minnet som är kvar efter 
-    freeMem(mem);                      // borttagning av chunk =x                     
-}
+    CU_ASSERT(avail((Memory)mem) == x);//kollar så att minnet som är kvar efter
+    freeMem(mem);                      // borttagning av chunk =x
+    }
 
 /* Skapar en minnesyta och kollar sedan att det lediga utrymmet överensstämmer efter insättning av chunks */
 void testAVAIL() {
@@ -493,8 +493,8 @@ void testAVAIL() {
     mem->free((Memory) mem, f);
     mem->free((Memory) mem, g);
     CU_ASSERT(mem->avail((Memory) mem) == c);
-freeMem(mem);
-}
+    freeMem(mem);
+    }
 /* Kollar om RemoveFromFreelist länkar ur korrekt */
 void testREMOVEFROMFREELIST() {
     Manual mem = (Manual) iMalloc(1 Kb, MANUAL + DESCENDING_SIZE);
@@ -513,13 +513,13 @@ void testREMOVEFROMFREELIST() {
     CU_ASSERT(list->current == d1->next); // Kollar om den första chunken i free-listan ligger efter d1
 
     mem->free((Memory)mem, c);
-    
+
     CU_ASSERT(list->after->after->current == a1); // Kollar om a1 har flyttats till bak ett steg i free-listan
     CU_ASSERT(list->after->current == c1); // Kollar om c1 ligger mellan den som låg efter d1 och före a1
     CU_ASSERT(list->current == d1->next); // Kollar om den som låg efter d1 är fortfarande först
 
     //ta bort ett element och kolla om det är borta ur listan
-    RemoveFromFreelist((Memory)mem, c1); 
+    RemoveFromFreelist((Memory)mem, c1);
     CU_ASSERT(list->after->current == a1);
     CU_ASSERT(list->after->after == NULL);
     CU_ASSERT(list->current == d1->next);
@@ -527,7 +527,7 @@ void testREMOVEFROMFREELIST() {
     //ta bort a1 från frilistan och kolla om endast rest chunken ligger kvar.
     RemoveFromFreelist((Memory)mem, c1);
     freeMem(mem);
-}
+    }
 /* Test av typeReader */
 void testTYPEREADER() {
     Manual mem = (Manual) iMalloc(1 Kb, MANUAL + DESCENDING_SIZE);
@@ -551,97 +551,97 @@ void testTYPEREADER() {
     a = typeReader((Memory)mem,stringen);
     a1 = (Chunk) (a-sizeof(chunk));
     CU_ASSERT(a1->size == 0);
-}
+    }
 int main() {
-  SET_STACK_BOTTOM CURRENT_SP(__g_stack_bottom__);
-  CU_pSuite pSuiteMANAGED_REFCOUNT = NULL;
-  CU_pSuite pSuiteMANAGED_GC = NULL;
-  CU_pSuite pSuiteMANAGED_GC_REFCOUNT = NULL;
+    SET_STACK_BOTTOM CURRENT_SP(__g_stack_bottom__);
+    CU_pSuite pSuiteMANAGED_REFCOUNT = NULL;
+    CU_pSuite pSuiteMANAGED_GC = NULL;
+    CU_pSuite pSuiteMANAGED_GC_REFCOUNT = NULL;
 
-  CU_pSuite pSuiteMANUAL_ADDRESS = NULL;
-  CU_pSuite pSuiteMANUAL_ASCENDING = NULL;
-  CU_pSuite pSuiteMANUAL_DESCENDING = NULL;
- 
-    
-     
-  if (CUE_SUCCESS != CU_initialize_registry())
-    return CU_get_error();
+    CU_pSuite pSuiteMANUAL_ADDRESS = NULL;
+    CU_pSuite pSuiteMANUAL_ASCENDING = NULL;
+    CU_pSuite pSuiteMANUAL_DESCENDING = NULL;
 
-  pSuiteMANAGED_REFCOUNT = CU_add_suite("REFCOUNT", init_suite_manual, clean_suite_manual);
-  if (NULL == pSuiteMANAGED_REFCOUNT) {
-    CU_cleanup_registry();
-    return CU_get_error();
-  }
-  pSuiteMANAGED_GC = CU_add_suite("GC", init_suite_manual, clean_suite_manual);
-  if (NULL == pSuiteMANAGED_GC) {
-    CU_cleanup_registry();
-    return CU_get_error();
-  }
-  pSuiteMANAGED_GC_REFCOUNT = CU_add_suite("GC + REFCOUNT", init_suite_manual, clean_suite_manual);
-  if (NULL == pSuiteMANAGED_GC_REFCOUNT) {
-    CU_cleanup_registry();
-    return CU_get_error();
-  }
-  pSuiteMANUAL_ADDRESS = CU_add_suite("MANUAL + ADDRESS", init_suite_ref, clean_suite_ref);
-  if (NULL == pSuiteMANUAL_ADDRESS) {
-    CU_cleanup_registry();
-    return CU_get_error();
-  }
-  pSuiteMANUAL_ASCENDING = CU_add_suite("MANUAL + ASCENDING_SIZE", init_suite_gc, clean_suite_gc);
-  if (NULL == pSuiteMANUAL_ASCENDING) {
-    CU_cleanup_registry();
-    return CU_get_error();
-  }
-  pSuiteMANUAL_DESCENDING = CU_add_suite("MANUAL + DESCENDING", init_suite_gc, clean_suite_gc);
-  if (NULL == pSuiteMANUAL_DESCENDING) {
-    CU_cleanup_registry();
-    return CU_get_error();
-  }
-  if (
-      //TEST FÖR MANUAL (FREELIST)
-      (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Manual_ascending", testMANUAL_ASCENDING)) ||
-      (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of Manual_address", testMANUAL_ADDRESS))||
-      (NULL == CU_add_test(pSuiteMANUAL_DESCENDING, "test of Manual_descening", testMANUAL_DESCENDING)) ||
-      (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Avail", testAVAIL)) ||
-      (NULL == CU_add_test(pSuiteMANUAL_DESCENDING, "test of Freelist_descending", testFREELIST_DESCENDING))||
-      (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Freelist_ascending", testFREELIST_ASCENDING))||
-      (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of Freelist_address", testFREELIST_ADDRESS))||
-      (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of RemoveFromFreeList", testREMOVEFROMFREELIST))||
-      (NULL == CU_add_test(pSuiteMANUAL_DESCENDING, "test of typeReader", testTYPEREADER))
-      ) {
-    CU_cleanup_registry();
-    return CU_get_error();
-  }
-  if (
-      //TEST FÖR MANAGED GC
-      (NULL == CU_add_test(pSuiteMANAGED_GC, "test of setZero", testSETZERO))||
-      (NULL == CU_add_test(pSuiteMANAGED_GC, "test of freeObject", testFREEOBJ)) ||
-      (NULL == CU_add_test(pSuiteMANAGED_GC, "test of collectGarbage", testCOLLECTGARBAGE)) 
-      ) {
-    CU_cleanup_registry();
-    return CU_get_error();
-  }
 
-  if (
-      //TEST FÖR MANAGED REFCOUNT
-      (NULL == CU_add_test(pSuiteMANAGED_REFCOUNT, "test of Balloc", testBALLOC)) ||
-      (NULL == CU_add_test(pSuiteMANAGED_REFCOUNT, "test of Refcount", testREFCOUNT))
-      ) {
+
+    if (CUE_SUCCESS != CU_initialize_registry())
+        return CU_get_error();
+
+    pSuiteMANAGED_REFCOUNT = CU_add_suite("REFCOUNT", init_suite_manual, clean_suite_manual);
+    if (NULL == pSuiteMANAGED_REFCOUNT) {
+        CU_cleanup_registry();
+        return CU_get_error();
+        }
+    pSuiteMANAGED_GC = CU_add_suite("GC", init_suite_manual, clean_suite_manual);
+    if (NULL == pSuiteMANAGED_GC) {
+        CU_cleanup_registry();
+        return CU_get_error();
+        }
+    pSuiteMANAGED_GC_REFCOUNT = CU_add_suite("GC + REFCOUNT", init_suite_manual, clean_suite_manual);
+    if (NULL == pSuiteMANAGED_GC_REFCOUNT) {
+        CU_cleanup_registry();
+        return CU_get_error();
+        }
+    pSuiteMANUAL_ADDRESS = CU_add_suite("MANUAL + ADDRESS", init_suite_ref, clean_suite_ref);
+    if (NULL == pSuiteMANUAL_ADDRESS) {
+        CU_cleanup_registry();
+        return CU_get_error();
+        }
+    pSuiteMANUAL_ASCENDING = CU_add_suite("MANUAL + ASCENDING_SIZE", init_suite_gc, clean_suite_gc);
+    if (NULL == pSuiteMANUAL_ASCENDING) {
+        CU_cleanup_registry();
+        return CU_get_error();
+        }
+    pSuiteMANUAL_DESCENDING = CU_add_suite("MANUAL + DESCENDING", init_suite_gc, clean_suite_gc);
+    if (NULL == pSuiteMANUAL_DESCENDING) {
+        CU_cleanup_registry();
+        return CU_get_error();
+        }
+    if (
+        //TEST FÖR MANUAL (FREELIST)
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Manual_ascending", testMANUAL_ASCENDING)) ||
+        (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of Manual_address", testMANUAL_ADDRESS))||
+        (NULL == CU_add_test(pSuiteMANUAL_DESCENDING, "test of Manual_descening", testMANUAL_DESCENDING)) ||
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Avail", testAVAIL)) ||
+        (NULL == CU_add_test(pSuiteMANUAL_DESCENDING, "test of Freelist_descending", testFREELIST_DESCENDING))||
+        (NULL == CU_add_test(pSuiteMANUAL_ASCENDING, "test of Freelist_ascending", testFREELIST_ASCENDING))||
+        (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of Freelist_address", testFREELIST_ADDRESS))||
+        (NULL == CU_add_test(pSuiteMANUAL_ADDRESS, "test of RemoveFromFreeList", testREMOVEFROMFREELIST))||
+        (NULL == CU_add_test(pSuiteMANUAL_DESCENDING, "test of typeReader", testTYPEREADER))
+    ) {
+        CU_cleanup_registry();
+        return CU_get_error();
+        }
+    if (
+        //TEST FÖR MANAGED GC
+        (NULL == CU_add_test(pSuiteMANAGED_GC, "test of setZero", testSETZERO))||
+        (NULL == CU_add_test(pSuiteMANAGED_GC, "test of freeObject", testFREEOBJ)) ||
+        (NULL == CU_add_test(pSuiteMANAGED_GC, "test of collectGarbage", testCOLLECTGARBAGE))
+    ) {
+        CU_cleanup_registry();
+        return CU_get_error();
+        }
+
+    if (
+        //TEST FÖR MANAGED REFCOUNT
+        (NULL == CU_add_test(pSuiteMANAGED_REFCOUNT, "test of Balloc", testBALLOC)) ||
+        (NULL == CU_add_test(pSuiteMANAGED_REFCOUNT, "test of Refcount", testREFCOUNT))
+    ) {
+        CU_cleanup_registry();
+        return CU_get_error();
+        }
+
+    if (
+        //TEST FÖR MANAGED GC + REFCOUNT
+        (NULL == CU_add_test(pSuiteMANAGED_GC_REFCOUNT, "test of GC+REF", testGC_REFCOUNT_DESCENDING))
+    ) {
+        CU_cleanup_registry();
+        return CU_get_error();
+        }
+
+    CU_basic_set_mode(CU_BRM_VERBOSE);
+    CU_basic_run_tests();
     CU_cleanup_registry();
     return CU_get_error();
-  }
-
-  if (
-      //TEST FÖR MANAGED GC + REFCOUNT 
-      (NULL == CU_add_test(pSuiteMANAGED_GC_REFCOUNT, "test of GC+REF", testGC_REFCOUNT_DESCENDING))
-      ) {
-    CU_cleanup_registry();
-    return CU_get_error();
-  }
-
-  CU_basic_set_mode(CU_BRM_VERBOSE);
-  CU_basic_run_tests();
-  CU_cleanup_registry();
-  return CU_get_error();
-}
+    }
 

@@ -55,34 +55,34 @@ typedef unsigned int(*Local)(void *ptr);
 typedef struct {
     TypedAllocator alloc;
     Global         collect;
-} GC;
+    } GC;
 
 /* Functions for reference counting memory manager */
 typedef struct {
     Local       retain;
     Manipulator release;
     Local       count;
-} Refcount;
+    } Refcount;
 
 /* Functions for the manual memory manager */
 typedef struct {
     RawAllocator alloc;
     Global       avail;
     Manipulator  free;
-} manual, *Manual;
+    } manual, *Manual;
 
 /* Functions for the manual memory manager */
 typedef struct {
     RawAllocator alloc;
     Refcount     rc;
     GC           gc;
-} managed, *Managed;
+    } managed, *Managed;
 
 /* Return type specification for iMalloc */
 typedef union {
     manual  manual;
     managed managed;
-} style;
+    } style;
 
 //////////////////// Public Functions ////////////////////
 
