@@ -5,10 +5,9 @@
 #include "rootset.h"
 #include "freelist.h"
 
-/*
-"TypedAllocator" om man skickar in T.ex. "***i\0" innebär 3 void pekare
-samt 1 int = 3*sizeof(void*) + sizeof(int)
-*/
+/* TypedAllocator läser in strängar och översätter dem till bytes. t.ex.  "***i\0" innebär 3 void pekare samt en int.
+Det går även att skriva t.ex. "5d\0" vilket innebär 5*sizeof(double).
+d = double, i = int, c = char, f = float, l = long, * = void*. */
 void *typeReader(Memory mem, char *input) {
     int multiply = 0, i = 0, size;
     unsigned int result = 0;
@@ -141,7 +140,7 @@ unsigned int collectGarbage(Memory mem) {
         as->start = (RawPtr) c->start;
         as->end = (RawPtr)((char*)c + list->size);
 
-        traverseStack(as, mf, c);//as skall vara adressspace
+        traverseStack(as, mf, c); // as skall vara adressspace
         free (as);
         freeObj(mem, c);
     }
