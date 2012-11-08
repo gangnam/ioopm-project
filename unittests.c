@@ -159,8 +159,8 @@ void testCOLLECTGARBAGE() {
     //kolla så att det finns 2 element i
     //free listan(rest chunken och en chunk som är sizeof(tree))
     CU_ASSERT(list->first->current == x);
-    //    CU_ASSERT(list->first->after->current->size == sizeof(tree));
-    // CU_ASSERT(list->first->after->after == NULL);
+    CU_ASSERT(list->first->after->current->size == sizeof(tree));
+    CU_ASSERT(list->first->after->after == NULL);
 //-------------------------------------------------------------
 //      Test för att testa GC för en trädstruktur
 //      där vi vill ta bort en nod mitt i trädet
