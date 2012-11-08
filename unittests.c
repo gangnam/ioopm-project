@@ -518,6 +518,14 @@ void testREMOVEFROMFREELIST() {
     CU_ASSERT(list->after->current == c1); // Kollar om c1 ligger mellan den som låg efter d1 och före a1
     CU_ASSERT(list->current == d1->next); // Kollar om den som låg efter d1 är fortfarande först
 
+    //ta bort ett element och kolla om det är borta ur listan
+    RemoveFromFreelist((Memory)mem, c1); 
+    CU_ASSERT(list->after->current == a1);
+    CU_ASSERT(list->after->after == NULL);
+    CU_ASSERT(list->current == d1->next);
+
+    //ta bort a1 från frilistan och kolla om endast rest chunken ligger kvar.
+    RemoveFromFreelist((Memory)mem, c1);
     freeMem(mem);
 }
 

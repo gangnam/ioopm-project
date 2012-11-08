@@ -251,6 +251,7 @@ void RemoveFromFreelist(Memory mem, Chunk c) {
             if(list->current->start == c->start) {
 	      free(prev->after);
                 prev->after = list->after;
+                list = list->after;
             } else {
                 prev = list;
                 list = list->after;

@@ -145,6 +145,6 @@ unsigned int collectGarbage(Memory mem) {
         free (as);
         freeObj(mem, c);
     }
-    return 0; // konstig
+    return 0; 
 }
 
