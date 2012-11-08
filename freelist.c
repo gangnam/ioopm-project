@@ -70,13 +70,13 @@ Chunk combine(Memory mem, Chunk original) {
             }
             while (list) {
                 if(list->current->combined == 1) {
-                    list->current->combined = 0;
-		    free(prev->after);
-                    prev->after = list->after;
-                    list = list->after;
+		  list->current->combined = 0;
+		  free(prev->after);
+		  prev->after = list->after;
+		  list = list->after;
                 } else {
-                    prev = list;
-                    list = list->after;
+		  prev = list;
+		  list = list->after;
                 }
 
             }
@@ -114,6 +114,7 @@ unsigned int ascending_free(Memory mem, void *ptr) {
 
     c->free = 1;
     c = combine(mem, c);
+    list = flist->first;
     if(flist->first == NULL) {
         Freelist new = (Freelist) malloc(sizeof(freelist));
         new->current = c;
@@ -125,7 +126,7 @@ unsigned int ascending_free(Memory mem, void *ptr) {
 
         if (list->current->size > c->size) {
             new->current = c;
-            new->after = list->after;
+            new->after = list;
             flist->first = new;
             return  0;
         }
@@ -135,8 +136,8 @@ unsigned int ascending_free(Memory mem, void *ptr) {
                 list = list->after;
             } else {
                 new->current = c;
-                new->after = list->after;
-                list->after = new;
+                new->after = list;
+                prev->after = new;
                 return 0;
             }
         }
@@ -158,6 +159,7 @@ unsigned int descending_free(Memory mem, void *ptr) {
     Chunk c = ptrToChunk(ptr);
     c->free = 1;
     c = combine(mem, c);
+    list = flist->first;
     if(flist->first == NULL) {
         Freelist new = (Freelist) malloc(sizeof(freelist));
         new->current = c;
@@ -168,7 +170,7 @@ unsigned int descending_free(Memory mem, void *ptr) {
         Freelist new = (Freelist) malloc(sizeof(freelist));
         if (list->current->size < c->size) {
             new->current = c;
-            new->after = list->after;//
+            new->after = list;
             flist->first = new;
             return  0;
         }
@@ -202,6 +204,7 @@ unsigned int adress_free(Memory mem, void *ptr) {
 
     c->free = 1;
     c = combine(mem, c);
+    list = flist->first;
     if(flist->first == NULL) {
         Freelist new = (Freelist) malloc(sizeof(freelist));
         new->current = c;
@@ -213,7 +216,7 @@ unsigned int adress_free(Memory mem, void *ptr) {
 
         if (list->current->start > c->start) {
             new->current = c;
-            new->after = list->after;
+            new->after = list;
             flist->first = new;
             return  0;
         }
@@ -223,8 +226,8 @@ unsigned int adress_free(Memory mem, void *ptr) {
                 list = list->after;
             } else {
                 new->current = c;
-                new->after = list->after;
-                list->after = new;
+                new->after = list;
+                prev->after = new;
                 return 0;
             }
         }
