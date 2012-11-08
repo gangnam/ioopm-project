@@ -70,7 +70,9 @@ Itererar över listan över samtliga objekt på heapen och sätter mark-biten ti
 
 void setZero (Chunk c) {
     while (c) {
+        if(c->next){
         c->markbit=0;
+        }
         c=c->next;
     }
 }
