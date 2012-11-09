@@ -20,6 +20,3 @@ test: unittests.c
 # fixar all kod till kodstandarden
 beautify:
 	astyle -A6 *.c *.h
-
-fin:
-	astyle -A2 *.c *.h
