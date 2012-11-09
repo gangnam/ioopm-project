@@ -205,7 +205,7 @@ unsigned int descending_free(Memory mem, void *ptr) {
                 }
             else {
                 new->current = c;
-                new->after = list;//
+                new->after = list;
                 prev->after = new;
                 return  0;
                 }

@@ -71,10 +71,8 @@ Itererar över listan över samtliga objekt på heapen och sätter mark-biten ti
 
 void setZero (Chunk c) {
     while (c) {
-        if(c->next) {
-            c->markbit=0;
-            }
-        c=c->next;
+      c->markbit=0;
+      c=c->next;
         }
     }
 
@@ -142,7 +140,7 @@ unsigned int collectGarbage(Memory mem) {
         as->start = (RawPtr) c->start;
         as->end = (RawPtr)((char*)c + list->size);
 
-        traverseStack(as, mf, c); // as skall vara adressspace
+        traverseStack(as, mf, c); 
         free (as);
         freeObj(mem, c);
         }
