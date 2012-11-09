@@ -70,6 +70,7 @@ Manipulator whatSort (int flags) {
         }
     return 0;
     }
+
 /* Huvudfunktionen. Returnerar en virtuell heap med storleken memsiz som har olika egenskaper beroende på flags. */
 struct style *iMalloc(unsigned int memsiz, unsigned int flags) {
 

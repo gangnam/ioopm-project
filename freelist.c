@@ -3,6 +3,19 @@
 #include <stdlib.h>
 #include "priv_imalloc.h"
 
+// frigör hela minnet samt freelistan utan minnesläckage
+void ifree(Memory mem) {
+    Metafreelist flist = memToMeta(mem);
+    Freelist list = flist->first;
+    while(list){
+        Freelist temp = list;
+        list = list->after;
+        free(temp);
+    }
+    free(flist);
+    free((char*) mem-(sizeof(void*)*3));
+}
+
 // Ifall vi har två fria chunks bredvid varandra så vill vi slå ihop de två chunksen
 // för att förhindra fragmentering i vår minnesyta. Samt att den ger tillbaka den
 // ihopslagna chunken ifall den har slagits ihop, anars får vi tillbaka den orörda chunken.

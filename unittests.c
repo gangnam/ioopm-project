@@ -46,7 +46,7 @@ void testMANUAL_ASCENDING(void) {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((char*)c+sizeof(chunk)));
-    freeMem(mem);
+    ifree((Memory) mem);
     }
 /* Skapar minne, med adress sortering.  */
 /* Skapar en chunk och kollar att den pekar på rätta värden */
@@ -62,7 +62,7 @@ void testMANUAL_ADDRESS() {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((char*)c+sizeof(chunk)));
-    freeMem(mem);
+    ifree((Memory) mem);
     }
 
 
@@ -80,7 +80,7 @@ void testMANUAL_DESCENDING() {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((char*)c+sizeof(chunk)));
-    freeMem(mem);
+    ifree((Memory) mem);
     }
 
 /* skapar minne med descening sortering och en chunk, samt kollar att pekarna för refcount pekar rätt */
@@ -99,7 +99,7 @@ void testGC_REFCOUNT_DESCENDING() {
     CU_ASSERT(c->refcount == 1);
     CU_ASSERT(c->next == NULL);
     CU_ASSERT(c->start == ((char*)c+sizeof(chunk)));
-    freeMem(mem);
+    ifree((Memory) mem);
     }
 
 void testCOLLECTGARBAGE() {
@@ -195,9 +195,9 @@ void testCOLLECTGARBAGE() {
     CU_ASSERT(list->first->after->current == q);
     CU_ASSERT((ptrToChunk((void*)b))->next == q);
     CU_ASSERT(list->first->after->after == NULL);
-    freeMem(mem);
-    freeMem(mem2);
-    freeMem(mem3);
+    ifree((Memory) mem);
+    ifree((Memory) mem2);
+    ifree((Memory) mem3);
     }
 /* Testar balloc på managed och manual */
 void testBALLOC() {
@@ -228,8 +228,8 @@ void testBALLOC() {
     /* Returnar NULL ifall minnet är fullt */
     CU_ASSERT(b == NULL);
 
-    freeMem(mem);
-    freeMem(mem2);
+    ifree((Memory) mem);
+    ifree((Memory) mem2);
     }
 
 /* skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan*/
@@ -279,7 +279,7 @@ void testFREELIST_ADDRESS() {
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
-    freeMem(mem);
+    ifree((Memory) mem);
     }
 
 /* skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan */
@@ -331,7 +331,7 @@ void testFREELIST_ASCENDING() {
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
-    freeMem(mem);
+    ifree((Memory) mem);
     }
 
 /* skapar en minnesyta där freelist finns, vi allokerar plats för 5 chunks i minnesytan */
@@ -382,7 +382,7 @@ void testFREELIST_DESCENDING() {
     CU_ASSERT(list->current->next == NULL);
     CU_ASSERT(list->current->size == (1 Kb - manMetaSize - sizeof(chunk)));
     CU_ASSERT(list->after == NULL);
-    freeMem(mem);
+    ifree((Memory) mem);
     }
 /* Testar refcount */
 void testREFCOUNT() {
@@ -408,7 +408,7 @@ void testREFCOUNT() {
 
     CU_ASSERT(list->current == a1); // Kollar så att a har blivit friad och kombinerad med den andra chunken
     CU_ASSERT(a1->next == NULL);
-    freeMem(mem);
+    ifree((Memory) mem);
     }
 
 
@@ -443,7 +443,7 @@ void testSETZERO() {
     CU_ASSERT(c1->markbit == 0);
     CU_ASSERT(d1->markbit == 0);
     CU_ASSERT(e1->markbit == 0);
-    freeMem(mem);
+    ifree((Memory) mem);
 
     }
 
@@ -459,7 +459,7 @@ void testFREEOBJ() {
     setZero(a1); //sätter a1:s markbit till 0
     freeObj((Memory) mem, a1); //friar a1
     CU_ASSERT(avail((Memory)mem) == x);//kollar så att minnet som är kvar efter
-    freeMem(mem);                      // borttagning av chunk =x
+    ifree((Memory) mem);                      // borttagning av chunk =x
     }
 
 /* Skapar en minnesyta och kollar sedan att det lediga utrymmet överensstämmer efter insättning av chunks */
@@ -493,7 +493,7 @@ void testAVAIL() {
     mem->free((Memory) mem, f);
     mem->free((Memory) mem, g);
     CU_ASSERT(mem->avail((Memory) mem) == c);
-    freeMem(mem);
+    ifree((Memory) mem);
     }
 /* Kollar om RemoveFromFreelist länkar ur korrekt */
 void testREMOVEFROMFREELIST() {
@@ -526,7 +526,7 @@ void testREMOVEFROMFREELIST() {
 
     //ta bort a1 från frilistan och kolla om endast rest chunken ligger kvar.
     RemoveFromFreelist((Memory)mem, c1);
-    freeMem(mem);
+    ifree((Memory) mem);
     }
 /* Test av typeReader */
 void testTYPEREADER() {

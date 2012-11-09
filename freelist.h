@@ -27,4 +27,6 @@ void InsertFreeList(Memory mem, Chunk c);
 // Länkar ur en chunk ur freelistan
 void RemoveFromFreelist(Memory mem, Chunk c);
 
+void ifree(Memory mem);
+
 #endif

@@ -25,8 +25,6 @@
 #define memToChunk(mem) *((Chunk*) ((char*) mem - (sizeof(void*)*3)))
 /* Backar från allocade minnets start till dess chunk */
 #define ptrToChunk(ptr) (Chunk) ((char*)ptr-sizeof(chunk))
-/* Freear ett Manual memory */
-#define freeMem(mem) free((char*) mem-(sizeof(void*)*3))
 /* Storleken av manual's metadata */
 #define manMetaSize (sizeof(private_manual)+sizeof(manual))
 /* Storleken av managed's metadata */
@@ -70,6 +68,7 @@ typedef struct freelist {
     Freelist after;
     } freelist;
 
+// frigör hela minnet samt freelistan utan minnesläckage
 void *balloc(Memory mem, chunk_size bytes);
 
 #endif
