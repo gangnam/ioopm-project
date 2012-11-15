@@ -12,13 +12,14 @@ typedef struct tree  {
 int main() {
   SET_STACK_BOTTOM CURRENT_SP(__g_stack_bottom__);
   Manual manMem = (Manual) iMalloc(10 Kb, MANUAL + ADDRESS);
+  printf("%d\n", manMem->avail((Memory) manMem));
   char *point = manMem->alloc((Memory) manMem, sizeof(char*)*4);
   strcpy(point, "hej\0");
   printf("%s\n", point);
   char *point2 = manMem->alloc((Memory) manMem, sizeof(void*));
-  printf("%d\n", manMem->avail((Memory) manMem));
   strcpy(point2, "hejsan\0");
   printf("%s\n", point2);
+  printf("%d\n", manMem->avail((Memory) manMem));
   manMem->free((Memory) manMem, point);
   manMem->free((Memory) manMem, point2);
   printf("%d\n", manMem->avail((Memory) manMem));
