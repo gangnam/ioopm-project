@@ -1,6 +1,6 @@
 # compiler settings
 C_COMPILER   = gcc 
-C_OPTIONS    = -Wall -g -std=c99 -pedantic
+C_OPTIONS    = -Wall -g -std=c99
 
 # Clean settings
 GEN_EXTENSIONS = *.exe
@@ -20,3 +20,6 @@ test: unittests.c
 # fixar all kod till kodstandarden
 beautify:
 	astyle -A6 *.c *.h
+test1: test.c
+	 $(C_COMPILER) $(C_OPTIONS) test.c imalloc.c freelist.c priv_imalloc.h rc.c Garbage.c rootset.c -o test 
+	./test
